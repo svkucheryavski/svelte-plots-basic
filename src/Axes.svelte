@@ -49,7 +49,7 @@
 
    /** Adds margins for x-axis (e.g. when x-axis must be shown) */
    const addXAxisMargins = function() {
-      axesMargins[1] = 2;
+      axesMargins[1] = 1;
       axesMargins[3] = 0.5;
    }
 
