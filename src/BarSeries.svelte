@@ -41,7 +41,6 @@
    $: top = yValues.map(v => v > 0 ? v : 0);
    $: height = yValues.map(v => Math.abs(v));
 
-   $: console.log("bs: " + left.length + " - " + top.length)
 </script>
 
 <g class="series series_bar" title="{title}">
