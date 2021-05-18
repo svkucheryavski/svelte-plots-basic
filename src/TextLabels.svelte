@@ -3,24 +3,26 @@
    import { Colors } from './Colors';
 
    /* input parameters */
-	export let x;
-   export let y;
+	export let xValues;
+   export let yValues;
    export let labels;
    export let dx = 0;
    export let dy = 0;
-   export let textColor = Colors.PRIMARY_TEXT;
+   export let faceColor = Colors.PRIMARY_TEXT;
+   export let borderColor = "transparent";
+   export let borderWidth = 0;
    export let textSize = 1;
 
    // styles for bars and labels
-   const textStyleStr = `fill:${textColor};stroke-width:0;stroke-width: 1px;font-size:${textSize}em;`;
+   const textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`;
 
    /* sanity check for input parameters */
-   if (!Array.isArray(x) || !Array.isArray(y) || x.length !== y.length) {
-      throw("TextLabels: 'x' and 'y' must be vectors of the same length.")
+   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length !== yValues.length) {
+      throw("TextLabels: parameters 'xValues' and 'yValues' must be vectors of the same length.")
    }
 
    // multiply labels values if needed
-   const n = x.length;
+   const n = xValues.length;
    if (!Array.isArray(labels)) labels = Array(n).fill(labels);
    if (!Array.isArray(dx)) dx = Array(n).fill(dx);
    if (!Array.isArray(dy)) dy = Array(n).fill(dy);
@@ -38,13 +40,13 @@
    const axesHeight = axes.height;
 
    // reactive variables for coordinates of data points in pixels
-   $: lx = axes.scaleX(x, $xLim, $axesWidth);
-   $: ly = axes.scaleY(y, $yLim, $axesHeight);
+   $: x = axes.scaleX(xValues, $xLim, $axesWidth);
+   $: y = axes.scaleY(yValues, $yLim, $axesHeight);
 </script>
 
 {#if x !== undefined && y !== undefined}
    {#each x as v, i}
-      <text style="{textStyleStr}" x="{lx[i]}" y="{ly[i]}" dx="{dx[i]}" dy="{dy[i]}" dominant-baseline="middle" text-anchor="middle">{labels[i]}</text>
+      <text style="{textStyleStr}" x="{x[i]}" y="{y[i]}" dx="{dx[i]}" dy="{dy[i]}" dominant-baseline="middle" text-anchor="middle">{labels[i]}</text>
    {/each}
 {/if}
 
