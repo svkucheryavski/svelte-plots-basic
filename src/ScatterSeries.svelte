@@ -3,59 +3,46 @@
    import { getContext } from 'svelte';
    import { Colors } from './Colors';
    import { mrange } from './stats'
+   import TextLabels from './TextLabels.svelte';
 
    // input parameters
 	export let xValues;
    export let yValues;
-   export let marker = "●"
+   export let marker = 1
    export let title = "";
    export let labels = yValues;
    export let showLabels = "no"; // can be "no", "hover", "always"
-   export let faceColor = Colors.PRIMARY;
-   export let edgeColor = Colors.PRIMARY;
-   export let labelsColor = Colors.GRAY;
+   export let faceColor = "transparent";
+   export let borderColor = Colors.PRIMARY;
+   export let borderWidth = 1;
+   export let markerSize = 1;
 
-   // TODO: implement sanity check of input parameters
+   const markers = ["●", "◼", "▲", "▼", "⬥", "+", "*", "⨯"];
 
+   /* sanity check of input parameters */
+   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length != yValues.length) {
+      throw("ScatterSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
+   }
 
-   // styles for markers and labels
-   const markerStyleStr = `fill:${faceColor};stroke:${edgeColor}`;
-   const labelsStyleStr = `fill:${labelsColor};stroke-width:0`;
+   if (marker < 1 || marker > markers.length) {
+      throw(`ScatterSeries: parameter 'marker' must be a number from 1 to ${markers.length}."`);
+   }
 
    // compute ranges for x and y values
-   const xValuesRange = mrange(xValues, 0.10);
-   const yValuesRange = mrange(yValues, 0.10);
+   const xValuesRange = mrange(xValues, 0.05);
+   const yValuesRange = mrange(yValues, 0.05);
 
    // get axes context and adjust axes limits
    const axes = getContext('axes');
    axes.adjustXAxisLimits(xValuesRange);
    axes.adjustYAxisLimits(yValuesRange);
 
-   // get reactive variables needed to compute coordinates
-   const xLim = axes.xLim;
-   const yLim = axes.yLim;
-   const axesWidth = axes.width;
-   const axesHeight = axes.height;
-   const scale = axes.scale;
-
-   // reactive variables for coordinates of data points in pixels
-   $: yzero = axes.scaleY([0], $yLim, $axesHeight);
-   $: x = axes.scaleX(xValues, $xLim, $axesWidth);
-   $: y = axes.scaleY(yValues, $yLim, $axesHeight);
-   $: dy = -axes.LABELS_MARGIN[$scale];
-
 </script>
 
-{#if x !== undefined && y !== undefined}
-   <g class="series series_scatter" style="{markerStyleStr}" title="{title}">
-   {#each x as x, i}
-      <text class="marker" x="{x}" y="{y[i]}" dominant-baseline="middle" text-anchor="middle">{marker}</text>
-      {#if showLabels !== "no"}
-      <text style="{labelsStyleStr}" class="labels labels_{showLabels}" x="{x}" y="{y[i]}" dy="{y[i] < yzero ? dy : -dy}" dominant-baseline="middle" text-anchor="middle">{labels[i]}</text>
-      {/if}
-   {/each}
-   </g>
-{/if}
+<g class="series series_scatter" title="{title}">
+   <TextLabels xValues={xValues} yValues={yValues} labels="{markers[marker - 1]}"
+      textSize="{markerSize}" {faceColor} {borderColor} {borderWidth}></TextLabels>
+</g>
 
 <style>
    .marker{
