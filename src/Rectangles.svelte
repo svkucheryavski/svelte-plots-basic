@@ -2,24 +2,24 @@
    import { getContext } from 'svelte';
    import { Colors } from './Colors';
 
-   // input parameters
+   /* input parameters */
 	export let left;
    export let top;
    export let width;
    export let height;
    export let labels = undefined;
    export let faceColor = Colors.PRIMARY;
-   export let edgeColor = faceColor;
+   export let borderColor = faceColor;
 
    // styles for bars and labels
-   const barsStyleStr = `fill:${faceColor};stroke:${edgeColor};stroke-width: 1px;`;
+   const barsStyleStr = `fill:${faceColor};stroke:${borderColor};stroke-width: 1px;`;
 
    // multiply width and height values if needed
    const n = left.length;
    if (!Array.isArray(height)) height = Array(n).fill(height);
    if (!Array.isArray(width)) width = Array(n).fill(width);
 
-   // sanity check
+   /* sanity check for input parameters */
    if (top.length !== n || width.length !== n || height.length !== n) {
       throw("Rectangles: x, y, w and h should have the same length (w and h can be single values).")
    }
