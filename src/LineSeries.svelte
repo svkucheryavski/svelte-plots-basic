@@ -7,20 +7,20 @@
    // input parameters
 	export let xValues;
    export let yValues;
-   export let lineWidth = 1;
-   export let lineStyle = "-"; // can be "--", ":", "-."
-   export let lineColor = Colors.PRIMARY;
    export let title = "";
+   export let lineWidth = 1;
+   export let lineColor = Colors.PRIMARY;
+   export let lineType = 1;
 
-   // TODO: implement sanity check of input parameters
+   /* sanity check of input parameters */
+   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length != yValues.length) {
+      throw("ScatterSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
+   }
 
-
-   // styles for markers and labels
-   const lineStyleStr = `fill:none;stroke:${lineColor};stroke-width:${lineWidth};`;
 
    // compute ranges for x and y values
-   const xValuesRange = mrange(xValues, 0.10);
-   const yValuesRange = mrange(yValues, 0.10);
+   const xValuesRange = mrange(xValues, 0.05);
+   const yValuesRange = mrange(yValues, 0.05);
 
    // get axes context and adjust axes limits
    const axes = getContext('axes');
@@ -38,6 +38,7 @@
    $: x = axes.scaleX(xValues, $xLim, $axesWidth);
    $: y = axes.scaleY(yValues, $yLim, $axesHeight);
    $: p = x !== undefined && y !== undefined ? x.map((v, i) => `${v},${y[i]}`).join(' ') : undefined;
+   $: lineStyleStr = `fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType - 1]}`;
 </script>
 
 {#if p !== undefined}
