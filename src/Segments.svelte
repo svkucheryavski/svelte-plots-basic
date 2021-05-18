@@ -21,13 +21,6 @@
       throw("Segments: parameters 'xStart', 'yStart', 'xEnd' and 'yEnd' should have the same length.")
    }
 
-   // line styles for different scales and types
-   const dashArray = {
-      small: ["0", "3,3", "1,1", "3,1"],
-      medium: ["0", "5,5", "2,2", "5,2"],
-      large: ["0", "7,7", "3,3", "7,3"],
-   }
-
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');
    const xLim = axes.xLim;
@@ -41,7 +34,7 @@
    $: x2 = axes.scaleX(xEnd, $xLim, $axesWidth);
    $: y1 = axes.scaleY(yStart, $yLim, $axesHeight);
    $: y2 = axes.scaleY(yEnd, $yLim, $axesHeight);
-   $: lineStyleStr = `stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${dashArray[$scale][lineType - 1]}`;
+   $: lineStyleStr = `stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType - 1]}`;
 
 </script>
 

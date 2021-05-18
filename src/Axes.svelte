@@ -32,6 +32,13 @@
       "large": 25
    };
 
+   // line styles for different scales and types
+   const LINE_STYLES = {
+      small: ["0", "3,3", "1,1", "3,1"],
+      medium: ["0", "5,5", "2,2", "5,2"],
+      large: ["0", "7,7", "3,3", "7,3"],
+   }
+
    // constant to make clip path ID unique
    const clipPathID = "plottingArea" + Math.round(Math.random() * 10000);
 
@@ -210,6 +217,7 @@
       yLim: yLim,
 
       // constants
+      LINE_STYLES: LINE_STYLES,
       LABELS_MARGIN: LABELS_MARGIN,
       TICK_NUM: TICK_NUM,
    }
