@@ -27,7 +27,7 @@
 
 {#if $isOk}
 <g class="mdaplot__axes-box">
-   <Rectangles left="{[left]}" top="{[top]}" width="{width}" height="{height}" edgeColor="{Colors.DARKGRAY}" faceColor="transparent"></Rectangles>
+   <Rectangles left="{[left]}" top="{[top]}" width="{width}" height="{height}" borderColor="{Colors.DARKGRAY}" faceColor="transparent"></Rectangles>
 </g>
 {/if}
 

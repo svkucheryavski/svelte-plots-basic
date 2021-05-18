@@ -12,7 +12,7 @@
    export let labels = yValues;
    export let showLabels = "no"; // can be "no", "hover", "always"
    export let faceColor = Colors.PRIMARY;
-   export let edgeColor = Colors.PRIMARY;
+   export let borderColor = Colors.PRIMARY;
 
    /* sanity check of input parameters */
 
@@ -44,7 +44,7 @@
 </script>
 
 <g class="series series_bar" title="{title}">
-   <Rectangles left="{left}" top="{top}" width="{width}" height="{height}" edgeColor="{edgeColor}" faceColor="{faceColor}"></Rectangles>
+   <Rectangles left="{left}" top="{top}" width="{width}" height="{height}" borderColor="{borderColor}" faceColor="{faceColor}"></Rectangles>
 </g>
 
 <style>
