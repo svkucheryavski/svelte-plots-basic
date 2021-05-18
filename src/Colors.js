@@ -9,6 +9,7 @@ export const Colors = {
    "DARKGRAY":  "#606060",
 
    "PRIMARY": "#2266ff",
+   "PRIMARY_TEXT": "#333",
 }
 
 

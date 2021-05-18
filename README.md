@@ -2,8 +2,12 @@
 
 ## To do
 
+* [x] Implement `Segments` component
+* [x] Implement `TextLabels` component
+* [ ] Refactor `ScatterSeries` component
+* [ ] Refactor `LinesSeries` component
+* [ ] Implement fixed labels for bars and scatter series
 * [ ] Implement rotation of axis ticks (via parameter las)
-* [ ] Implement labels for bars and scatter series
 * [ ] Publish on GutHub
 * [ ] Publish on NPM https://zellwk.com/blog/publish-to-npm/
 

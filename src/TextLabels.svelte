@@ -1,0 +1,52 @@
+<script>
+   import { getContext } from 'svelte';
+   import { Colors } from './Colors';
+
+   /* input parameters */
+	export let x;
+   export let y;
+   export let labels;
+   export let dx = 0;
+   export let dy = 0;
+   export let textColor = Colors.PRIMARY_TEXT;
+   export let textSize = 1;
+
+   // styles for bars and labels
+   const textStyleStr = `fill:${textColor};stroke-width:0;stroke-width: 1px;font-size:${textSize}em;`;
+
+   /* sanity check for input parameters */
+   if (!Array.isArray(x) || !Array.isArray(y) || x.length !== y.length) {
+      throw("TextLabels: 'x' and 'y' must be vectors of the same length.")
+   }
+
+   // multiply labels values if needed
+   const n = x.length;
+   if (!Array.isArray(labels)) labels = Array(n).fill(labels);
+   if (!Array.isArray(dx)) dx = Array(n).fill(dx);
+   if (!Array.isArray(dy)) dy = Array(n).fill(dy);
+
+   // check that the length of labels vector is correct
+   if (labels.length !== n) {
+      throw("TextLabels: parameter 'labels' must be a single text value or a vector of the same size as 'x' and 'y'.")
+   }
+
+   // get axes context and reactive variables needed to compute coordinates
+   const axes = getContext('axes');
+   const xLim = axes.xLim;
+   const yLim = axes.yLim;
+   const axesWidth = axes.width;
+   const axesHeight = axes.height;
+
+   // reactive variables for coordinates of data points in pixels
+   $: lx = axes.scaleX(x, $xLim, $axesWidth);
+   $: ly = axes.scaleY(y, $yLim, $axesHeight);
+</script>
+
+{#if x !== undefined && y !== undefined}
+   {#each x as v, i}
+      <text style="{textStyleStr}" x="{lx[i]}" y="{ly[i]}" dx="{dx[i]}" dy="{dy[i]}" dominant-baseline="middle" text-anchor="middle">{labels[i]}</text>
+   {/each}
+{/if}
+
+<style>
+</style>
