@@ -70,7 +70,7 @@
     *  @param {Array} newLim - vector with new limits  (two values)
     */
    const adjustXAxisLimits = function(newLim) {
-      if (!limY.some(v => v === undefined)) return;
+      if (!limX.some(v => v === undefined)) return;
       xLim.update(lim => adjustAxisLimits(lim, newLim));
    }
 
