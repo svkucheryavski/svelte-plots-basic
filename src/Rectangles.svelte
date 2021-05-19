@@ -15,6 +15,11 @@
    const barsStyleStr = `fill:${faceColor};stroke:${borderColor};stroke-width: 1px;`;
 
    // multiply width and height values if needed
+   if (!Array.isArray(left) || !Array.isArray(top) || left.length != top.length) {
+      throw("Rectangles: parameters 'left' and 'top' must be vectors of the same size.")
+   }
+
+   // we make this reactive in case if left and right has been changed but not width
    const n = left.length;
    if (!Array.isArray(height)) height = Array(n).fill(height);
    if (!Array.isArray(width)) width = Array(n).fill(width);
