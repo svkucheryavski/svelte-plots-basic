@@ -9,38 +9,61 @@
    export let yValues;
    export let barWidth = 0.8;
    export let title = "";
-   export let labels = yValues;
-   export let showLabels = "no"; // can be "no", "hover", "always"
    export let faceColor = Colors.PRIMARY;
    export let borderColor = Colors.PRIMARY;
 
-   /* sanity check of input parameters */
+   // to be implemented
+   export let labels = yValues;
+   export let showLabels = "no"; // can be "no", "hover", "always"
 
-   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length != yValues.length) {
-      throw("BarSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
-   }
+   /* internal parameters */
+   let width;
+   let left;
+   let top;
+   let height;
 
-   if (barWidth <= 0 || barWidth > 1) {
-      throw("BarSeries: parameters 'barWidth' should be between 0 and 1.");
-   }
-
-   // compute ranges for x and y values
-   const yValuesRange = mrange(yValues, showLabels === "no" ? 0.05 : 0.20);
-   const xValuesRange = mrange(xValues, 0.1);
-   xValuesRange[0] = xValuesRange[0] - barWidth * diff(xValuesRange) / xValues.length * 0.5
-   xValuesRange[1] = xValuesRange[1] + barWidth * diff(xValuesRange) / xValues.length * 0.5
-
-   // get axes context and adjust axes limits
+   // to access shared parameters and methods from Axes
    const axes = getContext('axes');
-   axes.adjustXAxisLimits(xValuesRange);
-   axes.adjustYAxisLimits(yValuesRange);
 
-   // reactive variables for the bar elements (width, left, top, height)
-   $: width = max(diff(xValues)) * barWidth;
-   $: left = xValues.map(v => v - width/2);
-   $: top = yValues.map(v => v > 0 ? v : 0);
-   $: height = yValues.map(v => Math.abs(v));
+   /* reactive actions related to x-values, fires when there are changes in:
+    * - xValues
+    * - barWidth
+    */
+   $: {
 
+      if (!Array.isArray(xValues)) {
+         throw("BarSeries: parameter 'xValues' must be a numeric vector.");
+      }
+
+      if (barWidth <= 0 || barWidth > 1) {
+         throw("BarSeries: parameters 'barWidth' should be between 0 and 1.");
+      }
+
+      const xValuesRange = mrange(xValues, 0.1);
+      xValuesRange[0] = xValuesRange[0] - barWidth * diff(xValuesRange) / xValues.length * 0.5
+      xValuesRange[1] = xValuesRange[1] + barWidth * diff(xValuesRange) / xValues.length * 0.5
+      axes.adjustXAxisLimits(xValuesRange);
+
+      width = Array(xValues.length).fill(max(diff(xValues)) * barWidth);
+      left = xValues.map((v, i) => v - width[i]/2);
+   }
+
+   /* reactive actions related to y-values, fires when there are changes in:
+    * - yValues
+    * - barWidth
+    */
+   $: {
+
+      if (!Array.isArray(yValues) || xValues.length != yValues.length) {
+         throw("BarSeries: parameter 'yValues' must be a numeric vector of the same length as 'xValues'.");
+      }
+
+      const yValuesRange = mrange(yValues, showLabels === "no" ? 0.05 : 0.20);
+      axes.adjustYAxisLimits(yValuesRange);
+
+      top = yValues.map(v => v > 0 ? v : 0);
+      height = yValues.map(v => Math.abs(v));
+   }
 </script>
 
 <g class="series series_bar" title="{title}">
