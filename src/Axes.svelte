@@ -8,6 +8,7 @@
    export let title = "";                       // title of the plot
    export let xLabel = "";                      // label for x-axis
    export let yLabel = "";                      // label for y-axis
+   export let multiSeries = true;               // is the plot for one series or for many
 
    /* constants for internal use */
 
@@ -47,12 +48,12 @@
    let axesMargins = [0.034, 0.034, 0.034, 0.034];    // initial margins (will be multiplied to FACTORS)
 
    /* reactive parameters to be shared with children via context */
-   const width = writable(100);        // actual width of plotting area in pixels
-   const height = writable(100);       // actual height of plotting area in pixels
-   const xLim = writable(limX);        // actual limits for x-axis in plot units
-   const yLim = writable(limY);        // actual limits for y-axis in plot units
-   const scale = writable("medium");   // scale factor (how big the shown plot is)
-   const isOk = writable(false);       // are axes ready for drawing
+   const width = writable(100);                       // actual width of plotting area in pixels
+   const height = writable(100);                      // actual height of plotting area in pixels
+   const xLim = writable([undefined, undefined]);     // actual limits for x-axis in plot units
+   const yLim = writable([undefined, undefined]);     // actual limits for y-axis in plot units
+   const scale = writable("medium");                  // scale factor (how big the shown plot is)
+   const isOk = writable(false);                      // are axes ready for drawing
 
    /** Adds margins for x-axis (e.g. when x-axis must be shown) */
    const addXAxisMargins = function() {
@@ -91,10 +92,23 @@
     *  if new value is outside the current limits (smaller than min or larger than max).
     */
    const adjustAxisLimits = function(lim, newLim) {
-      return [
-         lim[0] === undefined || lim[0] > newLim[0] ? newLim[0] : lim[0],
-         lim[1] === undefined || lim[1] < newLim[1] ? newLim[1] : lim[1]
+
+      const adjustedLim = [
+         (lim[0] !== undefined && multiSeries === true && lim[0] < newLim[0]) ? lim[0] : newLim[0],
+         (lim[1] !== undefined && multiSeries === true && lim[1] > newLim[1]) ? lim[1] : newLim[1]
       ];
+
+      // special case when both limits are zero
+      if (adjustedLim[0] === 0 && adjustedLim[1] === 0) {
+         adjustedLim = [-0.1, 0.1];
+      }
+
+      // special case when limits are equal (add ±5%)
+      if (adjustedLim[0] === adjustedLim[1]) {
+         adjustedLim = [adjustedLim[0] * 0.95, adjustedLim[0] * 1.05];
+      }
+
+      return adjustedLim;
    }
 
    /** Rescales x-values from plot coordinates to screen (SVG) coordinates
@@ -105,7 +119,7 @@
     *  @returns {Array} vector with rescaled values
     */
    const scaleX = function(x, xLim, width, doSizeScale = false) {
-      if (!$isOk  || x === undefined) return undefined;
+      if (!$isOk  || x === undefined || !Array.isArray(x)) return undefined;
 
       if (doSizeScale) {
          // scale size of objects instead of coordinates
@@ -123,7 +137,7 @@
     *  @returns {Array} vector with rescaled values
     */
    const scaleY = function(y, yLim, height, doSizeScale = false) {
-      if (!$isOk  || y === undefined) return undefined;
+      if (!$isOk  || y === undefined || !Array.isArray(y)) return undefined;
 
       if (doSizeScale) {
          // scale size of objects instead of coordinates
@@ -134,7 +148,13 @@
       return y.map(v => (yLim[1] - v) / (yLim[1] - yLim[0]) * (height - margins[0] - margins[2]) + margins[2]);
    }
 
-   // computes nice tick values for axis
+   /** Computes nice tick values for axis
+    * @param {Array} ticks - vector with ticks if alredy available (if not, new will be computed)
+    * @param {Array} lim - vector with axis limits tickets must be computed for
+    * @param {number} maxTickNum - maximum number of ticks to compute
+    * @param {boolean} round - round or not the fractions when computing nice numbers for the ticks
+    * @returns {Array} a vector with computed tick positions
+    */
    const getAxisTicks = function(ticks, lim, maxTickNum, round = true) {
 
       // if ticks are already provided do not recompute them
@@ -159,13 +179,17 @@
       return ticks.filter(x => x >= lim[0] & x <= lim[1]);
    }
 
-   // computes nice number for the ticks
-   // inspired by:
+   /** Computes a nice spacing value for a given range
+    * @param {numeric} localRange - a range (max - min)
+    * @param {boolean} round - round or not the fractions when computing the number
+    * @returns {numeric} the computed spacing value
+    */
    function niceNum( localRange,  round) {
 
       const exponent = Math.floor(Math.log10(localRange));
       const fraction = localRange / Math.pow(10, exponent);
       let niceFraction;
+
       if (round) {
          if (fraction < 1.5)
             niceFraction = 1;
@@ -189,14 +213,18 @@
       return niceFraction * Math.pow(10, exponent);
    }
 
-   // returns a scale category based on the plotting area size in pixels
+   /** Computes a scale level
+    * @param {numeric} width - width of plotting area in pixels
+    * @param {numeric} height - height of plotting area in pixels
+    * @returns {text} the scale level ("small", "medium" or "large")
+    */
    function getScale(width, height) {
       if (height < 300 || width < 400) return "small";
       if (height < 600 || width < 800) return "medium";
       return "large";
    }
 
-   // context to share with children
+   /* context with Axes constants, properties and methods to share with children */
    let context = {
 
       // methods
@@ -224,7 +252,7 @@
 
 	setContext('axes', context);
 
-   // plot size observer
+   /* observer for the plotting area size */
    var ro = new ResizeObserver(entries => {
       for (let entry of entries) {
          const cr = entry.contentRect;
@@ -238,13 +266,30 @@
       ro.observe(axesWrapper);
    });
 
-   // real margins in pixels
+
+   // this is reactive in case if limX and limY are interactively changed by parent script
+   $: if (!limX.some(v => v === undefined)) xLim.update(v => limX);
+   $: if (!limY.some(v => v === undefined)) yLim.update(v => limY);
+
+   // computes real margins in pixels based on current scale
    $: margins = axesMargins.map(v => v * AXES_MARGIN_FACTORS[$scale]);
 
-   // status which tell that axes limits look fine and it is safe to draw
-   $: isOk.update(v => Array.isArray($yLim) && Array.isArray($xLim) && !$yLim.some(v => v === undefined) && !$xLim.some(v => v === undefined))
+   // computes status which tells that axes limits look fine and it is safe to draw
+   // the status is based on the axis limits validity
+   $: isOk.update(v =>
+      Array.isArray($yLim) &&
+      Array.isArray($xLim) &&
+      $xLim.length === 2 &&
+      $yLim.length === 2 &&
+      !$yLim.some(v => v === undefined) &&
+      !$xLim.some(v => v === undefined) &&
+      !$yLim.some(v => isNaN(v)) &&
+      !$xLim.some(v => isNaN(v)) &&
+      $xLim[1] !== $xLim[0] &&
+      $yLim[1] !== $yLim[0]
+   )
 
-   // coordinates for clip path box
+   // computes coordinates for clip path box
    $: cpx = $isOk ? scaleX($xLim, $xLim, $width) : [0, 1];
    $: cpy = $isOk ? scaleY($yLim, $yLim, $height) : [1, 0];
 </script>
@@ -260,7 +305,8 @@
    <!-- axes (coordinate system) -->
    <div class="axes-wrapper" bind:this="{axesWrapper}" >
       <svg preserveAspectRatio="none" class="axes">
-         <!-- clipping path -->
+
+         <!-- define clipping path -->
          <defs>
             <clipPath id="{clipPathID}">
                <rect x="{cpx[0]}" y="{cpy[1]}" width = "{cpx[1] - cpx[0]}" height="{cpy[0] - cpy[1]}"></rect>
@@ -279,9 +325,11 @@
       </svg>
    </div>
 
-
    {#if !$isOk}
-   <p class="message_error">Axes component was not properly initialized. <br />Add plot series or define axes limits manually.</p>
+   <p class="message_error">
+      Axes component was not properly initialized. <br />
+      Add plot series (check that coordinates are numeric) or define axes limits manually.
+   </p>
    {/if}
 
 </div>
