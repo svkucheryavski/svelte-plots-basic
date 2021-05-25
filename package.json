@@ -11,11 +11,14 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "rollup": "^2.0.0",
     "rollup-plugin-svelte": "^6.0.0",
-    "svelte": "^3.0.0",
-    "stat-js": "^1.0.0"
+    "svelte": "^3.0.0"
+  },
+  "dependencies": {
+    "stat-js": "file:../stat-js/"
   },
   "keywords": [
-    "svelte", "svelte plots"
+    "svelte",
+    "svelte plots"
   ],
   "files": [
     "src",
