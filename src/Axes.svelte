@@ -97,7 +97,7 @@
     */
    const adjustAxisLimits = function(lim, newLim) {
 
-      const adjustedLim = [
+      let adjustedLim = [
          (lim[0] !== undefined && multiSeries === true && lim[0] < newLim[0]) ? lim[0] : newLim[0],
          (lim[1] !== undefined && multiSeries === true && lim[1] > newLim[1]) ? lim[1] : newLim[1]
       ];
