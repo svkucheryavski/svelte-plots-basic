@@ -10,12 +10,14 @@
    export let yValues;
    export let marker = 1
    export let title = "";
-   export let labels = yValues;
-   export let showLabels = "no"; // can be "no", "hover", "always"
    export let faceColor = "transparent";
    export let borderColor = Colors.PRIMARY;
    export let borderWidth = 1;
    export let markerSize = 1;
+
+   // TODO: implement later
+   //export let labels = yValues;
+   //export let showLabels = "no"; // can be "no", "hover", "always"
 
    const markers = ["●", "◼", "▲", "▼", "⬥", "+", "*", "⨯"];
    let markerSymbol;
@@ -64,18 +66,18 @@
 </g>
 
 <style>
-   .marker {
-      font-size: 1em;
-      cursor: default;
-   }
+:global(.marker) {
+   font-size: 1em;
+   cursor: default;
+}
 
-   .marker:hover {
-      opacity: 90%;
-   }
+:global(.marker:hover) {
+   opacity: 90%;
+}
 
-   .series_scatter > *:hover + .labels_hover {
-      visibility: visible;
-      opacity: 1;
-   }
+:global(.series_scatter > *:hover + .labels_hover) {
+   visibility: visible;
+   opacity: 1;
+}
 
 </style>

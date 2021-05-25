@@ -11,10 +11,10 @@
    export let title = "";
    export let faceColor = Colors.PRIMARY;
    export let borderColor = Colors.PRIMARY;
-
-   // to be implemented
-   export let labels = yValues;
    export let showLabels = "no"; // can be "no", "hover", "always"
+
+   // TODO: implemented later
+   //export let labels = yValues;
 
    /* internal parameters */
    let width;
