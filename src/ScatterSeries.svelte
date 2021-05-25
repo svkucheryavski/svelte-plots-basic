@@ -1,8 +1,8 @@
 <script>
 
    import { getContext } from 'svelte';
+   import { mrange } from 'stat-js'
    import { Colors } from './Colors';
-   import { mrange } from './stats'
    import TextLabels from './TextLabels.svelte';
 
    // input parameters

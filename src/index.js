@@ -12,4 +12,3 @@ export { default as LineSeries } from './LineSeries.svelte';
 export { default as ScatterSeries } from './ScatterSeries.svelte';
 
 export { default as Colors } from './Colors.js';
-export { default as default } from './stats.js';
