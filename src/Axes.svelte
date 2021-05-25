@@ -57,14 +57,18 @@
 
    /** Adds margins for x-axis (e.g. when x-axis must be shown) */
    const addXAxisMargins = function() {
-      axesMargins[1] = 1;
-      axesMargins[3] = 0.5;
+      axesMargins[0] = 1;
+      axesMargins[2] = 0.5;
+      axesMargins[1] = axesMargins[1] > 0.5 ? axesMargins[1] : 0.5;
+      axesMargins[3] = axesMargins[3] > 0.5 ? axesMargins[3] : 0.5;
    }
 
    /** Adds margins for y-axis (e.g. when y-axis must be shown) */
    const addYAxisMargins = function() {
-      axesMargins[0] = 1;
-      axesMargins[2] = 0.25;
+      axesMargins[1] = 1;
+      axesMargins[3] = 0.5;
+      axesMargins[0] = axesMargins[0] > 0.5 ? axesMargins[0] : 0.5;
+      axesMargins[2] = axesMargins[2] > 0.5 ? axesMargins[2] : 0.5;
    }
 
    /** Adjusts limits for x-axis (e.g. when new series is added)
@@ -175,6 +179,8 @@
       // create a sequence and return
       ticks = [...Array(maxTickNum)].map((x, i) => tickMin + i * tickSpacing);
 
+      console.log(".....")
+      console.log(ticks)
       // make sure the ticks are not aligned with axes limits
       return ticks.filter(x => x >= lim[0] & x <= lim[1]);
    }
@@ -219,8 +225,8 @@
     * @returns {text} the scale level ("small", "medium" or "large")
     */
    function getScale(width, height) {
-      if (height < 300 || width < 400) return "small";
-      if (height < 600 || width < 800) return "medium";
+      if (height < 300 || width < 300) return "small";
+      if (height < 600 || width < 600) return "medium";
       return "large";
    }
 
@@ -337,7 +343,7 @@
 <style>
 
    /* Plot (main container) */
-   .plot {
+   :global(.plot) {
       font-family: Arial, Helvetica, sans-serif;
 
       display: grid;
@@ -358,27 +364,27 @@
       margin: 0;
    }
 
-   .plot_small {
-      font-size: 12px;
+   :global(.plot_small) {
+      font-size: 11px;
    }
 
-   .plot_medium {
-      font-size: 14px;
+   :global(.plot_medium) {
+      font-size: 13px;
    }
 
-   .plot_large {
-      font-size: 18px;
+   :global(.plot_large) {
+      font-size: 16px;
    }
 
-   .plot_error {
+   :global(.plot_error) {
       display: flex;
    }
 
-   .plot_error > .axes-wrapper {
+   :global(.plot_error > .axes-wrapper) {
       display: none;
    }
 
-   .message_error {
+   :global(.message_error) {
       font-size: 1.2em;
       color: crimson;
       padding: 20px;
@@ -386,14 +392,14 @@
    }
 
    /* Axes (coordinate system) */
-   .axes-wrapper {
+   :global(.axes-wrapper) {
       grid-area: axes;
       display: flex;
       padding: 0;
       margin: 0;
    }
 
-   .axes {
+   :global(.axes) {
       box-sizing: border-box;
       box-sizing: border-box;
       padding: 0;
@@ -404,7 +410,7 @@
       min-width: 100%;
    }
 
-   .axes__xlabel {
+   :global(.axes__xlabel) {
       grid-area: xlab;
       font-size: 1.0em;
       font-weight: 600;
@@ -413,7 +419,7 @@
    }
 
 
-   .axes__ylabel {
+   :global(.axes__ylabel) {
       grid-area: ylab;
       font-size: 1.0em;
       font-weight: 600;
@@ -423,7 +429,7 @@
       display: flex;
    }
 
-   .axes__ylabel > span {
+   :global(.axes__ylabel > span) {
       width: 1.5em;
       line-height: 1.5em;
       display: inline-block;
@@ -432,7 +438,7 @@
    }
 
 
-   .axes__title {
+   :global(.axes__title) {
       background: transparent;
       grid-area: title;
 
@@ -444,18 +450,18 @@
    }
 
    /* Axis */
-   .axis-labels {
+   :global(.axis-labels) {
       fill: #303030;
       font-size: 0.95em;
    }
 
    /* Data labels */
-   .labels {
+   :global(.labels) {
       fill: #606060;
       font-size: 0.90em;
    }
 
-   .labels {
+   :global(.labels) {
       visibility: hidden;
       transition:visibility 0.25s linear, opacity 0.25s linear;
       opacity: 0;

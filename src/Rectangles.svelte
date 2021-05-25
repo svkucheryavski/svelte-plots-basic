@@ -15,7 +15,7 @@
    const barsStyleStr = `fill:${faceColor};stroke:${borderColor};stroke-width: 1px;`;
 
    // multiply width and height values if needed
-   if (!Array.isArray(left) || !Array.isArray(top) || left.length != top.length) {
+   if (!Array.isArray(left) || !Array.isArray(top) || left.length < 1 || left.length != top.length) {
       throw("Rectangles: parameters 'left' and 'top' must be vectors of the same size.")
    }
 
@@ -45,7 +45,6 @@
    $: ry = axes.scaleY(top, $yLim, $axesHeight);
    $: rw = axes.scaleX(width, $xLim, $axesWidth, true);
    $: rh = axes.scaleY(height, $yLim, $axesHeight, true);
-
 </script>
 
 {#if rx !== undefined && ry !== undefined}

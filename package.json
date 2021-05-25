@@ -1,5 +1,5 @@
 {
-  "name": "svelte-plots",
+  "name": "svelte-plots-basic",
   "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
@@ -11,10 +11,11 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "rollup": "^2.0.0",
     "rollup-plugin-svelte": "^6.0.0",
-    "svelte": "^3.0.0"
+    "svelte": "^3.0.0",
+    "stats-js": "^1.0.0"
   },
   "keywords": [
-    "svelte"
+    "svelte", "svelte plots"
   ],
   "files": [
     "src",
@@ -24,7 +25,7 @@
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "svelte-plots"
+    "url": "svkucheryavski/svelte-plots-basic"
   },
   "author": "Sergey Kucheryavskiy",
   "license": "MIT"

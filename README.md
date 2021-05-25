@@ -4,8 +4,8 @@
 
 * [x] Implement `Segments` component
 * [x] Implement `TextLabels` component
-* [ ] Refactor `ScatterSeries` component
-* [ ] Refactor `LinesSeries` component
+* [x] Refactor `ScatterSeries` component
+* [x] Refactor `LinesSeries` component
 * [ ] Implement fixed labels for bars and scatter series
 * [ ] Implement rotation of axis ticks (via parameter las)
 * [ ] Publish on GutHub

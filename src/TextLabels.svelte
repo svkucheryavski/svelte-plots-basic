@@ -22,15 +22,22 @@
    }
 
    // multiply labels values if needed
-   const n = xValues.length;
-   if (!Array.isArray(labels)) labels = Array(n).fill(labels);
-   if (!Array.isArray(dx)) dx = Array(n).fill(dx);
-   if (!Array.isArray(dy)) dy = Array(n).fill(dy);
+   $: {
+      const n = xValues.length;
+      if (!Array.isArray(labels)) labels = Array(n).fill(labels);
+      if (!Array.isArray(dx)) dx = Array(n).fill(dx);
+      if (!Array.isArray(dy)) dy = Array(n).fill(dy);
 
-   // check that the length of labels vector is correct
-   if (labels.length !== n) {
-      throw("TextLabels: parameter 'labels' must be a single text value or a vector of the same size as 'x' and 'y'.")
+      // workaround for an issue when xValues and yValues are changed in parent app
+      // but array of labels is still the same as in the
+      if (labels.length != n) labels = Array(n).fill(labels[0]);
+
+      // check that the length of labels vector is correct
+      if (labels.length !== n) {
+         throw("TextLabels: parameter 'labels' must be a single text value or a vector of the same size as 'x' and 'y'.")
+      }
    }
+
 
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');

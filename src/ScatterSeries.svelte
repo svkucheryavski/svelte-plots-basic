@@ -18,39 +18,58 @@
    export let markerSize = 1;
 
    const markers = ["●", "◼", "▲", "▼", "⬥", "+", "*", "⨯"];
+   let markerSymbol;
 
    /* sanity check of input parameters */
-   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length != yValues.length) {
-      throw("ScatterSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
-   }
-
-   if (marker < 1 || marker > markers.length) {
+   if (typeof(marker) !== "number" || marker < 1 || marker > markers.length) {
       throw(`ScatterSeries: parameter 'marker' must be a number from 1 to ${markers.length}."`);
    }
 
-   // compute ranges for x and y values
-   const xValuesRange = mrange(xValues, 0.05);
-   const yValuesRange = mrange(yValues, 0.05);
-
-   // get axes context and adjust axes limits
+   // to access shared parameters and methods from Axes
    const axes = getContext('axes');
-   axes.adjustXAxisLimits(xValuesRange);
-   axes.adjustYAxisLimits(yValuesRange);
+
+   /* reactive actions related to x-values, fires when there are changes in:
+    * - xValues
+    * - marker
+    */
+   $: {
+      if (!Array.isArray(xValues)) {
+         throw("ScatterSeries: parameter 'xValues' must be a numeric vector.");
+      }
+
+      const xValuesRange = mrange(xValues, 0.05);
+      axes.adjustXAxisLimits(xValuesRange);
+
+      markerSymbol = "";
+      markerSymbol = markers[marker - 1];
+   }
+
+   /* reactive actions related to y-values, fires when there are changes in:
+    * - yValues
+    */
+   $: {
+      if (!Array.isArray(yValues) || xValues.length != yValues.length) {
+         throw("BarSeries: parameter 'yValues' must be a numeric vector of the same length as 'xValues'.");
+      }
+
+      const yValuesRange = mrange(yValues, 0.05);
+      axes.adjustYAxisLimits(yValuesRange);
+   }
 
 </script>
 
 <g class="series series_scatter" title="{title}">
-   <TextLabels xValues={xValues} yValues={yValues} labels="{markers[marker - 1]}"
+   <TextLabels xValues={xValues} yValues={yValues} labels="{markerSymbol}"
       textSize="{markerSize}" {faceColor} {borderColor} {borderWidth}></TextLabels>
 </g>
 
 <style>
-   .marker{
+   .marker {
       font-size: 1em;
       cursor: default;
    }
 
-   .marker:hover{
+   .marker:hover {
       opacity: 90%;
    }
 

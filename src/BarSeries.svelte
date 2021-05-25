@@ -50,7 +50,6 @@
 
    /* reactive actions related to y-values, fires when there are changes in:
     * - yValues
-    * - barWidth
     */
    $: {
 
