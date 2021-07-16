@@ -18,17 +18,17 @@
    const isOk = axes.isOk;
 
    // reactive variables for coordinates of box points in pixels
-   $: left = $xLim[0];
-   $: top = $yLim[1];
-   $: width = $xLim[1] - $xLim[0];
-   $: height = $yLim[1] - $yLim[0];
+   $: left = [$xLim[0]];
+   $: top = [$yLim[1]];
+   $: width = [$xLim[1] - $xLim[0]];
+   $: height = [$yLim[1] - $yLim[0]];
 
 </script>
 
 {#if $isOk}
-<g class="mdaplot__axes-box">
-   <Rectangles left="{[left]}" top="{[top]}" width="{[width]}" height="{[height]}" borderColor="{Colors.DARKGRAY}" faceColor="transparent"></Rectangles>
-</g>
+   <g class="mdaplot__axes-box">
+      <Rectangles {left} {top} {width} {height} borderColor="{Colors.DARKGRAY}" faceColor="transparent"></Rectangles>
+   </g>
 {/if}
 
 <style>

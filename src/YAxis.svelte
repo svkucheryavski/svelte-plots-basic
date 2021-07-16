@@ -17,7 +17,7 @@
 
    /* sanity checks of input parameters */
    if (slot !== "yaxis") {
-      throw("Component YAxis must have \"slot='xaxis'\" attribute.")
+      throw("Component YAxis must have \"slot='yaxis'\" attribute.")
    }
 
    if (ticks !== undefined && !Array.isArray(ticks)) {
@@ -58,14 +58,14 @@
 </script>
 
 {#if x !== undefined && y !== undefined }
-<g class="mdaplot__axis mdaplot__yaxis">
+   <g class="mdaplot__axis mdaplot__yaxis">
    {#each ticksY as ty, i}
       <line x1="{x[0]}" x2="{x[1]}" y1="{ty}" y2="{ty}" style="{gridLineStyleStr}"></line>
       <line x1="{ticksX[0]}" x2="{ticksX[1]}" y1="{ty}" y2="{ty}" style="{axisLineStyleStr}" ></line>
       <text x="{ticksX[0]}" y="{ty}" dx="{dx}" dy="{0}" {transform} style="background:red" class="mdaplot__axis-labels" dominant-baseline="middle" text-anchor="end">{tickLabels[i]}</text>
    {/each}
    <line x1="{x[0]}" x2="{x[0]}" y1="{y[0]}" y2="{y[1]}" style="{axisLineStyleStr}" ></line>
-</g>
+   </g>
 {/if}
 
 <style>

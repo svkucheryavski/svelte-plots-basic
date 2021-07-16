@@ -61,8 +61,7 @@
 </script>
 
 <g class="series series_scatter" title="{title}">
-   <TextLabels xValues={xValues} yValues={yValues} labels="{markerSymbol}"
-      textSize="{markerSize}" {faceColor} {borderColor} {borderWidth}></TextLabels>
+   <TextLabels {xValues} {yValues} labels="{markerSymbol}" textSize="{markerSize}" {faceColor} {borderColor} {borderWidth} />
 </g>
 
 <style>
@@ -79,5 +78,4 @@
    visibility: visible;
    opacity: 1;
 }
-
 </style>

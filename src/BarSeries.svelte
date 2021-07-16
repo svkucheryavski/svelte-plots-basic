@@ -66,11 +66,10 @@
 </script>
 
 <g class="series series_bar" title="{title}">
-   <Rectangles left="{left}" top="{top}" width="{width}" height="{height}" borderColor="{borderColor}" faceColor="{faceColor}"></Rectangles>
+   <Rectangles {left} {top} {width} {height} {borderColor} {faceColor />
 </g>
 
 <style>
-
    :global(.series_bar > rect){
       stroke-width: 1px;
    }
@@ -78,5 +77,4 @@
    :global(.series_bar > rect:hover){
       opacity: 90%;
    }
-
 </style>

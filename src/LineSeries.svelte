@@ -17,7 +17,6 @@
       throw("ScatterSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
    }
 
-
    // compute ranges for x and y values
    const xValuesRange = mrange(xValues, 0.05);
    const yValuesRange = mrange(yValues, 0.05);

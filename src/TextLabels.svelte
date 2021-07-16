@@ -6,8 +6,7 @@
 	export let xValues;
    export let yValues;
    export let labels;
-   export let dx = 0;
-   export let dy = 0;
+   export let pos = 0;
    export let faceColor = Colors.PRIMARY_TEXT;
    export let borderColor = "transparent";
    export let borderWidth = 0;
@@ -25,8 +24,6 @@
    $: {
       const n = xValues.length;
       if (!Array.isArray(labels)) labels = Array(n).fill(labels);
-      if (!Array.isArray(dx)) dx = Array(n).fill(dx);
-      if (!Array.isArray(dy)) dy = Array(n).fill(dy);
 
       // workaround for an issue when xValues and yValues are changed in parent app
       // but array of labels is still the same as in the
@@ -38,22 +35,24 @@
       }
    }
 
-
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');
    const xLim = axes.xLim;
    const yLim = axes.yLim;
    const axesWidth = axes.width;
    const axesHeight = axes.height;
+   const scale = axes.scale;
 
    // reactive variables for coordinates of data points in pixels
    $: x = axes.scaleX(xValues, $xLim, $axesWidth);
    $: y = axes.scaleY(yValues, $yLim, $axesHeight);
+   $: dx = [0, 0, 1, 0, -1][pos] * axes.LABELS_MARGIN[$scale];
+   $: dy = [0, 1, 0, -1, 0][pos] * axes.LABELS_MARGIN[$scale];
 </script>
 
 {#if x !== undefined && y !== undefined}
    {#each x as v, i}
-      <text style="{textStyleStr}" x="{x[i]}" y="{y[i]}" dx="{dx[i]}" dy="{dy[i]}" dominant-baseline="middle" text-anchor="middle">{labels[i]}</text>
+      <text style="{textStyleStr}" x="{x[i]}" y="{y[i]}" dx="{dx}" dy="{dy}" dominant-baseline="middle" text-anchor="middle">{labels[i]}</text>
    {/each}
 {/if}
 

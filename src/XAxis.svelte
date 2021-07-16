@@ -55,14 +55,14 @@
 </script>
 
 {#if $isOk && x !== undefined && y !== undefined }
-<g class="mdaplot__axis mdaplot__xaxis">
+   <g class="mdaplot__axis mdaplot__xaxis">
    {#each ticksX as tx, i}
-   <line x1="{tx}" x2="{tx}" y1="{y[0]}" y2="{y[1]}" style="{gridLineStyleStr}"></line>
-   <line x1="{tx}" x2="{tx}" y1="{ticksY[0]}" y2="{ticksY[1]}" style="{axisLineStyleStr}"></line>
-   <text x="{tx}" y="{ticksY[1]}" dx="0" dy="{dy}" class="mdaplot__axis-labels" dominant-baseline="middle" text-anchor="middle">{tickLabels[i]}</text>
+      <line x1="{tx}" x2="{tx}" y1="{y[0]}" y2="{y[1]}" style="{gridLineStyleStr}"></line>
+      <line x1="{tx}" x2="{tx}" y1="{ticksY[0]}" y2="{ticksY[1]}" style="{axisLineStyleStr}"></line>
+      <text x="{tx}" y="{ticksY[1]}" dx="0" dy="{dy}" class="mdaplot__axis-labels" dominant-baseline="middle" text-anchor="middle">{tickLabels[i]}</text>
    {/each}
    <line x1="{x[0]}" x2="{x[1]}" y1="{y[0]}" y2="{y[0]}"  style="{axisLineStyleStr}"></line>
-</g>
+   </g>
 {/if}
 
 <style>

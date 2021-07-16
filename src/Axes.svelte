@@ -28,9 +28,9 @@
 
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
-      "small": 15,
-      "medium": 20,
-      "large": 25
+      "small": 10,
+      "medium": 15,
+      "large": 20
    };
 
    // line styles for different scales and types
@@ -326,12 +326,15 @@
          <!-- axis and box -->
          <slot name="xaxis"></slot>
          <slot name="yaxis"></slot>
-         <slot name="box"></slot>
 
          <!-- main plot content -->
          <g clip-path="url(#{clipPathID})">
             <slot></slot>
          </g>
+
+         <!-- axis and box -->
+         <slot name="box"></slot>
+
       </svg>
    </div>
 
