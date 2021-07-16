@@ -2,14 +2,18 @@
 
 ## To do
 
-* [x] Implement `Segments` component
-* [x] Implement `TextLabels` component
-* [x] Refactor `ScatterSeries` component
-* [x] Refactor `LinesSeries` component
+* [ ] Implement parameter `position` for `TextLabels` (similar to pos in R)
 * [ ] Implement fixed labels for bars and scatter series
 * [ ] Implement rotation of axis ticks (via parameter las)
+* [ ] Implement use of scientific format for axes ticks (>1000 or <0.001).
 * [ ] Publish on GutHub
 * [ ] Publish on NPM https://zellwk.com/blog/publish-to-npm/
+* [x] Refactor `BarSeries` component
+* [x] Refactor `LinesSeries` component
+* [x] Refactor `ScatterSeries` component
+* [x] Implement `TextLabels` component
+* [x] Implement `Segments` component
+* [x] Implement `Rectangles` component
 
 ## Description
 
