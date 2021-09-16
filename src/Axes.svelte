@@ -181,7 +181,7 @@
 
       // if step is smaller than 1 round values to remove small decimals accidentiall added by JS
       if (Math.abs(tickSpacing) < 1) {
-         const r = Math.pow(10, Math.round(-Math.log10(tickSpacing)));
+         const r = Math.pow(10, 1 + Math.round(-Math.log10(tickSpacing)));
          ticks = ticks.map(v => Math.round((v + Number.EPSILON) * r) / r)
       }
 
