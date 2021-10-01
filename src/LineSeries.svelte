@@ -14,7 +14,7 @@
 
    /* sanity check of input parameters */
    if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length != yValues.length) {
-      throw("ScatterSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
+      throw("LineSeries: parameters 'xValues' and 'yValues' must be numeric vectors of the same length.");
    }
 
    // compute ranges for x and y values
