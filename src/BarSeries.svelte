@@ -66,7 +66,7 @@
 </script>
 
 <g class="series series_bar" title="{title}">
-   <Rectangles {left} {top} {width} {height} {borderColor} {faceColor />
+   <Rectangles {left} {top} {width} {height} {borderColor} {faceColor} />
 </g>
 
 <style>
