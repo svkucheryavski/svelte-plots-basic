@@ -8,7 +8,8 @@ export { default as Segments } from './Segments.svelte';
 export { default as TextLabels } from './TextLabels.svelte';
 
 export { default as BarSeries } from './BarSeries.svelte';
-export { default as LineSeries } from './LineSeries.svelte';
 export { default as ScatterSeries } from './ScatterSeries.svelte';
+export { default as LineSeries } from './LineSeries.svelte';
+export { default as AreaSeries } from './AreaSeries.svelte';
 
-export { default as Colors } from './Colors.js';
+export { Colors } from './Colors.js';
