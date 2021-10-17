@@ -36,7 +36,7 @@
    const scale = axes.scale;
 
    // reactive variables for coordinates of data points in pixels
-   $: y0 = axes.scaleY([0], $yLim, $axesHeight)[0];
+   $: y0 = axes.scaleY([0], $yLim, $axesHeight);
    $: x = axes.scaleX(xValues, $xLim, $axesWidth);
    $: y = axes.scaleY(yValues, $yLim, $axesHeight);
    $: p = x !== undefined && y !== undefined ? x.map((v, i) => `${v},${y[i]}`).join(' ') : undefined;
@@ -45,7 +45,7 @@
 
 {#if p !== undefined}
    <g class="series lineseries" style="{areaStyleStr}" title="{title}">
-   <polygon points="{x[0] + "," + y0 + " " + p + " " + x[x.length - 1] + "," + y0}"/>
+   <polygon points="{x[0] + "," + y0 + " " + p + " " + x[x.length - 1] + "," + y0[0]}"/>
    </g>
 {/if}
 
