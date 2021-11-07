@@ -12,8 +12,6 @@
    export let borderWidth = 0;
    export let textSize = 1;
 
-   // styles for bars and labels
-   const textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`;
 
    /* sanity check for input parameters */
    if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length !== yValues.length) {
@@ -48,6 +46,10 @@
    $: y = axes.scaleY(yValues, $yLim, $axesHeight);
    $: dx = [0, 0, 1, 0, -1][pos] * axes.LABELS_MARGIN[$scale];
    $: dy = [0, 1, 0, -1, 0][pos] * axes.LABELS_MARGIN[$scale];
+
+   // styles for bars and labels
+   $: textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`;
+
 </script>
 
 {#if x !== undefined && y !== undefined}
