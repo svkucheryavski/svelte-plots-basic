@@ -401,6 +401,7 @@
    /* Axes (coordinate system) */
    :global(.axes-wrapper) {
       grid-area: axes;
+      position:relative;
       box-sizing: border-box;
       display: flex;
       padding: 0;
