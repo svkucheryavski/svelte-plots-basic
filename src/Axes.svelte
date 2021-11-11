@@ -229,8 +229,8 @@
     * @returns {text} the scale level ("small", "medium" or "large")
     */
    function getScale(width, height) {
-      if (height < 300 || width < 300) return "small";
-      if (height < 600 || width < 600) return "medium";
+      if (height < 300.2 || width < 300.2) return "small";
+      if (height < 600.2 || width < 600.2) return "medium";
       return "large";
    }
 
@@ -308,9 +308,9 @@
 <div class="plot {'plot_' + $scale}"  class:plot_error="{!$isOk}">
 
    <!-- plot title and axis labels -->
-   {#if title !== ""}<div class="axes__title">{title}</div>{/if}
-   {#if yLabel !== ""}<div class="axes__ylabel"><span>{yLabel}</span></div>{/if}
-   {#if xLabel !== ""}<div class="axes__xlabel"><span>{xLabel}</span></div>{/if}
+   {#if title !== ""}<div class="axes__title">{@html title}</div>{/if}
+   {#if yLabel !== ""}<div class="axes__ylabel"><span>{@html yLabel}</span></div>{/if}
+   {#if xLabel !== ""}<div class="axes__xlabel"><span>{@html xLabel}</span></div>{/if}
 
    <!-- axes (coordinate system) -->
    <div class="axes-wrapper" bind:this="{axesWrapper}" >
@@ -354,7 +354,7 @@
       font-family: Arial, Helvetica, sans-serif;
 
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: min-content 1fr;
       grid-template-rows: auto 1fr auto;
       grid-template-areas:
          ". title"
@@ -363,8 +363,8 @@
 
       box-sizing: border-box;
       background: #fefefe;
-      min-width: 200px;
-      min-height: 200px;
+      min-width: 100px;
+      min-height: 50px;
       width: 100%;
       height: 100%;
       padding: 0;
@@ -401,16 +401,21 @@
    /* Axes (coordinate system) */
    :global(.axes-wrapper) {
       grid-area: axes;
+      box-sizing: border-box;
       display: flex;
       padding: 0;
       margin: 0;
    }
 
    :global(.axes) {
+      display: block;
       box-sizing: border-box;
-      box-sizing: border-box;
+      position:absolute;
+
       padding: 0;
       margin: 0;
+      height: 100%;
+      width: 100%;
       max-height: 100%;
       max-width: 100%;
       min-height: 100%;
