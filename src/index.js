@@ -6,6 +6,7 @@ export { default as Box } from './Box.svelte';
 export { default as Rectangles } from './Rectangles.svelte';
 export { default as Segments } from './Segments.svelte';
 export { default as TextLabels } from './TextLabels.svelte';
+export { default as TextLegend } from './TextLegend.svelte';
 
 export { default as BarSeries } from './BarSeries.svelte';
 export { default as ScatterSeries } from './ScatterSeries.svelte';
