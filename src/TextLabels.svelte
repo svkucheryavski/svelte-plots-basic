@@ -12,6 +12,8 @@
    export let borderWidth = 0;
    export let textSize = 1;
 
+   // text-anchor values depending on position
+   const textAnchors = ["middle", "middle", "start", "middle", "end"];
 
    /* sanity check for input parameters */
    if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length !== yValues.length) {
@@ -49,12 +51,11 @@
 
    // styles for bars and labels
    $: textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`;
-
 </script>
 
 {#if x !== undefined && y !== undefined}
    {#each x as v, i}
-      <text style="{textStyleStr}" x="{x[i]}" y="{y[i]}" dx="{dx}" dy="{dy}" dominant-baseline="middle" text-anchor="middle">{@html labels[i]}</text>
+      <text style="{textStyleStr}" x="{x[i]}" y="{y[i]}" dx="{dx}" dy="{dy}" dominant-baseline="middle" text-anchor={textAnchors[pos]}>{@html labels[i]}</text>
    {/each}
 {/if}
 
