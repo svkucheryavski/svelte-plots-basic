@@ -10,9 +10,10 @@
    export let labels = undefined;
    export let faceColor = Colors.PRIMARY;
    export let borderColor = faceColor;
+   export let lineWidth = 1;
 
    // styles for bars and labels
-   const barsStyleStr = `fill:${faceColor};stroke:${borderColor};stroke-width: 1px;`;
+   const barsStyleStr = `fill:${faceColor};stroke:${borderColor};stroke-width: ${lineWidth}px;`;
 
    // multiply width and height values if needed
    if (!Array.isArray(left) || !Array.isArray(top) || left.length < 1 || left.length != top.length) {
