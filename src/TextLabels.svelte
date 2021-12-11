@@ -55,7 +55,7 @@
 
 {#if x !== undefined && y !== undefined}
    {#each x as v, i}
-      <text style="{textStyleStr}" x="{x[i]}" y="{y[i]}" dx="{dx}" dy="{dy}" dominant-baseline="middle" text-anchor={textAnchors[pos]}>{@html labels[i]}</text>
+      <text style={textStyleStr} x={x[i]} y={y[i]} dx={dx} dy={dy} dominant-baseline="middle" text-anchor={textAnchors[pos]}>{@html labels[i]}</text>
    {/each}
 {/if}
 
