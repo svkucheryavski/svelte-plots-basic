@@ -458,7 +458,7 @@
       font-size: 1.3em;
       font-weight: bold;
       line-height: 1.2em;
-      padding: 0.4em;
+      padding: 0.5em 0;
       text-align: center;
    }
 
