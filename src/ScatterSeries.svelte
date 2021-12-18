@@ -1,7 +1,7 @@
 <script>
 
    import { getContext } from 'svelte';
-   import { mrange } from 'stat-js'
+   import { mrange } from 'mdatools/stat';
    import { Colors } from './Colors';
    import TextLabels from './TextLabels.svelte';
 

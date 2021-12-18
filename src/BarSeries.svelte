@@ -1,7 +1,7 @@
 <script>
    import { getContext } from 'svelte';
    import { Colors } from './Colors';
-   import { max, mrange, diff } from 'stat-js'
+   import { max, mrange, diff } from 'mdatools/stat';
    import Rectangles from './Rectangles.svelte';
 
    /* input parameters */

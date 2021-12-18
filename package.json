@@ -14,7 +14,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
-    "stat-js": "file:../stat-js/"
+    "mdatools": "^0.1.0"
   },
   "keywords": [
     "svelte",
