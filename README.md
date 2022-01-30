@@ -1,36 +1,21 @@
 # Svelte plots
 
-## To do
-
-* [ ] Implement parameter `position` for `TextLabels` (similar to pos in R)
-* [ ] Implement fixed labels for bars and scatter series
-* [ ] Implement rotation of axis ticks (via parameter las)
-* [ ] Implement use of scientific format for axes ticks (>1000 or <0.001).
-* [ ] Publish on GutHub
-* [ ] Publish on NPM https://zellwk.com/blog/publish-to-npm/
-* [x] Refactor `BarSeries` component
-* [x] Refactor `LinesSeries` component
-* [x] Refactor `ScatterSeries` component
-* [x] Implement `TextLabels` component
-* [x] Implement `Segments` component
-* [x] Implement `Rectangles` component
-
 ## Description
 
-`svelte-plots` is a [Svelte](https://svelte.dev) component library for creating very simple 2D plots/charts. It is currently under active development and some breaking changes may occur. In its current state (v. 0.1.0) it allows to create bar, scatter and line charts as well as any combination of the three. The charts are created using [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) and are re-scalable.
+`svelte-plots-basic` is a [Svelte](https://svelte.dev) component library for creating very simple 2D plots/charts. It is currently under active development and breaking changes may occur. In its current state (v. 0.1.0) it allows to create bar, scatter, area and line charts as well as any combination of the four. The charts are created using [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) and are re-scalable.
 
 ## Installation
 
 The set up process is similar to any other Svelte component library. Just use:
 
 ```
-npm -i -D svelte-plots
+npm -i -D svelte-plots-basic
 ```
 
 or, to install it with yarn:
 
 ```
-yarn add -D svelte-plots
+yarn add -D svelte-plots-basic
 ```
 
 
@@ -139,4 +124,5 @@ Each component is responsible for visualization of the corresponding axis. The a
 * `tickLabels` — vector with values to be shown as labels beside each tick
 * `showGrid` — a logical parameter, which allows to show grid lines on the plot
 
-The components must be placed in a particular slot of the parent `Axes` component, so use:
+The components must be placed in a particular slot of the parent `Axes` component.
+
