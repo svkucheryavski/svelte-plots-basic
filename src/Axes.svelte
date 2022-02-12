@@ -315,7 +315,7 @@
    {#if xLabel !== ""}<div class="axes__xlabel"><span>{@html xLabel}</span></div>{/if}
 
    <!-- axes (coordinate system) -->
-   <div class="axes-wrapper" bind:this="{axesWrapper}" >
+   <div class="axes-wrapper" bind:this={axesWrapper} >
       <svg preserveAspectRatio="none" class="axes">
 
          <!-- define clipping path -->
@@ -401,11 +401,13 @@
    }
 
    /* Axes (coordinate system) */
-   :global(.axes-wrapper) {
+   .axes-wrapper {
       grid-area: axes;
       position:relative;
       box-sizing: border-box;
       display: flex;
+      width: 100%;
+      height: 100%;
       padding: 0;
       margin: 0;
    }
