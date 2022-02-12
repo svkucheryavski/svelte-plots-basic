@@ -297,8 +297,8 @@
       !$xLim.some(v => isNaN(v)) &&
       $xLim[1] !== $xLim[0] &&
       $yLim[1] !== $yLim[0] &&
-      cpy[0] > cpy[1] &&
-      cpx[1] > cpx[0]
+      $width > (margins[1] + margins[3]) &&
+      $height > (margins[0] + margins[2])
    )
 
    // computes coordinates for clip path box
