@@ -1,5 +1,5 @@
 <script>
-	import { onMount, setContext } from 'svelte';
+	import { onMount, setContext, createEventDispatcher } from 'svelte';
 	import { writable } from 'svelte/store';
 
    /* input parameters */
@@ -10,7 +10,8 @@
    export let yLabel = "";                      // label for y-axis
    export let multiSeries = true;               // is the plot for one series or for many
 
-   /* constants for internal use */
+   // event dispatcher
+   const dispatch = createEventDispatcher();
 
    // how big are margins (number of pixels in unit margin value) between axis and plot area if axis are shown
    const AXES_MARGIN_FACTORS = {
@@ -276,6 +277,22 @@
       ro.observe(axesWrapper);
    });
 
+   // handle click on plot elements and dispatch manual events
+   function handleClick(e) {
+
+      if (e.target.tagName === "text" && e.target.parentNode.classList.contains("series_scatter")) {
+         dispatch("markerclick", {markerid: e.target.dataset.id})
+         return;
+      }
+
+      if (e.target.tagName === "rect" && e.target.parentNode.classList.contains("series_bar")) {
+         dispatch("barclick", {markerid: e.target.dataset.id})
+         return;
+      }
+
+      dispatch("axesclick")
+   }
+
 
    // this is reactive in case if limX and limY are interactively changed by parent script
    $: if (!limX.some(v => v === undefined)) xLim.update(v => limX);
@@ -316,12 +333,12 @@
 
    <!-- axes (coordinate system) -->
    <div class="axes-wrapper" bind:this={axesWrapper} >
-      <svg preserveAspectRatio="none" class="axes">
+      <svg on:click={handleClick} preserveAspectRatio="none" class="axes">
 
          <!-- define clipping path -->
          <defs>
             <clipPath id="{clipPathID}">
-               <rect x="{cpx[0]}" y="{cpy[1]}" width = "{cpx[1] - cpx[0]}" height="{cpy[0] - cpy[1]}"></rect>
+               <rect style="pointer-events:none" x="{cpx[0]}" y="{cpy[1]}" width = "{cpx[1] - cpx[0]}" height="{cpy[0] - cpy[1]}"></rect>
             </clipPath>
          </defs>
 
