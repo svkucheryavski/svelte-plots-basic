@@ -60,7 +60,7 @@
 
    // styles for the elements
    $: textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
-      font-size:${textSize}em;dominant-baseline="middle" text-anchor=${textAnchors[pos]}`;
+      font-size:${textSize}em; text-anchor:${textAnchors[pos]};`;
 </script>
 
 {#if x !== undefined && y !== undefined}
@@ -71,3 +71,8 @@
    </g>
 {/if}
 
+<style>
+   text {
+      dominant-baseline: middle;
+   }
+</style>
