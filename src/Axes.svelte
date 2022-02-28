@@ -277,19 +277,27 @@
       ro.observe(axesWrapper);
    });
 
+
    // handle click on plot elements and dispatch manual events
+   function dispatchClickEvent(eventName, el) {
+      dispatch(eventName, {seriesTitle: el.parentNode.getAttribute('title'), elementID: el.dataset.id});
+   }
+
    function handleClick(e) {
 
+      // scatter plot markers
       if (e.target.tagName === "text" && e.target.parentNode.classList.contains("series_scatter")) {
-         dispatch("markerclick", {markerid: e.target.dataset.id})
+         dispatchClickEvent("markerclick", e.target);
          return;
       }
 
+      // bar plot bars
       if (e.target.tagName === "rect" && e.target.parentNode.classList.contains("series_bar")) {
-         dispatch("barclick", {markerid: e.target.dataset.id})
+         dispatchClickEvent("barclick", e.target);
          return;
       }
 
+      // outside any plot element
       dispatch("axesclick")
    }
 
