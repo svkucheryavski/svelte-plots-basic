@@ -359,7 +359,7 @@
          <slot name="yaxis"></slot>
 
          <!-- main plot content -->
-         <g clip-path="url(#{clipPathID})">
+         <g class="axes-content" clip-path="url(#{clipPathID})">
             <slot></slot>
          </g>
 
@@ -454,6 +454,18 @@
       max-width: 100%;
       min-height: 100%;
       min-width: 100%;
+   }
+
+   :global(.axes-content) {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      min-width: 100%;
+
    }
 
    :global(.axes__xlabel) {
