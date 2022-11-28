@@ -64,7 +64,7 @@
 </script>
 
 {#if x !== undefined && y !== undefined}
-   <g class="series {style}" title={title} style={textStyleStr} >
+   <g dominant-baseline="middle" class="series {style}" title={title} style={textStyleStr} >
    {#each x as v, i}
       <text data-id={i} x={x[i]} y={y[i]} dx={dx} dy={dy}>{@html labels[i]}</text>
    {/each}
@@ -73,6 +73,7 @@
 
 <style>
    text, text > :global(tspan) {
-      dominant-baseline: middle;
+      cursor: default;
+      user-select: none;
    }
 </style>

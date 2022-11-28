@@ -1,23 +1,24 @@
 {
-  "name": "svelte-plots-basic",
-  "dependencies": {
-    "svelte": "^3.53.0",
-    "mdatools": "^0.6.1"
-  },
-  "keywords": [
-    "svelte",
-    "svelte plots"
-  ],
-  "files": [
-    "src",
-    "dist"
-  ],
-  "description": "Svelte components for creating simple plots",
-  "version": "1.1.4",
-  "repository": {
-    "type": "git",
-    "url": "svkucheryavski/svelte-plots-basic"
-  },
-  "author": "Sergey Kucheryavskiy",
-  "license": "MIT"
+   "name": "svelte-plots-basic",
+   "description": "Svelte components for creating simple plots",
+   "version": "1.1.4",
+   "author": "Sergey Kucheryavskiy",
+   "license": "MIT",
+   "private": false,
+   "main": "src/index.js",
+
+   "dependencies": {
+      "mdatools": "^0.6.1"
+   },
+   "keywords": [
+      "svelte",
+      "svelte plots"
+   ],
+   "files": [
+      "src"
+   ],
+   "repository": {
+      "type": "git",
+      "url": "svkucheryavski/svelte-plots-basic"
+   }
 }
