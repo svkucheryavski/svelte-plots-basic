@@ -355,7 +355,7 @@
 
    <!-- axes (coordinate system) -->
    <div class="axes-wrapper" bind:this={axesElement} >
-      <svg on:click={handleClick} preserveAspectRatio="none" class="axes">
+      <svg on:click={handleClick} on:keydown={handleClick} preserveAspectRatio="none" class="axes">
 
          <!-- define clipping path -->
          <defs>
