@@ -25,7 +25,7 @@
    const textAnchors = ["middle", "middle", "start", "middle", "end"];
 
    // sanity check for input parameters
-   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length !== yValues.length) {
+   if (!Array.isArray(xValues) || !Array.isArray(yValues) || xValues.length !== yValues.length) {
       throw("TextLabels: parameters 'xValues' and 'yValues' must be vectors of the same length.")
    }
 
@@ -59,7 +59,7 @@
    $: dy = [0, 1, 0, -1, 0][pos] * axes.LABELS_MARGIN[$scale];
 
    // styles for the elements
-   $: textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
+   $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
       font-size:${textSize}em; text-anchor:${textAnchors[pos]};`;
 </script>
 
@@ -75,5 +75,6 @@
    text, text > :global(tspan) {
       cursor: default;
       user-select: none;
+      dominant-baseline: middle;
    }
 </style>
