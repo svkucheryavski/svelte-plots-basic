@@ -65,13 +65,18 @@
 
 {#if x !== undefined && y !== undefined}
    <g dominant-baseline="middle" class="series {style}" title={title} style={textStyleStr} >
+
    {#if pos === 0}
+   {#each x as v, i}
       <text data-id={i} x={x[i]} y={y[i]}>{@html labels[i]}</text>
+   {/each}
+
    {:else}
    {#each x as v, i}
       <text data-id={i} x={x[i]} y={y[i]} dx={dx[i]} dy={dy[i]} text-anchor={textAnchors[i]}>{@html labels[i]}</text>
    {/each}
    {/if}
+
    </g>
 {/if}
 
