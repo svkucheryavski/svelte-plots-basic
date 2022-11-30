@@ -39,7 +39,7 @@
    }
 
    // prepare values for labels and positions
-   $: labelsLocal = processValues(pos, xValues.length);
+   $: labelsLocal = processValues(labels, xValues.length);
    $: posLocal = pos === 0 ? pos : processValues(pos, xValues.length);
 
    // get axes context and reactive variables needed to compute coordinates
@@ -53,10 +53,9 @@
    // reactive variables for coordinates of data points in pixels
    $: x = axes.scaleX(xValues, $xLim, $axesWidth);
    $: y = axes.scaleY(yValues, $yLim, $axesHeight);
-   $: dx = pos === 0 ? 0 : subset(vmult([0, 1, 0, -1], axes.LABELS_MARGIN[$scale]), pos)
-   $: dy = pos === 0 ? 0 : subset(vmult([1, 0, -1, 0], axes.LABELS_MARGIN[$scale]), pos)
-   $: textAnchors = pos === 0 ? "middle" : subset([ "middle", "start", "middle", "end"], pos);
-
+   $: dx = pos === 0 ? 0 : subset(vmult([0, 1, 0, -1], axes.LABELS_MARGIN[$scale]), posLocal)
+   $: dy = pos === 0 ? 0 : subset(vmult([1, 0, -1, 0], axes.LABELS_MARGIN[$scale]), posLocal)
+   $: textAnchors = pos === 0 ? "middle" : subset([ "middle", "start", "middle", "end"], posLocal);
 
    // styles for the elements
    $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
@@ -64,16 +63,16 @@
 </script>
 
 {#if x !== undefined && y !== undefined}
-   <g dominant-baseline="middle" class="series {style}" title={title} style={textStyleStr} >
+   <g class="series {style}" title={title} style={textStyleStr} >
 
    {#if pos === 0}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]}>{@html labels[i]}</text>
+      <text data-id={i} x={x[i]} y={y[i]}>{@html labelsLocal[i]}</text>
    {/each}
 
    {:else}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={dx[i]} dy={dy[i]} text-anchor={textAnchors[i]}>{@html labels[i]}</text>
+      <text data-id={i} x={x[i]} y={y[i]} dx={dx[i]} dy={dy[i]} text-anchor={textAnchors[i]}>{@html labelsLocal[i]}</text>
    {/each}
    {/if}
 
