@@ -7,6 +7,7 @@ export const Colors = {
    "MIDDLEGRAY": "#dadada",
    "LIGHTGRAY": "#f0f0f0",
    "DARKGRAY":  "#606060",
+   "LEGEND": "#303030",
 
    "PRIMARY": "#2266ff",
    "PRIMARY_TEXT": "#333",

@@ -5,10 +5,14 @@
    "author": "Sergey Kucheryavskiy",
    "license": "MIT",
    "private": false,
-   "main": "src/index.js",
-
+   "exports": {
+      "./2d":  "./src/2d/index.js",
+      "./2d/*.svelte":  "./src/2d/*.svelte",
+      "./3d":  "./src/3d/index.js",
+      "./3d/*.svelte":  "./src/3d/*.svelte"
+   },
    "dependencies": {
-      "mdatools": "^0.6.1"
+      "mdatools": "../mdatools-js/"
    },
    "keywords": [
       "svelte",
