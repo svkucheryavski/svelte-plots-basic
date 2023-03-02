@@ -44,6 +44,7 @@
    const yLim = axes.yLim;
    const scale = axes.scale;
    const isOk = axes.isOk;
+   const tY = axes.tY;
 
    // prepare variables for coordinates
    let grid = [];
@@ -58,7 +59,7 @@
       const tickNum = ticksX.length;
 
       // compute tick y-coordinates (up and bottom)
-      const dY = ($yLim[1] - $yLim[0]) / 100; // 1% of axis size
+      const dY = axes.invTransform([axes.TICK_SIZE[$scale]], $tY.objects)[0];
       const ticksY1 = vector([$yLim[0]]).rep(tickNum);
       const ticksY2 = ticksY1.add(dY);
 
@@ -83,8 +84,8 @@
       ]
 
       tickCoords = [
-         [ticksX, ticksY1],
-         [ticksX, ticksY2]
+         [ticksX, ticksY2],
+         [ticksX, ticksY1]
       ];
    }
 </script>

@@ -59,11 +59,11 @@
 <g class="tick_labels" style={textStyleStr} >
    {#if las === 2 && pos === 4}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={dx} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"middle"}>{@html tickLabels[i]}</text>
+      <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={dx*1.25} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"middle"}>{@html tickLabels[i]}</text>
    {/each}
    {:else if las === 2 && pos === 1}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={-dy} dy={0} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"end"}>{@html tickLabels[i]}</text>
+      <text data-id={i} x={x[i]} y={y[i]} dx={-dy/2} dy={0} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"end"}>{@html tickLabels[i]}</text>
    {/each}
    {:else}
    {#each x as v, i}

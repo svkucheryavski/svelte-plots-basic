@@ -51,6 +51,13 @@
       'large': 8
    };
 
+   // font size for legend items in pixels
+   const LEGEND_FONT_SIZE = {
+      "small": 10,
+      "medium": 12,
+      "large": 14
+   };
+
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
       'small': 10,
@@ -142,6 +149,24 @@
    }
 
 
+   /**
+    * Generic function to transform x or y-values from screen (SVG) coordinates to plot coordinates.
+    *
+    * @param {Array|Vector} v - vector with coordinates (or objects size) in screen (SVG) coordinates.
+    * @param {Object} tA - array with scaling and translation factors.
+    *
+    * @returns {Vector} vector plot coordinates.
+    *
+    */
+   const invTransform = function(v, tA) {
+
+      if (!$isOk || v === undefined || v === null) return undefined;
+      if (Array.isArray(v)) v = vector(v);
+      if (!isvector(v) || v.length < 1) return undefined;
+
+      return v.apply(a => (a - tA[2]) / tA[0] + tA[1]).v;
+   }
+
    /*****************************************/
    /* Storage to share with children        */
    /*****************************************/
@@ -162,6 +187,7 @@
 
       // methods
       transform: transform,
+      invTransform: invTransform,
 
       // variables
       scale: scale,
@@ -176,7 +202,8 @@
       LABELS_MARGIN: LABELS_MARGIN,
       TICK_NUM: TICK_NUM,
       TICK_SIZE: TICK_SIZE,
-      MARKER_SYMBOLS: MARKER_SYMBOLS
+      MARKER_SYMBOLS: MARKER_SYMBOLS,
+      LEGEND_FONT_SIZE: LEGEND_FONT_SIZE
    }
 
 	setContext('axes', context);

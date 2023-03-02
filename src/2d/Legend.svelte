@@ -5,18 +5,18 @@
    * shows legend for plot components                  *
    *****************************************************/
 
+   import { mean } from 'mdatools/stat';
    import { getContext } from 'svelte';
    import { Colors } from '../Colors';
+
 
    /*****************************************/
    /* Input parameters                      */
    /*****************************************/
 
-   export let items;                // array with text labels for each legend element
-
-   export let margin = 0.01;         // margin between axes borders and the legend border (as percent of axes size)
+   export let items;                 // array with text labels for each legend element
 	export let position = "topleft";  // position of the legend ("topleft", "top", "topright", "right", "bottomright", etc).
-   export let location = "inside";
+
 
    /*****************************************/
    /* Component code                        */
@@ -30,67 +30,91 @@
    const tY = axes.tY;
    const isOk = axes.isOk;
 
-   const fontSizes = {"small": 10, "medium": 12, "large": 14};
 
-   let elUnit, elMargin, elHeight, elWidth;
-   $: if (isOk) {
-      elUnit = fontSizes[$scale];
-      elMargin = elUnit / 2;
-      elHeight = elUnit + 2 * elMargin;
-      elWidth = elUnit;
-   };
+   /**
+    * Computes width of text element for given font.
+    *
+    * @param {string} text - string with text
+    * @param {string} font - font name and size, e.g. '12px Arial'
+    *
+    * @return {number} size of element in pixels
+    */
+   function getTextWidth(text, font) {
+      const element = document.createElement('canvas');
+      const context = element.getContext('2d');
+      context.font = font;
+      return context.measureText(text).width;
+   }
 
-   // compute size and coordinates of the legend items
-   let x, y;
-   $: {
-      if ($isOk) {
-         // horizontal positions
-         const width = $xLim[1] - $xLim[0];
-         x = axes.transform([
-            $xLim[0] + width * margin,
-            $xLim[1] - width * margin,
-            width / 2
-         ], $tX.coords);
+   /**
+    * Compute size of main legend elements.
+    *
+    * @param {Array} items - array of legend items and their properties.
+    * @param {number} fontSize - font size of a legend element.
+    * @param {string} position - position of the legend.
+    *
+    * @return {Array} array with height and width og graphical part of legend item, padding size,
+    * height and width of text labels (all in pixels).
+    */
+   function getLegendSize(items, fontSize, position)  {
 
-         // vertical positions
-         const height = $yLim[1] - $yLim[0];
-         y = axes.transform([
-            $yLim[1] - height * margin,
-            $yLim[0] + height * margin,
-            height / 2
-         ], $tY.coords);
+      // compute size of graphical elements
+      const elHeight = fontSize;       // height of legend element without padding
+      const elPadding = elHeight / 4;  // top and bottom padding
+      const elWidth = elHeight * 1.5;  // width of legend element without padding
+
+      // compute size of text label elements
+      // TODO: implement one row legend if position is "top" or "bottom"
+      const lbHeight = elHeight;
+      let lbWidth = 0;
+      for (let i = 0; i < items.length; i++) {
+         const w = getTextWidth('  ' + items[i].label + '  ', fontSize + 'px Arial');
+         lbWidth = w > lbWidth ? w : lbWidth;
       }
 
-      const n = items.length;
-      const elements = new Array(n);
+      return [elHeight, elWidth, elPadding, lbHeight, lbWidth];
    }
 
-   // TODO: to be implemented
-   const getTextWidth = (text, font) => {
-   const element = document.createElement('canvas');
-   const context = element.getContext('2d');
-   context.font = font;
-   return context.measureText(text).width;
-   }
+   // reactive expression to compute all sizes and coordinates
+   let left, top, elHeight, elWidth, elPadding, lbHeight, lbWidth, legendHeight, legendWidth, fontSize;
+   $: if ($isOk) {
 
-$: {
-   for (let i = 0; i < items.length; i++) {
-      console.log(getTextWidth(items[i].label, 'Arial'))
-   }
-}
+      fontSize = axes.LEGEND_FONT_SIZE[$scale];
 
+      // compute size of elements
+      [elHeight, elWidth, elPadding, lbHeight, lbWidth] = getLegendSize(items, fontSize, position);
+
+      // compute size of whole legend box
+      legendHeight = (elHeight + 2 * elPadding) * items.length;
+      legendWidth = (elWidth + 2 * elPadding + lbWidth);
+
+      // compute coordinates of top left corner of the legend box
+      const xLimPx = axes.transform($xLim, $tX.coords);
+      left = position.includes("left") ? xLimPx[0] + axes.TICK_SIZE[$scale] :
+          position.includes("right") ? xLimPx[1] - legendWidth - axes.TICK_SIZE[$scale] :
+          mean(xLimPx) - legendWidth/2;
+
+      const yLimPx = axes.transform($yLim, $tY.coords);
+      top = position.includes("top") ? yLimPx[1] + axes.TICK_SIZE[$scale] :
+          position.includes("bottom") ? yLimPx[0] - legendHeight - axes.TICK_SIZE[$scale] :
+          mean(yLimPx) - legendHeight/2;
+   }
 </script>
 
 {#if $isOk }
 
-<svg x="{x[0] + 10}px" y="{y[0]}px" height="{elHeight * items.length}px" width="100px">
-<rect height="100%" width="100%" style="fill:white"></rect>
+<!-- outer legend box, background and frame -->
+<svg x="{left}px" y="{top}px" height="{legendHeight}px" width="{legendWidth}">
+<rect height="100%" width="100%" style="fill:white;stroke:{Colors.MIDDLEGRAY};"></rect>
+
 {#each items as item, i}
-<svg x="{0}px" y="{i * elHeight}px" height="{elHeight}px" >
+
+<!-- individual legend item -->
+<svg x="{0}px" y="{i * (elHeight + 2 * elPadding)}px" width="{legendWidth}px" height="{elHeight + 2 * elPadding}px">
 
    <!-- line -->
    {#if item.lineType && item.lineType > 0 && item.lineType <= 4}
-   <line x1={0} x2={elWidth} y1={elHeight/2} y2={elHeight/2} style={`
+   <line x1={elPadding} x2={elPadding + elWidth} y1={(elHeight + elPadding * 2)/2} y2={(elHeight + elPadding * 2)/2} style={`
       stroke:${item.lineColor ? item.lineColor : Colors.PRIMARY};
       stroke-width: ${item.lineWidth ? item.lineWidth : 1}px;
       stroke-dasharray:${axes.LINE_STYLES[$scale][item.lineType - 1]}
@@ -99,25 +123,25 @@ $: {
 
    <!-- marker -->
    {#if item.marker && item.marker > 0 && item.marker < axes.MARKER_SYMBOLS.length}
-   <text x="{elMargin/2}px" y="{elMargin}px"
-      dominant-baseline="hanging"
+   <text x="{(elWidth + 2 * elPadding)/2}px" y="{(elHeight + 2 * elPadding)/2}px"
+      dominant-baseline="middle"
       style={`
          background: red;
          fill:${item.faceColor ? item.faceColor : "transparent"};
          stroke-width:${item.borderWidth ? item.borderWidth : 1}px;
          stroke:${item.borderColor ? item.borderColor : Colors.PRIMARY};
-         font-size:${elUnit}px;
-         text-anchor:start;`}
+         font-size:${fontSize}px;
+         text-anchor:middle;`}
    >{axes.MARKER_SYMBOLS[item.marker - 1]}</text>
    {/if}
 
 
 
    <!-- text -->
-   <text x="{elWidth + elMargin}px" y="{elMargin}px"
+   <text x="{elWidth + elPadding * 3}px" y="{elPadding}px"
       dominant-baseline="hanging"
-      style={`text-anchor:start;fill:${Colors.LEGEND};font-size:${elUnit}px`};
-   >{@html item.label}</text>
+      style={`text-anchor:start;fill:${Colors.LEGEND};font-size:${fontSize}px`};
+   >{@html '&nbsp;' + item.label}</text>
 
 </svg>
 {/each}
