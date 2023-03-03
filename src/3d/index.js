@@ -10,4 +10,4 @@ export { default as Lines } from './Lines.svelte';
 export { default as Mesh } from './Mesh.svelte';
 export { default as Points } from './Points.svelte';
 
-export { Colors } from '../Colors.js';
+export { getcolmap, Colors } from '../Colors.js';

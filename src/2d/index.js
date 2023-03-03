@@ -17,4 +17,4 @@ export { default as ColorLegend } from './ColorLegend.svelte';
 export { default as Legend } from './Legend.svelte';
 export { default as TextLegend } from './TextLegend.svelte';
 
-export { Colors } from '../Colors.js';
+export { getcolmap, Colors } from '../Colors.js';

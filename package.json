@@ -1,7 +1,7 @@
 {
    "name": "svelte-plots-basic",
    "description": "Svelte components for creating simple plots",
-   "version": "1.1.4",
+   "version": "2.0.0",
    "author": "Sergey Kucheryavskiy",
    "license": "MIT",
    "private": false,
@@ -16,6 +16,8 @@
    },
    "keywords": [
       "svelte",
+      "plots",
+      "charts",
       "svelte plots"
    ],
    "files": [
