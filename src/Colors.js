@@ -9,7 +9,7 @@ export const Colors = {
    "DARKGRAY":  "#606060",
    "LEGEND": "#303030",
 
-   "PRIMARY": "#2266ff",
+   "PRIMARY": "#2679B2",
    "PRIMARY_TEXT": "#333",
 }
 

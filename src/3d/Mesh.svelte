@@ -21,7 +21,7 @@
    export let yValues;
    export let zValues;
 
-   export let lineColor = "#ff0000";
+   export let colmap = [Colors.PRIMARY, Colors.PRIMARY];
    export let lineType = 1;
    export let lineWidth = 1;
 
@@ -51,14 +51,17 @@
          throw Error('Mesh: parameters "xValues" and "zValues" must be vectors or arrays with values.');
       }
 
+      const nbins = colmap.length;
       const nx = yValues.nrows;
       const nz = yValues.ncols;
 
       const nr = range(yValues.v);
-      const dnr = (nr[1] - nr[0]) / 20;
-      const left = nr[0] + dnr;
-      const right = nr[1] - dnr;
+      const dnr = (nr[1] - nr[0]) / 100;
+      const left = nr[0] - dnr;
+      const right = nr[1] + dnr;
       const span = right - left;
+      console.log(nr)
+      console.log([left, right, span])
 
       // compute coordinates for mesh segments lines
       xMesh1Start = Vector.zeros((nx - 1) * nz);
@@ -97,7 +100,8 @@
                zMesh1End.v[n1] = zValues.v[z];
                yMesh1End.v[n1] = yValues.v[z * nz + x + 1];
 
-               meshColor1.v[n1] = ((yValues.v[z * nz + x] + yValues.v[z * nz + x + 1]) / 2 - left) / span
+               const colInd = Math.round(((yValues.v[z * nz + x] + yValues.v[z * nz + x + 1]) / 2 - left) / span * (nbins - 1));
+               meshColor1.v[n1] = colInd;
                n1 = n1 + 1;
             }
 
@@ -113,8 +117,9 @@
                zMesh2End.v[n2] = zValues.v[z + 1];
                yMesh2End.v[n2] = yValues.v[(z + 1) * nz + x];
 
-               meshColor2.v[n2] = ((yValues.v[z * nz + x] + yValues.v[(z + 1) * nz + x]) / 2 - left) / span
-               n2++;
+               const colInd = Math.round(((yValues.v[z * nz + x] + yValues.v[(z + 1) * nz + x]) / 2 - left) / span * (nbins - 1));
+               meshColor2.v[n2] = colInd;
+               n2 = n2 + 1;
             }
          }
       }
@@ -166,16 +171,17 @@
       }
    };
 
-   $: lineStyleStr = `stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType-1]}`;
+   $: console.log(meshColor1)
+   $: lineStyleStr = `stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType-1]};`;
 </script>
 
-<g class="series series_mesh" data-title={title}>
+<g class="series series_mesh" style={lineStyleStr} data-title={title}>
 {#if $isOk }
    {#each x11 as v, i}
-      <line vector-effect="non-scaling-stroke" x1={x11[i]} x2={x12[i]} y1={y11[i]} y2={y12[i]} style={`stroke:${lineColor + Math.round(meshColor1.v[i] * 100 - 10)};`} />
+      <line vector-effect="non-scaling-stroke" x1={x11[i]} x2={x12[i]} y1={y11[i]} y2={y12[i]} style={`stroke:${colmap[meshColor1.v[i]]};`} />
    {/each}
    {#each x21 as v, i}
-      <line vector-effect="non-scaling-stroke" x1={x21[i]} x2={x22[i]} y1={y21[i]} y2={y22[i]} style={`stroke:${lineColor + Math.round(meshColor2.v[i] * 100 - 10)};`} />
+      <line vector-effect="non-scaling-stroke" x1={x21[i]} x2={x22[i]} y1={y21[i]} y2={y22[i]} style={`stroke:${colmap[meshColor2.v[i]]};`} />
    {/each}
 {/if}
 </g>
