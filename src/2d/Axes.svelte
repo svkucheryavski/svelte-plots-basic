@@ -100,7 +100,8 @@
     *
     */
    function dispatchClickEvent(eventName, el) {
-      dispatch(eventName, {seriesTitle: el.parentNode.getAttribute('title'), elementID: el.dataset.id});
+      const id = Array.prototype.indexOf.call(el.parentNode.children, el)
+      dispatch(eventName, {seriesTitle: el.parentNode.getAttribute('title'), elementID: id});
    }
 
    /**

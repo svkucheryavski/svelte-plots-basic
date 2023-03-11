@@ -19,6 +19,10 @@ export function checkCoords(x, source) {
       throw Error(source + ": coordinates must be provided as array or instance of Vector class.");
    }
 
+   if (x.length < 1) {
+      throw Error(source + ": vector with coordinates is empty.");
+   }
+
    return x;
 }
 

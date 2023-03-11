@@ -7,7 +7,7 @@
 
    import { getContext } from 'svelte';
    import { Colors } from '../Colors';
-   import TextLabels from './TextLabels.svelte';
+   import { checkCoords } from '../Utils';
 
 
    /*****************************************/
@@ -30,22 +30,43 @@
 
    // get axes context and adjust x margins
    const axes = getContext('axes');
+   const tX = axes.tX;
+   const tY = axes.tY;
+   const isOk = axes.isOk;
 
-   let markerSymbol;
-   $: {
+   let x, y, markerSymbol;
+
+   // reactive calculations triggered by changes in coordinates and plot parameters
+   $: if ($isOk) {
+
       if (typeof(marker) !== "number" || marker < 1 || marker > axes.MARKER_SYMBOLS.length) {
          throw Error(`ScatterSeries: parameter "marker" must be a number from 1 to ${axes.MARKER_SYMBOLS.length}.`);
       }
 
       markerSymbol = axes.MARKER_SYMBOLS[marker - 1];
+
+
+      x = axes.transform(checkCoords(xValues, 'Points'), $tX.coords);
+      y = axes.transform(checkCoords(yValues, 'Points'), $tY.coords);
+
+      // sanity check for input parameters
+      if (x.length !== y.length) {
+         throw Error('Points: parameters "xValues" and "yValues" must be vectors of the same length.')
+      }
    }
 
+
+   // styles for the elements
+   $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
+      font-size:${markerSize}em; text-anchor:middle;cursor:default;user-select:none;`;
 </script>
 
-<TextLabels
-   {xValues} {yValues} {faceColor} {borderColor} {borderWidth} {title}
-   className="series_scatter"
-   labels={markerSymbol}
-   textSize={markerSize}
-/>
+{#if $isOk && x !== undefined && y !== undefined}
+<g class="series series_points" title={title} style={textStyleStr} >
+   {#each x as v, i}
+      <text x={x[i]} y={y[i]}>{markerSymbol}</text>
+   {/each}
+</g>
+{/if}
+
 

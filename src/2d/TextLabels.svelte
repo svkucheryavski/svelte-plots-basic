@@ -3,7 +3,6 @@
    * TextLabels component                              *
    * --------------------                              *
    * shows a series of text labels on the plot         *
-   * can be used as basis for marker plot              *
    *****************************************************/
 
    import { getContext } from 'svelte';
@@ -47,7 +46,7 @@
    $: if ($isOk) {
 
       if (typeof labels === 'string' && typeof pos !== 'number' ) {
-         throw('TextLabels: parameter "labels" is provided as single string, so "pos" must be a single number.')
+         throw Error('TextLabels: parameter "labels" is provided as single string, so "pos" must be a single number.');
       }
 
       x = axes.transform(checkCoords(xValues, 'TextLabels'), $tX.coords);
@@ -55,11 +54,11 @@
 
       // sanity check for input parameters
       if (x.length !== y.length) {
-         throw('TextLabels: parameters "xValues" and "yValues" must be vectors of the same length.')
+         throw Error('TextLabels: parameters "xValues" and "yValues" must be vectors of the same length.');
       }
 
       if (Array.isArray(labels) && labels.length !== x.length ) {
-         throw('TextLabels: number of elements in "labels" does not match number of coordinates.')
+         throw Error('TextLabels: number of elements in "labels" does not match number of coordinates.');
       }
    }
 
@@ -72,7 +71,7 @@
 
    // styles for the elements
    $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
-      font-size:${textSize}em; text-anchor:middle;`;
+      font-size:${textSize}em; text-anchor:middle;cursor: default;user-select: none;`;
 </script>
 
 {#if $isOk && x !== undefined && y !== undefined}
@@ -95,11 +94,3 @@
    {/if}
 </g>
 {/if}
-
-<style>
-   text, text > :global(tspan) {
-      cursor: default;
-      user-select: none;
-      dominant-baseline: middle;
-   }
-</style>
