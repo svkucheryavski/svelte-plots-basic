@@ -73,7 +73,7 @@
    }
 
    // marker symbols
-   const MARKER_SYMBOLS = ["●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"];
+   const MARKER_SYMBOLS = ["●", "◼", "▲", "▼", "⬥", "＋", "*", "×"];
 
    // constant to make clip path ID unique
    const clipPathID = 'plottingArea' + Math.round(Math.random() * 10000);
@@ -116,7 +116,7 @@
    function handleClick(e) {
 
       // click on scatter plot markers
-      if (e.target.tagName === 'text' && e.target.parentNode.classList.contains('series_scatter')) {
+      if (e.target.tagName === 'text' && e.target.parentNode.classList.contains('series_points')) {
          dispatchClickEvent('markerclick', e.target);
          return;
       }
@@ -352,7 +352,7 @@
          ". xlab";
 
       box-sizing: border-box;
-      background: #fefefe;
+      /* background: #fefefe; */
       min-width: 100px;
       min-height: 50px;
       width: 100%;
