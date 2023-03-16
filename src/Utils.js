@@ -111,7 +111,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
          throw Error('getAxisTicks: axis ticks must be provided as an array or as a vector.');
       }
 
-      return vector(ticks.v.filter(x => x >= lim[0] & x <= lim[1]));
+      return vector(ticks.filter(x => x >= lim[0] & x <= lim[1]));
    }
 
    // check if limits are ok
@@ -119,7 +119,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
 
    // get range as a nice number and compute min, max and steps for the tick sequence
    const delta = (lim[1] - lim[0]) / 50;
-   const range = niceNum(lim[1] - lim[0] - 2 * delta, round);
+   const range = niceNum(lim[1] - lim[0] - 1 * delta, round);
    const tickSpacing = niceNum(range / (maxTickNum - 1), round);
    const tickMin = Math.ceil((lim[0] + delta) / tickSpacing) * tickSpacing;
    const tickMax = Math.floor((lim[1] - delta) / tickSpacing) * tickSpacing;
@@ -137,7 +137,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
    }
 
    // make sure the ticks are not aligned with axes limits
-   return vector(ticks.v.filter(x => x >= lim[0] & x <= lim[1]));
+   return ticks.filter(x => x >= lim[0] & x <= lim[1]);
 }
 
 

@@ -108,7 +108,7 @@
 
       // here we do not need to make a matrix as the three values will be used as vectors
       titleCoords = [
-         [$xLim[0] - 2 * dX], [$yLim[0] - 2 * dY], [$zLim[1] + dZ]
+         [$xLim[0] - 2 * dX], [$yLim[0] - 2 * dY], [$zLim[1] + 3 * dZ]
       ];
    }
 </script>
