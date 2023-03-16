@@ -111,7 +111,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
          throw Error('getAxisTicks: axis ticks must be provided as an array or as a vector.');
       }
 
-      return vector(ticks.filter(x => x >= lim[0] & x <= lim[1]));
+      return ticks.filter(x => x >= lim[0] & x <= lim[1]);
    }
 
    // check if limits are ok
