@@ -5,7 +5,7 @@
    * shows x-axis and its elements (ticks, grid, etc.) *
    *****************************************************/
 
-   import { cbind, matrix, vector } from 'mdatools/arrays';
+   import { cbind, matrix, Vector } from 'mdatools/arrays';
    import { getContext } from 'svelte';
    import { Colors } from '../Colors';
    import { getAxisTicks } from '../Utils.js';
@@ -60,21 +60,21 @@
 
       // compute tick y-coordinates (middle, up and bottom)
       const dY = ($yLim[1] - $yLim[0]) / 100; // 1% of axis size
-      const ticksY  = vector([$yLim[0]]).rep(tickNum);
-      const ticksY1 = ticksY.subtract(dY);
-      const ticksY2 = ticksY.add(dY);
-      const ticksY3 = ticksY.subtract(dY * 2);
+      const ticksY  = Vector.fill($yLim[0], tickNum);
+      const ticksY1 = ticksY.subtract(dY * 1.5);
+      const ticksY2 = ticksY.add(dY * 1.5);
+      const ticksY3 = ticksY.subtract(dY * 5);
 
       // tick z-coordinates (middle, up and bottom)
       const dZ = ($zLim[1] - $zLim[0]) / 100; // 1% of axis size
-      const ticksZ  = vector([$zLim[0]]).rep(tickNum);
-      const ticksZ1 = ticksZ.subtract(dZ);
-      const ticksZ2 = ticksZ.add(dZ);
+      const ticksZ  = Vector.fill($zLim[0], tickNum);
+      const ticksZ1 = ticksZ.subtract(dZ * 1.5);
+      const ticksZ2 = ticksZ.add(dZ * 1.5);
       const ticksZ3 = ticksZ.subtract(dZ * 2);
 
       // coordinates for the ends of grid
-      const gridYEnd = vector([$yLim[1]]).rep(tickNum);
-      const gridZEnd = vector([$zLim[1]]).rep(tickNum);
+      const gridYEnd = Vector.fill($yLim[1], tickNum);
+      const gridZEnd = Vector.fill($zLim[1], tickNum);
 
       // tick labels
       tickLabels = (ticks === undefined || tickLabels === undefined) ? ticksX.v : tickLabels;

@@ -7,7 +7,7 @@
 
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
-   import { tcrossprod, cbind, matrix, Matrix, Vector } from 'mdatools/arrays';
+   import { cbind, matrix, Matrix, Vector } from 'mdatools/arrays';
    import { getScale, roundCoords } from '../Utils.js';
 
 

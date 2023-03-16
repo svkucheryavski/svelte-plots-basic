@@ -45,7 +45,7 @@
    <!-- ticks-->
    <AxisLines lineCoords={[tickCoords[0], tickCoords[1]]} lineColor={lineColor} lineType={1} />
    <AxisLines lineCoords={[tickCoords[0], tickCoords[2]]} lineColor={lineColor} lineType={1} />
-   <AxisLines lineCoords={[tickCoords[0], tickCoords[3]]} lineColor={lineColor} lineType={1} />
+   <!-- <AxisLines lineCoords={[tickCoords[0], tickCoords[3]]} lineColor={lineColor} lineType={1} /> -->
 
    <!-- labels -->
    {#if tickCoords !== undefined }
