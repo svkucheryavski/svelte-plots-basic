@@ -6,7 +6,7 @@
    *****************************************************/
 
    import { getContext } from 'svelte';
-   import { vector } from 'mdatools/arrays';
+   import { Vector } from 'mdatools/arrays';
    import { Colors } from '../Colors';
    import { checkCoords } from '../Utils';
 
@@ -48,11 +48,11 @@
          }
 
          if (typeof width !== 'object') {
-            width = vector([width]).rep(left.length);
+            width = Vector.fill(width, left.length);
          }
 
          if (typeof height !== 'object') {
-            height = vector([height]).rep(left.length);
+            height = Vector.fill(height, left.length);
          }
 
          rw = axes.transform(width, $tX.objects);
@@ -72,5 +72,4 @@
    </g>
 {/if}
 
-<style>
-</style>
+

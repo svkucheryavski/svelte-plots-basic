@@ -6,7 +6,7 @@
    *****************************************************/
 
    import { max, diff } from 'mdatools/stat';
-   import { vector } from 'mdatools/arrays';
+   import { Vector } from 'mdatools/arrays';
    import { Colors } from '../Colors';
    import { checkCoords } from '../Utils';
 
@@ -43,7 +43,7 @@
       const w = max(diff(xv)) * barWidth;
 
       left = xv.subtract(w/2);
-      width = vector([w]).rep(xv.length);
+      width = Vector.fill(w, xv.length);
    }
 
    // reactive code for computing position of top sides and bar height

@@ -6,7 +6,7 @@
    *****************************************************/
 
    import { getContext } from 'svelte';
-   import { vector } from 'mdatools/arrays';
+   import { Vector, vector } from 'mdatools/arrays';
    import { Colors } from '../Colors.js';
    import { getAxisTicks } from '../Utils.js';
    import Axis from './Axis.svelte';
@@ -60,11 +60,11 @@
 
       // compute tick y-coordinates (up and bottom)
       const dX = axes.invTransform([axes.TICK_SIZE[$scale]], $tX.objects)[0];
-      const ticksX1 = vector([$xLim[0]]).rep(tickNum)
+      const ticksX1 = Vector.fill($xLim[0], tickNum)
       const ticksX2 = ticksX1.add(dX)
 
       // coordinates for the ends of grid
-      const gridXEnd = vector([$xLim[1]]).rep(tickNum);
+      const gridXEnd = Vector.fill($xLim[1], tickNum);
 
       // tick labels
       tickLabels = (ticks === undefined || tickLabels === undefined) ? ticksY.v : tickLabels;
