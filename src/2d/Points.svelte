@@ -69,4 +69,11 @@
 </g>
 {/if}
 
-
+<style>
+text, text > :global(tspan) {
+   dominant-baseline: middle;
+   text-anchor: middle;
+   cursor: default;
+   user-select: none;
+}
+</style>

@@ -71,7 +71,7 @@
 
    // styles for the elements
    $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
-      font-size:${textSize}em; text-anchor:middle;cursor: default;user-select: none;`;
+      font-size:${textSize}em;`;
 </script>
 
 {#if $isOk && x !== undefined && y !== undefined}
@@ -94,3 +94,12 @@
    {/if}
 </g>
 {/if}
+
+<style>
+text, text > :global(tspan) {
+   dominant-baseline: middle;
+   text-anchor: middle;
+   cursor: default;
+   user-select: none;
+}
+</style>
