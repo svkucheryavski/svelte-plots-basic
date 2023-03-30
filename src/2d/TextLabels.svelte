@@ -24,7 +24,7 @@
    export let textSize = 1;                        // size of label symbols
    export let className = 'series_text';           // CSS class name for the labels group
    export let title = 'series_text';               // title of the labels SVG group
-
+   export let rotateAngle = 0;                     // angle to rotate labels
 
    /*****************************************/
    /* Component code                        */
@@ -65,8 +65,8 @@
    // reactive calculations triggered by changes in scale
    $: {
       const m = axes.LABELS_MARGIN[$scale];
-      dx = [0, 0, m,  0, -m];
-      dy = [0, m, 0, -m, 0];
+      dx = [0, 0, m,  0, -m, m];
+      dy = [0, m, 0, -m, 0, m];
    }
 
    // styles for the elements
@@ -79,7 +79,9 @@
 
    {#if typeof labels === 'string'}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos]} dy={dy[pos]} text-anchor={textAnchors[pos[i]]}>{@html labels}</text>
+      <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos]} dy={dy[pos]}
+         transform={rotateAngle !== undefined ? `rotate(${rotateAngle}, ${x[i] + dx[pos]}, ${y[i] + dy[pos]})` : ''}
+         text-anchor={textAnchors[pos[i]]}>{@html labels}</text>
    {/each}
 
    {:else if (Array.isArray(pos))}
