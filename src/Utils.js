@@ -200,5 +200,6 @@ export function roundCoords(x) {
 export function getScale(width, height) {
    if (height < 300.2 || width < 300.2) return "small";
    if (height < 600.2 || width < 600.2) return "medium";
-   return "large";
+   if (height < 850.2 || width < 850.2) return "large";
+   return "xlarge";
 }

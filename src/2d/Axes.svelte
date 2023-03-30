@@ -34,35 +34,40 @@
    const AXES_MARGIN_FACTORS = {
       'small': 30,
       'medium': 40,
-      'large': 50
+      'large': 50,
+      'xlarge': 60
    }
 
    // number of ticks along each axis
    const TICK_NUM = {
       'small': 5,
       'medium': 8,
-      'large': 12
+      'large': 12,
+      'xlarge': 15
    };
 
    // size of ticks
    const TICK_SIZE = {
       'small': 4,
       'medium': 6,
-      'large': 8
+      'large': 8,
+      'xlarge': 10
    };
 
    // font size for legend items in pixels
    const LEGEND_FONT_SIZE = {
       "small": 10,
       "medium": 12,
-      "large": 14
+      "large": 14,
+      "xlarge": 16
    };
 
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
       'small': 10,
       'medium': 15,
-      'large': 20
+      'large': 20,
+      'xlarge': 25
    };
 
    // line styles for different scales and types
@@ -70,6 +75,7 @@
       small: ['0', '3,3', '1,1', '3,1'],
       medium: ['0', '5,5', '2,2', '5,2'],
       large: ['0', '7,7', '3,3', '7,3'],
+      xlarge: ['0', '9,9', '4,4', '9,3'],
    }
 
    // marker symbols
@@ -371,6 +377,10 @@
 
    .plot_large {
       font-size: 16px;
+   }
+
+   .plot_xlarge {
+      font-size: 19px;
    }
 
    .plot_error {
