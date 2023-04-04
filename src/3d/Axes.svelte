@@ -31,14 +31,16 @@
    const TICK_NUM = {
       "small": 5,
       "medium": 8,
-      "large": 12
+      "large": 12,
+      "xlarge": 15
    };
 
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
       "small": 5,
       "medium": 10,
-      "large": 15
+      "large": 15,
+      "xlarge": 20
    };
 
    // line styles for different scales and types
@@ -46,6 +48,7 @@
       small:  ["0", "3,3", "1,1", "3,1"],
       medium: ["0", "5,5", "2,2", "5,2"],
       large:  ["0", "7,7", "3,3", "7,3"],
+      xlarge:  ["0", "9,9", "5,5", "9,5"],
    }
 
    // translation matrix to move points to center of a unit cube
