@@ -314,18 +314,19 @@
          <!-- define clipping path -->
          <defs>
             <clipPath id={clipPathID}>
-               <rect style="pointer-events:none;fill:red" fill="red" x={cpx[0]} y={cpy[1]} width={cpx[1]-cpx[0]} height={cpy[0]-cpy[1]} />
+               <rect style="pointer-events:none" x={cpx[0]} y={cpy[1]} width={cpx[1]-cpx[0]} height={cpy[0]-cpy[1]} />
             </clipPath>
          </defs>
 
-         <!-- axis and box -->
-         <slot name="xaxis"></slot>
-         <slot name="yaxis"></slot>
 
          <!-- main plot content -->
          <g class="axes-content" clip-path="url(#{clipPathID})">
             <slot></slot>
          </g>
+
+         <!-- axis and box -->
+         <slot name="xaxis"></slot>
+         <slot name="yaxis"></slot>
 
          <!-- axis and box -->
          <slot name="box"></slot>
