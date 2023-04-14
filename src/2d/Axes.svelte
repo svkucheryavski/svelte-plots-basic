@@ -319,14 +319,15 @@
          </defs>
 
 
+         <!-- axis and box -->
+         <slot name="xaxis"></slot>
+         <slot name="yaxis"></slot>
+
          <!-- main plot content -->
          <g class="axes-content" clip-path="url(#{clipPathID})">
             <slot></slot>
          </g>
 
-         <!-- axis and box -->
-         <slot name="xaxis"></slot>
-         <slot name="yaxis"></slot>
 
          <!-- axis and box -->
          <slot name="box"></slot>
