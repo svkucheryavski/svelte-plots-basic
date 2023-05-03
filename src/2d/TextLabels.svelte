@@ -84,7 +84,7 @@
          text-anchor={textAnchors[pos[i]]}>{@html labels}</text>
    {/each}
 
-   {:else if (Array.isArray(pos))}
+   {:else if (Array.isArray(pos) || ArrayBuffer.isView(pos))}
    {#each x as v, i}
       <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos[i]]} dy={dy[pos[i]]} text-anchor={textAnchors[pos[i]]}>{@html labels[i]}</text>
    {/each}

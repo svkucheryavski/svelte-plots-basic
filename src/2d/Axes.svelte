@@ -16,7 +16,7 @@
    /*****************************************/
 
    export let limX;                                   // array with limits for x-axis (in plot units) [min, max]
-   export let limY         ;                          // array with limits for y-axis (in plot units) [min, max]
+   export let limY;                                   // array with limits for y-axis (in plot units) [min, max]
    export let title = '';                             // title of the plot
    export let xLabel = '';                            // label for x-axis
    export let yLabel = '';                            // label for y-axis
@@ -65,9 +65,9 @@
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
       'small': 10,
-      'medium': 15,
-      'large': 20,
-      'xlarge': 25
+      'medium': 13,
+      'large': 15,
+      'xlarge': 17
    };
 
    // line styles for different scales and types
