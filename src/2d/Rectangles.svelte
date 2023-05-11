@@ -39,7 +39,6 @@
    let rx, ry, rw, rh = undefined;
    $: {
       if ($isOk) {
-
          rx = axes.transform(checkCoords(left, 'Rectangles'), $tX.coords);
          ry = axes.transform(checkCoords(top, 'Rectangles'), $tY.coords);
 

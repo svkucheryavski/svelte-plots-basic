@@ -126,7 +126,6 @@
    <text x="{(elWidth + 2 * elPadding)/2}px" y="{(elHeight + 2 * elPadding)/2}px"
       dominant-baseline="middle"
       style={`
-         background: red;
          fill:${item.faceColor ? item.faceColor : "transparent"};
          stroke-width:${item.borderWidth ? item.borderWidth : 1}px;
          stroke:${item.borderColor ? item.borderColor : Colors.PRIMARY};
