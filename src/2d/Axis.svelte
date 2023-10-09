@@ -24,10 +24,22 @@
    export let grid = [];                     // array with grid coordinates
    export let axisLine = [];                 // array with coordinates of main axis line
    export let tickCoords = [];               // array with axis tick coordinates
+   export let tfCoords = [];                 // array with tick factor coordinates
+   export let tickFactor = 0;                // tick factor (as power of 10)
 
    export let lineColor = Colors.DARKGRAY;   // color of main axis line
    export let gridColor = Colors.MIDDLEGRAY; // color of grid lines
    export let textColor = Colors.DARKGRAY;   // color of tick labels
+
+   // generate text for tick factor label
+   function getTickFactorLabel(tf) {
+      if (tf === 0) return '';
+      if (tf < 0) {
+         return `&times;10<tspan baseline-shift = "super">${(tf).toString()}</tspan>`;
+      } else {
+         return `&times;10<tspan baseline-shift = "super">${(tf).toString()}</tspan>`;
+      }
+   }
 </script>
 
 <g class="mdaplot__axis {className}">
@@ -44,7 +56,12 @@
 
    <!-- labels -->
    {#if tickCoords.length === 2 && tickLabels.length === tickCoords[1][0].length}
-   <AxisTickLabels {las} {pos} {tickCoords} {tickLabels} {textColor}/>
+   <AxisTickLabels {las} {pos} {tickCoords} {tickLabels} {textColor} />
+   {/if}
+
+   <!-- tick factor -->
+   {#if tickFactor !== 0}
+   <AxisTickLabels {pos} tickCoords={tfCoords} tickLabels={[getTickFactorLabel(tickFactor)]} {textColor} />
    {/if}
 </g>
 

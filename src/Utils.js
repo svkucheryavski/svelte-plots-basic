@@ -1,4 +1,40 @@
 import { cbind, vector, isvector, Vector } from 'mdatools/arrays';
+import { min, max, diff } from 'mdatools/stat';
+
+
+/**
+ * Generate vector with axis tick labels and tick factor based on numeric tick values.
+ *
+ * @param {Vector} ticks - vector with numeric tick values.
+ *
+ * @returns {Array} an array with tick factor and array with tick labels.
+ */
+export function getTickLabels(ticks) {
+
+   if (ticks === undefined) return undefined;
+
+   const step = Math.abs(min(diff(ticks)));
+   let tickFactor = 0;
+   if (step < 1 && Math.abs(max(ticks)) < 1) {
+      // values between 0 and 1 (absolute)
+      let decNum = Math.ceil(-Math.log10(step));
+      if (decNum <= 2) {
+         return [0, Array.from(ticks).map(v => v.toFixed(decNum).toString())];
+      }
+      tickFactor = decNum - 2;
+      decNum = 2;
+      return [-tickFactor, Array.from(ticks).map(v => (v * Math.pow(10, tickFactor)).toFixed(decNum).toString())];
+   } else {
+      let decNum = Math.ceil(Math.log10(step));
+      if (decNum <= 2) {
+         return [0, Array.from(ticks).map(v => v.toString())];
+      }
+      tickFactor = decNum - 2;
+      decNum = 2;
+      return [tickFactor, Array.from(ticks).map(v => (v / Math.pow(10, tickFactor)).toString())];
+   }
+}
+
 
 /**
  * Check coordinates and convert them to vector if necessary.
@@ -25,6 +61,7 @@ export function checkCoords(x, source) {
 
    return x;
 }
+
 
 /**
  * Create string with coordinates of SVG polygon in 3D.
@@ -130,10 +167,11 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
    // create a sequence of ticks
    ticks = Vector.seq(tickMin, tickMax, tickSpacing);
 
-   // if step is smaller than 1 round values to remove small decimals accidentiall added by JS
+   // if step is smaller than 1 round values to remove small decimals accidentially added by JS
    if (Math.abs(tickSpacing) < 1) {
+      const decNum = Math.round(-Math.log10(tickSpacing));
       const r = Math.pow(10, 1 + Math.round(-Math.log10(tickSpacing)));
-      ticks = ticks.apply(v => Math.round((v + Number.EPSILON) * r) / r)
+      ticks = ticks.apply(v => (Math.round((v + Number.EPSILON) * r) / r));
    }
 
    // make sure the ticks are not aligned with axes limits

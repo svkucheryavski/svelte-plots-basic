@@ -8,7 +8,7 @@
    import { getContext } from 'svelte';
    import { Vector, vector } from 'mdatools/arrays';
    import { Colors } from '../Colors.js';
-   import { getAxisTicks } from '../Utils.js';
+   import { getAxisTicks, getTickLabels } from '../Utils.js';
    import Axis from './Axis.svelte';
 
 
@@ -50,6 +50,8 @@
    let grid = [];
    let axisLine = [];
    let tickCoords = [];
+   let tfCoords = [];
+   let tickFactor = 0;
 
    // compute coordinates for ticks, grid and axis line
    $: if ($isOk) {
@@ -66,8 +68,11 @@
       // compute coordinates for the ends of grid
       const gridYEnd = Vector.fill($yLim[1], tickNum);
 
-      // tick labels
-      tickLabels = (ticks === undefined || tickLabels === undefined) ? ticksX.v : tickLabels;
+      // tick labels and tick factor
+      if (ticks === undefined || tickLabels === undefined) {
+         [tickFactor, tickLabels] = getTickLabels(ticksX.v);
+      }
+
       if (tickLabels.length !== ticksX.length) {
          throw('XAxis: "tickLabels" must be a array of the same size as ticks.')
       }
@@ -87,6 +92,11 @@
          [ticksX, ticksY2],
          [ticksX, ticksY1]
       ];
+
+      tfCoords = [
+         [null, null],
+         [[$xLim[1]], [ticksY1.v[tickNum - 1]]],
+      ];
    }
 </script>
 
@@ -94,6 +104,6 @@
 <Axis
    className="mdaplot__xaxis" pos={1}
    {lineColor} {gridColor} {textColor}
-   {showGrid} {grid} {axisLine} {tickCoords} {tickLabels} {las}
+   {showGrid} {grid} {axisLine} {tickCoords} {tickLabels} {tfCoords} {tickFactor} {las}
 />
 {/if}
