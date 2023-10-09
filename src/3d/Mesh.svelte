@@ -60,8 +60,6 @@
       const left = nr[0] - dnr;
       const right = nr[1] + dnr;
       const span = right - left;
-      console.log(nr)
-      console.log([left, right, span])
 
       // compute coordinates for mesh segments lines
       xMesh1Start = Vector.zeros((nx - 1) * nz);
@@ -171,7 +169,6 @@
       }
    };
 
-   $: console.log(meshColor1)
    $: lineStyleStr = `stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType-1]};`;
 </script>
 

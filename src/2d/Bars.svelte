@@ -44,7 +44,7 @@
 
       // compute maximum bar width and position of left side
       const xv = checkCoords(xValues, 'BarSeries');
-      const w = max(diff(xv)) * barWidth;
+      const w = max(diff(xv.v)) * barWidth;
       left = xv.subtract(w/2);
       width = Vector.fill(w, xv.length);
    }

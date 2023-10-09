@@ -40,7 +40,7 @@
    $: if ($isOk) {
 
       if (typeof(marker) !== "number" || marker < 1 || marker > axes.MARKER_SYMBOLS.length) {
-         throw Error(`ScatterSeries: parameter "marker" must be a number from 1 to ${axes.MARKER_SYMBOLS.length}.`);
+         throw Error(`Points: parameter "marker" must be a number from 1 to ${axes.MARKER_SYMBOLS.length}.`);
       }
 
       markerSymbol = axes.MARKER_SYMBOLS[marker - 1];
