@@ -12,9 +12,10 @@ export { default as Bars } from './Bars.svelte';
 export { default as Points } from './Points.svelte';
 export { default as Lines } from './Lines.svelte';
 export { default as Multilines } from './Multilines.svelte';
+export { default as Heatmap } from './Heatmap.svelte';
 
-export { default as ColorLegend } from './ColorLegend.svelte';
 export { default as Legend } from './Legend.svelte';
 export { default as TextLegend } from './TextLegend.svelte';
+export { default as ColormapLegend } from './ColormapLegend.svelte';
 
 export { getcolmap, Colors } from '../Colors.js';
