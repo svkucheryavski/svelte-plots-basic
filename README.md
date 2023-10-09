@@ -4,7 +4,13 @@ The library is under development and breaking changes may occur in the coming ve
 
 ## News
 
-New release (v. 2.0.0) introduces many breaking changes as the library was completely re-written. If you use previous versions of `svelte-plots-basic` in your projects, and do not want to change anything, stick to the latest 1.x.x version (v. 1.1.4).
+New major release (v. 2.0.0) introduces many breaking changes as the library was completely re-written. If you use previous versions of `svelte-plots-basic` in your projects, and do not want to change anything, stick to the latest 1.x.x version (v. 1.1.4).
+
+### 2.1.0
+
+* Added new elements, `Heatmap` and `ColormapLegend`.
+* Improvements to tick labels, in particular if values are too small (< 0.01) or too large (>99) the values are adjusted and a common factor is shown at the end of axis. This is applied only to automatic ticks, manually provided ticks and tick labels are shown as is.
+* Small improvements and bug fixes.
 
 ## Description
 
