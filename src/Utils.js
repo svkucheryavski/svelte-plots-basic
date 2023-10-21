@@ -110,8 +110,8 @@ export function val2p(x, y, tX, tY, axes) {
 
    if (x === undefined || y === undefined) return undefined;
 
-   const px = axes.transform(checkCoords(x), tX.coords);
-   const py = axes.transform(checkCoords(y), tY.coords);
+   const px = axes.transform(checkCoords(x, 'val2p'), tX.coords);
+   const py = axes.transform(checkCoords(y, 'val2p'), tY.coords);
 
    if (px.length != py.length) {
       throw Error('PlotSeries: parameters "xValues" and "yValues" must be numeric vectors of the same length.');

@@ -30,7 +30,7 @@
 
    /* sanity check of input parameters */
    if (typeof(marker) !== "number" || marker < 1 || marker > markers.length) {
-      throw(`ScatterSeries: parameter 'marker' must be a number from 1 to ${markers.length}."`);
+      throw(`Points: parameter 'marker' must be a number from 1 to ${markers.length}."`);
    }
 
    // reactive variables for coordinates of data points in pixels (and line style)
