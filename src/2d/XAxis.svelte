@@ -95,7 +95,7 @@
 
       tfCoords = [
          [null, null],
-         [[$xLim[1]], [ticksY1.v[tickNum - 1] - dY]],
+         [[$xLim[1]], [ticksY1.v[tickNum - 1] - 1.5 * dY]],
       ];
    }
 </script>
