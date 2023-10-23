@@ -20,7 +20,7 @@
    export let title = '';                             // title of the plot
    export let xLabel = '';                            // label for x-axis
    export let yLabel = '';                            // label for y-axis
-   export let margins = [0.034, 0.034, 0.034, 0.034]; // margins [bottom, left, top, right] )
+   export let margins = [1.0, 0.75, 0.5, 0.5];        // margins [bottom, left, top, right] )
 
 
    /*****************************************/
