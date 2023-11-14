@@ -6,7 +6,7 @@ The library is under development and breaking changes may occur in the coming ve
 
 New major release (v. 2.0.0) introduces many breaking changes as the library was completely re-written. If you use previous versions of `svelte-plots-basic` in your projects, and do not want to change anything, stick to the latest 1.x.x version (v. 1.1.4).
 
-### 2.1.1—2.1.4
+### 2.1.1—2.1.5
 
 * Small improvements and bug fixes.
 
@@ -37,9 +37,6 @@ or, to install it with yarn:
 yarn add -D svelte-plots-basic
 ```
 
-## Demo
-
-There is on-line demo site with some examples of what you can do with the library: [https://mda.tools/svelteplotsdemo/](https://mda.tools/svelteplotsdemo/). All examples from this demo are available in corresponding GitHub repo: [](). Use code of the examples for inspiration and as a tutorial, although some basic information is also available below.
 
 ## Quick start (2D plots)
 
