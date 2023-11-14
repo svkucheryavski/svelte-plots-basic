@@ -35,9 +35,9 @@
    function getTickFactorLabel(tf) {
       if (tf === 0) return '';
       if (tf < 0) {
-         return `&times;10<tspan baseline-shift = "super">${(tf).toString()}</tspan>`;
+         return `&times;10<tspan vertical-align="super">${(tf).toString()}</tspan>`;
       } else {
-         return `&times;10<tspan baseline-shift = "super">${(tf).toString()}</tspan>`;
+         return `&times;10<tspan vertical-align="super">${(tf).toString()}</tspan>`;
       }
    }
 </script>
