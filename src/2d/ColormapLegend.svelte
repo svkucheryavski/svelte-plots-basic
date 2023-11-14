@@ -90,9 +90,9 @@
    <g class="series colormap_legend" style="stroke:0;stroke-width:0px;">
    {#each colmap as col, i}
       <rect x={rx[i]} y={ry} width={rw} height={rh} fill="{col}"/>
-      <text x={rx[i]} y={ry} dx={0} dy={rh * 1.25} alignment-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[i]}</text>
+      <text x={rx[i]} y={ry} dx={0} dy={rh * 1.25} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[i]}</text>
    {/each}
-   <text x={rx[n]} y={ry} dx={0} dy={rh * 1.25} alignment-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[n]}</text>
+   <text x={rx[n]} y={ry} dx={0} dy={rh * 1.25} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[n]}</text>
    </g>
 {/if}
 
