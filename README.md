@@ -6,9 +6,10 @@ The library is under development and breaking changes may occur in the coming ve
 
 New major release (v. 2.0.0) introduces many breaking changes as the library was completely re-written. If you use previous versions of `svelte-plots-basic` in your projects, and do not want to change anything, stick to the latest 1.x.x version (v. 1.1.4).
 
-### 2.1.1—2.1.6
+### 2.2.0
 
-* Small improvements and bug fixes.
+* Better handling of axes labels and plot title (now they are part of SVG object).
+* Other small improvements and bug fixes.
 
 ### 2.1.0
 

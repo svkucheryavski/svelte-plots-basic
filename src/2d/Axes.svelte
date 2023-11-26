@@ -54,12 +54,20 @@
       'xlarge': 10
    };
 
-   // font size for legend items in pixels
+   // font size for plot element
    const LEGEND_FONT_SIZE = {
       "small": 10,
       "medium": 12,
       "large": 14,
       "xlarge": 16
+   };
+
+   // font size for legend items in pixels
+   const PLOT_FONT_SIZE = {
+      "small": 11,
+      "medium": 13,
+      "large": 16,
+      "xlarge": 19
    };
 
    // margin between plot series elements and data labels
@@ -91,8 +99,8 @@
 
    /* parameters for internal use inside the component */
    let plotElement;
-   let axesElement;
-   let width, height = 100;
+   let width = 100, height = 100;
+   let left = 0, bottom = 0, top = 0;
 
 
    /*****************************************/
@@ -203,6 +211,8 @@
       yLim: yLim,
       tX: tX,
       tY: tY,
+      xLabel: xLabel,
+      yLabel: yLabel,
 
       // constants
       LINE_STYLES: LINE_STYLES,
@@ -273,43 +283,57 @@
    /*****************************************/
 
    // observer for the plot area size — to update the scale
-   const ro1 = new ResizeObserver(entries => {
+   const ro = new ResizeObserver(entries => {
       for (let entry of entries) {
          const pcr = plotElement.getBoundingClientRect();
-         scale.update(x => getScale(pcr.width, pcr.height));
+         const scl = getScale(pcr.width, pcr.height);
+         scale.update(x => scl);
+
+         const m = PLOT_FONT_SIZE[scl] * 1.5;
+         left = xLabel && xLabel !== '' ? m : 0;
+         bottom = yLabel && yLabel !== '' ? m : 0;
+         top = title && title !== '' ? m : 0;
+         width = pcr.width - left;
+         height = pcr.height - bottom - top;
       }
    });
 
-   // observer for the axes area size - to update size of axes
-   const ro2 = new ResizeObserver(entries => {
-      for (let entry of entries) {
-         const acr = axesElement.getBoundingClientRect();
-         width = acr.width;
-         height = acr.height;
-      }
-   });
+   $: fontSize = PLOT_FONT_SIZE[$scale];
 
    onMount(() => {
-      ro1.observe(plotElement);
-      ro2.observe(axesElement);
+      ro.observe(plotElement);
    });
 
    onDestroy(() => {
-      ro1.unobserve(plotElement);
-      ro2.unobserve(axesElement);
+      ro.unobserve(plotElement);
    })
+
+   $: lblStyleStr = `font-weight:bold;text-anchor:middle;`;
 
 </script>
 
-<div class="plot {'plot_' + $scale}"  bind:this={plotElement} class:plot_error={!$isOk}>
-   <!-- plot title and axis labels -->
-   {#if title !== ''}<div class="axes__title">{@html title}</div>{/if}
-   {#if yLabel !== ''}<div class="axes__ylabel"><span>{@html yLabel}</span></div>{/if}
-   {#if xLabel !== ''}<div class="axes__xlabel"><span>{@html xLabel}</span></div>{/if}
+<div class="plot-container {'plot_' + $scale}"  bind:this={plotElement} class:plot_error={!$isOk}>
 
-   <!-- axes (coordinate system) -->
-   <div class="axes-wrapper" bind:this={axesElement} >
-      <svg on:click={handleClick} on:keydown={handleClick} preserveAspectRatio="none" class="axes">
+   <svg class="plot" bind:this={plotElement} xmlns="http://www.w3.org/2000/svg"
+      style={`font-family: Arial, Helvetica, sans-serif;font-size:${fontSize}px`}>
+
+      <g style={lblStyleStr}>
+         <!-- x-axis label -->
+         {#if xLabel && xLabel !== ''}
+         <text x={0} y={(height + top) /2} dx={0} dy={0} transform={`rotate(-90, 10, ${height/2})`} style="font-size:1.1em;">{@html yLabel}</text>
+         {/if}
+         <!-- y-axis label -->
+         {#if yLabel && yLabel !== ''}
+         <text x={left + width/2 } y={height + top} dx={0} dy={5} style="font-size:1.1em;">{@html xLabel}</text>
+         {/if}
+         <!-- plot title -->
+         {#if title && title !== ''}
+         <text x={left + width/2 } y={0} dx={0} dy={0} alignment-baseline="hanging" style="font-size:1.2em;">{@html title}</text>
+         {/if}
+      </g>
+
+      <svg x={left} y={top} width={width} height={height} on:click={handleClick}
+         on:keydown={handleClick} preserveAspectRatio="none" class="axes">
 
          <!-- define clipping path -->
          <defs>
@@ -317,7 +341,6 @@
                <rect style="pointer-events:none" x={cpx[0]} y={cpy[1]} width={cpx[1]-cpx[0]} height={cpy[0]-cpy[1]} />
             </clipPath>
          </defs>
-
 
          <!-- axis and box -->
          <slot name="xaxis"></slot>
@@ -328,11 +351,10 @@
             <slot></slot>
          </g>
 
-
          <!-- axis and box -->
          <slot name="box"></slot>
-
       </svg>
+   </svg>
 
    {#if !$isOk}
    <p class="message_error">
@@ -340,27 +362,14 @@
       Check that you defined axes limits and margins correctly.
    </p>
    {/if}
-   </div>
-
-
 </div>
 
 <style>
 
-   /* Plot (main container) */
-   .plot {
+   /* Plot container */
+   .plot-container {
       font-family: Arial, Helvetica, sans-serif;
-
-      display: grid;
-      grid-template-columns: min-content auto;
-      grid-template-rows: min-content auto min-content;
-      grid-template-areas:
-         ". title"
-         "ylab axes"
-         ". xlab";
-
       box-sizing: border-box;
-      /* background: #fefefe; */
       min-width: 100px;
       min-height: 50px;
       width: 100%;
@@ -369,28 +378,10 @@
       margin: 0;
    }
 
-   .plot_small {
-      font-size: 11px;
-   }
-
-   .plot_medium {
-      font-size: 13px;
-   }
-
-   .plot_large {
-      font-size: 16px;
-   }
-
-   .plot_xlarge {
-      font-size: 19px;
-   }
-
    .plot_error {
       display: flex;
-   }
-
-   .plot_error > .axes-wrapper > svg {
-      display: none;
+      justify-content: center;
+      align-items: center;
    }
 
    .message_error {
@@ -401,19 +392,9 @@
       text-align: center;
    }
 
-   /* Axes (coordinate system) */
-   .axes-wrapper {
-      grid-area: axes;
-      position:relative;
-      box-sizing: border-box;
-      display: flex;
-      width: 100%;
-      height: 100%;
-      padding: 0;
-      margin: 0;
-   }
+   /* Plot and axes (coordinate system) */
 
-   .axes {
+   .plot {
       display: block;
       box-sizing: border-box;
       position:absolute;
@@ -437,64 +418,6 @@
       max-width: 100%;
       min-height: 100%;
       min-width: 100%;
-
-   }
-
-   .axes__xlabel {
-      grid-area: xlab;
-      font-size: 1.0em;
-      font-weight: 600;
-      padding: 0.25em;
-      text-align: center;
-   }
-
-
-   .axes__ylabel {
-      grid-area: ylab;
-      font-size: 1.0em;
-      font-weight: 600;
-      padding: 0.25em;
-      text-align: center;
-      vertical-align: middle;
-      display: flex;
-   }
-
-   .axes__ylabel > span {
-      width: 1.5em;
-      line-height: 1.5em;
-      display: inline-block;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-   }
-
-
-   .axes__title {
-      background: transparent;
-      grid-area: title;
-
-      font-size: 1.3em;
-      font-weight: bold;
-      line-height: 1.2em;
-      padding: 0.5em 0;
-      text-align: center;
-   }
-
-   /* Axis */
-   :global(.axis-labels) {
-      fill: #303030;
-      font-size: 0.95em;
-   }
-
-   /* Data labels */
-   :global(.labels) {
-      fill: #606060;
-      font-size: 0.90em;
-   }
-
-   :global(.labels) {
-      visibility: hidden;
-      transition:visibility 0.25s linear, opacity 0.25s linear;
-      opacity: 0;
    }
 
 </style>

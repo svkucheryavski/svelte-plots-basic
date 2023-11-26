@@ -103,7 +103,7 @@
 {#if $isOk && axisLine.length > 0}
 <Axis
    className="mdaplot__yaxis" pos={4}
-   {lineColor} {gridColor} {textColor}
-   {showGrid} {grid} {axisLine} {tickCoords} {tickLabels} {tfCoords} {tickFactor} {las}
+   {lineColor} {gridColor} {textColor} {showGrid} {grid} {axisLine}
+   {tickCoords} {tickLabels} {tfCoords} {tickFactor} {las}
 />
 {/if}
