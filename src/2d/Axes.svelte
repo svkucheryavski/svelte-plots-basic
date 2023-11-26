@@ -312,7 +312,7 @@
 
 </script>
 
-<div class="plot-container {'plot_' + $scale}"  bind:this={plotElement} class:plot_error={!$isOk}>
+<div class="plot-container" bind:this={plotElement} class:plot_error={!$isOk}>
 
    <svg class="plot" bind:this={plotElement} xmlns="http://www.w3.org/2000/svg"
       style={`font-family: Arial, Helvetica, sans-serif;font-size:${fontSize}px`}>
@@ -328,7 +328,7 @@
          {/if}
          <!-- plot title -->
          {#if title && title !== ''}
-         <text x={left + width/2 } y={0} dx={0} dy={0} alignment-baseline="hanging" style="font-size:1.2em;">{@html title}</text>
+         <text x={left + width/2 } y={0} dx={0} dy={10} alignment-baseline="hanging" style="font-size:1.2em;">{@html title}</text>
          {/if}
       </g>
 
@@ -370,6 +370,7 @@
    .plot-container {
       font-family: Arial, Helvetica, sans-serif;
       box-sizing: border-box;
+      position: relative;
       min-width: 100px;
       min-height: 50px;
       width: 100%;
@@ -398,15 +399,14 @@
       display: block;
       box-sizing: border-box;
       position:absolute;
-
       padding: 0;
       margin: 0;
-      height: 100%;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      right: 0;
       width: 100%;
-      max-height: 100%;
-      max-width: 100%;
-      min-height: 100%;
-      min-width: 100%;
+      height: 100%;
    }
 
    .axes-content {
