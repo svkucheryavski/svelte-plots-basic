@@ -320,15 +320,15 @@
       <g style={lblStyleStr}>
          <!-- y-axis label -->
          {#if yLabel && yLabel !== ''}
-         <text x={0} y={(height + top) /2} dx={0} dy={0} transform={`rotate(-90, 10, ${height/2})`} style="font-size:1.1em;">{@html yLabel}</text>
+         <text x={0} y={(height + top) /2} dx={0} dy={0} dominant-baseline="top" transform={`rotate(-90, 10, ${height/2})`} style="font-size:1.1em;">{@html yLabel}</text>
          {/if}
          <!-- x-axis label -->
          {#if xLabel && xLabel !== ''}
-         <text x={left + width/2 } y={height + top} dx={0} dy={5} alignment-baseline="hanging" style="font-size:1.1em;">{@html xLabel}</text>
+         <text x={left + width/2 } y={height + top} dx={0} dy={5} dominant-baseline="middle" style="font-size:1.1em;">{@html xLabel}</text>
          {/if}
          <!-- plot title -->
          {#if title && title !== ''}
-         <text x={left + width/2 } y={0} dx={0} dy={10} alignment-baseline="hanging" style="font-size:1.2em;">{@html title}</text>
+         <text x={left + width/2 } y={0} dx={0} dy={10}  dominant-baseline="hanging" style="font-size:1.2em;">{@html title}</text>
          {/if}
       </g>
 
