@@ -293,8 +293,8 @@
          left = xLabel && xLabel !== '' ? m : 0;
          bottom = yLabel && yLabel !== '' ? m : 0;
          top = title && title !== '' ? m : 0;
-         width = pcr.width - left;
-         height = pcr.height - bottom - top;
+         width = pcr.width > left ? pcr.width - left : 0;
+         height = pcr.height > (bottom + top) ? pcr.height - bottom - top : 0;
       }
    });
 
