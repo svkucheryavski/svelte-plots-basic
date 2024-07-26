@@ -137,10 +137,10 @@
 
 
    <!-- text -->
-   <text x="{elWidth + elPadding * 3}px" y="{elPadding}px"
+   <text xml:space="preserve" x="{elWidth + elPadding * 3}px" y="{elPadding}px"
       dominant-baseline="hanging"
-      style={`text-anchor:start;fill:${Colors.LEGEND};font-size:${fontSize}px`};
-   >{@html '&nbsp;' + item.label}</text>
+      style={`text-anchor:start;fill:${Colors.LEGEND};font-size:${fontSize}px`}
+   >{@html ' ' + item.label}</text>
 
 </svg>
 {/each}
