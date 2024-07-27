@@ -105,7 +105,7 @@
 
 <!-- outer legend box, background and frame -->
 <svg x="{left}px" y="{top}px" height="{legendHeight}px" width="{legendWidth}">
-<rect height="100%" width="100%" style="fill:white;stroke:{Colors.MIDDLEGRAY};"></rect>
+<rect height="100%" width="100%" fill="white" stroke="{Colors.MIDDLEGRAY}"></rect>
 
 {#each items as item, i}
 
@@ -114,33 +114,19 @@
 
    <!-- line -->
    {#if item.lineType && item.lineType > 0 && item.lineType <= 4}
-   <line x1={elPadding} x2={elPadding + elWidth} y1={(elHeight + elPadding * 2)/2} y2={(elHeight + elPadding * 2)/2} style={`
-      stroke:${item.lineColor ? item.lineColor : Colors.PRIMARY};
-      stroke-width: ${item.lineWidth ? item.lineWidth : 1}px;
-      stroke-dasharray:${axes.LINE_STYLES[$scale][item.lineType - 1]}
-   `}/>
+   <line x1={elPadding} x2={elPadding + elWidth} y1={(elHeight + elPadding * 2)/2} y2={(elHeight + elPadding * 2)/2} stroke="{item.lineColor ? item.lineColor : Colors.PRIMARY}" stroke-width="{item.lineWidth ? item.lineWidth : 1}px" stroke-dasharray="{axes.LINE_STYLES[$scale][item.lineType - 1]}"/>
    {/if}
 
    <!-- marker -->
    {#if item.marker && item.marker > 0 && item.marker < axes.MARKER_SYMBOLS.length}
    <text x="{(elWidth + 2 * elPadding)/2}px" y="{(elHeight + 2 * elPadding)/2}px"
-      dominant-baseline="middle"
-      style={`
-         fill:${item.faceColor ? item.faceColor : "transparent"};
-         stroke-width:${item.borderWidth ? item.borderWidth : 1}px;
-         stroke:${item.borderColor ? item.borderColor : Colors.PRIMARY};
-         font-size:${fontSize}px;
-         text-anchor:middle;`}
-   >{axes.MARKER_SYMBOLS[item.marker - 1]}</text>
+      dominant-baseline="middle" fill="{item.faceColor ? item.faceColor : 'transparent'}" stroke-width="{item.borderWidth ? item.borderWidth : 1}px" stroke="{item.borderColor ? item.borderColor : Colors.PRIMARY}" font-size="{fontSize}px" text-anchor="middle">{axes.MARKER_SYMBOLS[item.marker - 1]}</text>
    {/if}
 
 
 
    <!-- text -->
-   <text xml:space="preserve" x="{elWidth + elPadding * 3}px" y="{elPadding}px"
-      dominant-baseline="hanging"
-      style={`text-anchor:start;fill:${Colors.LEGEND};font-size:${fontSize}px`}
-   >{@html ' ' + item.label}</text>
+   <text xml:space="preserve" x="{elWidth + elPadding * 3}px" y="{elPadding}px" dominant-baseline="hanging" text-anchor="start" fill="{Colors.LEGEND}" font-size="{fontSize}px">{@html ' ' + item.label}</text>
 
 </svg>
 {/each}
