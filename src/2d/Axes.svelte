@@ -8,7 +8,7 @@
 	import { setContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
    import { isvector, vector, Vector } from 'mdatools/arrays';
-   import { roundCoords, getScale } from '../Utils.js';
+   import { roundCoords, getScale, downloadSVG, downloadPNG } from '../Utils.js';
 
 
    /*****************************************/
@@ -21,6 +21,16 @@
    export let xLabel = '';                            // label for x-axis
    export let yLabel = '';                            // label for y-axis
    export let margins = [1.0, 0.75, 0.5, 0.5];        // margins [bottom, left, top, right] )
+
+
+   /*****************************************/
+   /* Input parameters for downloading      */
+   /*****************************************/
+   export let downloadLinks = 'hover';                // how to show download links panel ('none', 'hover', 'fixed')
+   export let fileName = 'plot';                      // file name for download (without extension)
+   export let pngWidth = 8;                           // width of PNG image in cm
+   export let pngHeight = 8;                          // height of PNG image in cm
+   export let pngRes = 300;                           // resolution of PNG image (pixels per inch)
 
 
    /*****************************************/
@@ -87,7 +97,7 @@
    }
 
    // marker symbols
-   const MARKER_SYMBOLS = ["●", "◼", "▲", "▼", "⬥", "＋", "*", "×"];
+   const MARKER_SYMBOLS = ["●", "◼", "▲", "▼", "⬥", "＋", "✳", "✕"];
 
    // constant to make clip path ID unique
    const clipPathID = 'plottingArea' + Math.round(Math.random() * 10000);
@@ -143,6 +153,14 @@
 
       // click outside any plot element
       dispatch('axesclick');
+   }
+
+   function handleClickSVG() {
+      downloadSVG(plotElement, fileName)
+   }
+
+   function handleClickPNG() {
+      downloadPNG(plotElement, fileName, pngWidth, pngHeight, pngRes)
    }
 
    /**
@@ -308,16 +326,39 @@
       ro.unobserve(plotElement);
    })
 
-   $: lblStyleStr = `font-weight:bold;text-anchor:middle;`;
-
 </script>
 
-<div class="plot-container" bind:this={plotElement} class:plot_error={!$isOk}>
+<div class="plot-container show-download-links-{downloadLinks}" class:plot_error={!$isOk}>
 
    <svg class="plot" bind:this={plotElement} xmlns="http://www.w3.org/2000/svg"
-      style={`font-family: Arial, Helvetica, sans-serif;font-size:${fontSize}px`}>
+      style={`font-size:${fontSize}px`}>
 
-      <g style={lblStyleStr}>
+      <style>
+         .plot {
+            font-family: Arial, Helvetica, sans-serif;
+         }
+
+         .plot-labels text {
+            font-weight:bold;
+            text-anchor:middle;
+         }
+
+         .tick_labels text,
+         .tick_labels tspan,
+         .series_points text,
+         .series_points tspan {
+            dominant-baseline: middle;
+            cursor: default;
+            user-select: none;
+         }
+
+         .tick_labels text,
+         .tick_labels tspan {
+            font-size:1em;
+         }
+      </style>
+
+      <g class="plot-labels">
          <!-- y-axis label -->
          {#if yLabel && yLabel !== ''}
          <text x={0} y={(height + top) /2} dx={0} dy={0} dominant-baseline="top" transform={`rotate(-90, 10, ${height/2})`} style="font-size:1.1em;">{@html yLabel}</text>
@@ -362,9 +403,54 @@
       Check that you defined axes limits and margins correctly.
    </p>
    {/if}
+
+   <div class="download-links">
+      <button on:click={handleClickSVG} on:keydown={handleClickSVG}>⇩ svg</button>
+      <button on:click={handleClickPNG} on:keydown={handleClickPNG}>⇩ png</button>
+   </div>
 </div>
 
 <style>
+   .show-download-links-none > .download-links{
+      display: none;
+   }
+
+   .show-download-links-hover:hover > .download-links {
+      bottom: 0;
+   }
+
+   .show-download-links-fixed > .download-links{
+      bottom: 0;
+   }
+
+   .download-links {
+      bottom: right 0.5s ease;
+      position: absolute;
+      font-size: 0.8em;
+      bottom: -50%;
+      left: 50%;
+      z-index: 10;
+      padding: 0.5em 1.5em 0.5em 1em;
+      background: #fefefe;
+      border-top-left-radius: 0.5em;
+      border-top-right-radius: 0.5em;
+      transition: bottom 0.35s ease;
+      box-shadow: 0 0 1em #00000040;
+   }
+
+   .download-links > button{
+      color: #606060;
+      border: none;
+      box-shadow: none;
+      background: #fafafa;
+      border-radius: 0.35em;
+      padding: 0.25em 0.5em;
+   }
+
+   .download-links > button:hover{
+      background: #443333;
+      color: #fafafa;
+   }
 
    /* Plot container */
    .plot-container {
@@ -377,6 +463,8 @@
       height: 100%;
       padding: 0;
       margin: 0;
+      overflow: hidden;
+      background: #fff;
    }
 
    .plot_error {
