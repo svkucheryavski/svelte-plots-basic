@@ -45,7 +45,6 @@
 
       markerSymbol = axes.MARKER_SYMBOLS[marker - 1];
 
-
       x = axes.transform(checkCoords(xValues, 'Points'), $tX.coords);
       y = axes.transform(checkCoords(yValues, 'Points'), $tY.coords);
 
@@ -55,25 +54,17 @@
       }
    }
 
-
    // styles for the elements
-   $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
-      font-size:${markerSize}em; text-anchor:middle;cursor:default;user-select:none;`;
+   $: textStyleStr = ['＋', '✳', '✕'].includes(markerSymbol)  ?
+       `fill:${borderColor && borderColor !== 'transparent' ? borderColor : faceColor};stroke-width:0px;font-size:${markerSize}em;` :
+       `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor}; font-size:${markerSize}em;`;
+
 </script>
 
 {#if $isOk && x !== undefined && y !== undefined}
-<g class="series series_points" title={title} style={textStyleStr} >
+<g class="series series_points" title={title} style={textStyleStr} dominant-baseline="middle" text-anchor="middle">
    {#each x as v, i}
       <text x={x[i]} y={y[i]}>{markerSymbol}</text>
    {/each}
 </g>
 {/if}
-
-<style>
-text, text > :global(tspan) {
-   dominant-baseline: middle;
-   text-anchor: middle;
-   cursor: default;
-   user-select: none;
-}
-</style>
