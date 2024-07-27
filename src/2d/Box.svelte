@@ -25,8 +25,6 @@
       throw('Component Box must have \'slot="box"\' attribute.')
    }
 
-   // box style
-   const rectStyleStr = `fill:transparent;stroke:${Colors.DARKGRAY};stroke-width:1px;`;
 
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');
@@ -44,7 +42,7 @@
 
 {#if $isOk}
    <g style="pointer-events:none" class="mdaplot__axes-box">
-   <rect x={xx[0]} y={yy[1]} width={xx[1] - xx[0]} height={yy[0] - yy[1]} style={rectStyleStr} />
+   <rect stroke="{Colors.DARKGRAY}" stroke-width="0.1em" fill="transparent" x={xx[0]} y={yy[1]} width={xx[1] - xx[0]} height={yy[0] - yy[1]} />
    </g>
 {/if}
 
