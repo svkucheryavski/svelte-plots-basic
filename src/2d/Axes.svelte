@@ -402,12 +402,13 @@
       Axes component was not properly initialized. <br />
       Check that you defined axes limits and margins correctly.
    </p>
-   {/if}
-
+   {:else}
    <div class="download-links">
       <button on:click={handleClickSVG} on:keydown={handleClickSVG}>⇩ svg</button>
       <button on:click={handleClickPNG} on:keydown={handleClickPNG}>⇩ png</button>
    </div>
+   {/if}
+
 </div>
 
 <style>
@@ -428,14 +429,17 @@
       position: absolute;
       font-size: 0.8em;
       bottom: -50%;
-      left: 50%;
+      right: 0;
       z-index: 10;
-      padding: 0.5em 1.5em 0.5em 1em;
+      padding: 0.5em 1em 0.5em 1em;
       background: #fefefe;
       border-top-left-radius: 0.5em;
-      border-top-right-radius: 0.5em;
       transition: bottom 0.35s ease;
       box-shadow: 0 0 1em #00000040;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
    }
 
    .download-links > button{

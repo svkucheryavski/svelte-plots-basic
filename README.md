@@ -6,6 +6,11 @@ The library is under development and breaking changes may occur in the coming ve
 
 New major release (v. 2.0.0) introduces many breaking changes as the library was completely re-written. If you use previous versions of `svelte-plots-basic` in your projects, and do not want to change anything, stick to the latest 1.x.x version (v. 1.1.4).
 
+### 2.3.0
+
+* added possibility to save plot as SNV and PNG files.
+* improved handling of markers in `Points` component.
+
 ### 2.2.0
 
 * Better handling of axes labels and plot title (now they are part of SVG object).
@@ -45,7 +50,7 @@ It is assumed that you already know the basics of Svelte.
 
 Just create a new Svelte app following the [quick start guide](https://svelte.dev/blog/the-easiest-way-to-get-started). Then open `App.svelte` file, delete everything and write the following code, which creates a simple 2D bar chart:
 
-```svelte
+```javascript
 <script>
    import {Axes, XAxis, YAxis, Box, BarSeries} from 'svelte-plots-basic';
 
@@ -55,7 +60,7 @@ Just create a new Svelte app following the [quick start guide](https://svelte.de
 </script>
 
 <div class="plot-container">
-<Axes limX={[2005, 2055]} limY={[-150, 350]} margins={[1, 1, 0.5, 0.5]}xLabel="Years" yLabel="Income">
+<Axes limX={[2005, 2055]} limY={[-150, 350]} margins={[1, 1, 0.5, 0.5]} xLabel="Years" yLabel="Income">
 
       <BarSeries
          faceColor="#e0e0e0"
@@ -88,7 +93,7 @@ Then run `npm run dev` in terminal and open the URL provided by npm in browser. 
 
 You can also use all capabilities of the `mdatools` package, e.g. generated random numbers:
 
-```svelte
+```javascript
 <script>
    import { Axes, BarSeries } from 'svelte-plots-basic';
    import { Vector } from 'mdatools/arrays';
@@ -118,6 +123,24 @@ You can also use all capabilities of the `mdatools` package, e.g. generated rand
 ```
 
 See demo for more details.
+
+### Save plot to a file
+
+From version *2.3.0* it is possible to save any plot as SVG or PNG file. In order to use this you need to add additional parameter to `Axes` component, `downloadLinks`. This parameter may have the following values:
+
+* `"none"` — turns this functionality off (default value).
+* `"hover"` — buttons with download options appear when user hovers mouse on the plot.
+* `"fixed"` — buttons with download options are always shown.
+
+You can also specify parameter `fileName` which should be the desired filename for the plot without extension (e.g. `fileName="myplot"`).
+
+In case of SVG file the plot is downloaded as is. In case of PNG the plot is rasterized and you can define additional options, also as parameters of `Axes` component:
+
+* `pngWidth` — width of PNG image in cm (default is 8 cm).
+* `pngHeight` — height of PNG image in cm (default is 8 cm).
+* `pngRes` — resolution of the PNG image in pixels per inch (default is 300).
+
+If the first two parameters do not match the aspect ratio of the plot they will be adjusted accordingly.
 
 ## Quick start (3D plots)
 
