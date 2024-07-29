@@ -22,8 +22,8 @@
    export let borderColor = 'transparent';         // border colors of label symbols
    export let borderWidth = 0;                     // border width of label symbols
    export let textSize = 1;                        // size of label symbols
-   export let className = 'series_text';           // CSS class name for the labels group
-   export let title = 'series_text';               // title of the labels SVG group
+   export let className = 'series-text';           // CSS class name for the labels group
+   export let title = 'series-text';               // title of the labels SVG group
    export let rotateAngle = 0;                     // angle to rotate labels
 
    /*****************************************/
@@ -70,8 +70,7 @@
    }
 
    // styles for the elements
-   $: textStyleStr = `dominant-baseline:middle;fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};
-      font-size:${textSize}em;`;
+   $: textStyleStr = `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`;
 </script>
 
 {#if $isOk && x !== undefined && y !== undefined}
@@ -96,12 +95,3 @@
    {/if}
 </g>
 {/if}
-
-<style>
-text, text > :global(tspan) {
-   dominant-baseline: middle;
-   text-anchor: middle;
-   cursor: default;
-   user-select: none;
-}
-</style>
