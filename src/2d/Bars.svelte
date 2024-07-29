@@ -62,4 +62,4 @@
    }
 </script>
 
-<Rectangles className="series_bar" {left} {top} {width} {height} {borderColor} {faceColor} {title} />
+<Rectangles className="series-bar" {left} {top} {width} {height} {borderColor} {faceColor} {title} />

@@ -140,13 +140,13 @@
    function handleClick(e) {
 
       // click on scatter plot markers
-      if (e.target.tagName === 'text' && e.target.parentNode.classList.contains('series_points')) {
+      if (e.target.tagName === 'text' && e.target.parentNode.classList.contains('series-points')) {
          dispatchClickEvent('markerclick', e.target);
          return;
       }
 
       // click on bar plot bars
-      if (e.target.tagName === 'rect' && e.target.parentNode.classList.contains('series_bar')) {
+      if (e.target.tagName === 'rect' && e.target.parentNode.classList.contains('series-bar')) {
          dispatchClickEvent('barclick', e.target);
          return;
       }
@@ -205,11 +205,11 @@
    /*****************************************/
 
    const scale = writable('medium');                                  // scale factor (how big the shown plot is)
+   const isOk = writable(false);                                      // are axes ready for drawing
+   const xLim = writable(limX);                                       // validated values for x-axis limits
+   const yLim = writable(limY);                                       // validated values for y-axis limits
    const tX = writable({'coords': [1, 0, 0], 'objects': [1, 0, 0]});  // scaling and translation factors for x-dimension
    const tY = writable({'coords': [1, 0, 0], 'objects': [1, 0, 0]});  // scaling and translation factors for y-dimension
-   const isOk = writable(false);                                      // are axes ready for drawing
-   const xLim = writable(limX);
-   const yLim = writable(limY);
 
 
    /*****************************************/
@@ -343,17 +343,24 @@
             text-anchor:middle;
          }
 
-         .tick_labels text,
-         .tick_labels tspan,
-         .series_points text,
-         .series_points tspan {
+         .tick-labels text,
+         .tick-labels tspan,
+         .series-text text,
+         .series-text tspan,
+         .series-points text,
+         .series-points tspan {
             dominant-baseline: middle;
             cursor: default;
             user-select: none;
          }
 
-         .tick_labels text,
-         .tick_labels tspan {
+         .series-text text,
+         .series-text tspan {
+            text-anchor: middle;
+         }
+
+         .tick-labels text,
+         .tick-labels tspan {
             font-size:1em;
          }
       </style>

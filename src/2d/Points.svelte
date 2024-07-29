@@ -62,7 +62,7 @@
 </script>
 
 {#if $isOk && x !== undefined && y !== undefined}
-<g class="series series_points" title={title} style={textStyleStr} dominant-baseline="middle" text-anchor="middle">
+<g class="series series-points" title={title} style={textStyleStr} dominant-baseline="middle" text-anchor="middle">
    {#each x as v, i}
       <text x={x[i]} y={y[i]}>{markerSymbol}</text>
    {/each}

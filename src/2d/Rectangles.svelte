@@ -22,7 +22,7 @@
    export let faceColor = Colors.PRIMARY;    // color of bar faces (fill)
    export let borderColor = faceColor;       // color of bar borders
    export let lineWidth = 1;                 // width (thickness) of bar border lines
-   export let className = 'series_rect';     // CSS class name of the SVG group
+   export let className = 'series-rect';     // CSS class name of the SVG group
    export let title = '';                    // title of the rectangle series (reserved for future use)
 
 

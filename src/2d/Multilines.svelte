@@ -58,7 +58,7 @@
 </script>
 
 {#if $isOk && pp !== undefined && pp.length > 0}
-   <g class="series series_multiline" style={lineStyleStr} title={title}>
+   <g class="series series-multiline" style={lineStyleStr} title={title}>
       {#each pp as p}
       <polyline class="line" points={p}/>
       {/each}

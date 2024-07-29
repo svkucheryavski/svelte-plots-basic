@@ -57,7 +57,7 @@
 </script>
 
 {#if x !== undefined && y !== undefined}
-<g class="tick_labels" bind:this={el} style={textStyleStr} >
+<g class="tick-labels" bind:this={el} style={textStyleStr} >
    {#if las === 2 && pos === 4}
    {#each x as v, i}
       <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={dx*1.25} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"middle"}>{@html tickLabels[i]}</text>

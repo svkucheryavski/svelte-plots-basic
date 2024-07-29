@@ -22,7 +22,7 @@
    export let breaks = null;                 // vector with breaks to distribute the values in
    export let colmap = null;                 // array with colors for each interval
 
-   export let className = 'series_heatmap';  // CSS class name of the SVG group
+   export let className = 'series-heatmap';  // CSS class name of the SVG group
    export let title = '';                    // title of the rectangle series (reserved for future use)
 
 
@@ -94,7 +94,7 @@
    <g class="series {className}" title={title} style="stroke:0;stroke-width:0px;">
    <!-- loop over colors/intervals -->
    {#each lColmap as col, i}
-      <g title="heatmap_group" style="fill:{col};">
+      <g title="heatmap-group" style="fill:{col};">
       {#if rx[i].length > 0}
          <!-- loop over elements which fall into the interval -->
          {#each rx[i] as v, j}

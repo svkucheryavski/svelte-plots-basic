@@ -20,7 +20,7 @@
    export let lineColor = Colors.PRIMARY;    // color of segment lines
    export let lineType = 1;                  // type of segment lines (1 - solid, 2 - dashed, 3 - dotted, 4 - dashdot)
    export let lineWidth = 1;                 // width (thickness) of segment lines
-   export let className = 'series_seg';      // CSS class name of the SVG group
+   export let className = 'series-seg';      // CSS class name of the SVG group
    export let title = '';                    // title of the segment series (reserved for future use)
 
 

@@ -42,7 +42,7 @@
 </script>
 
 {#if $isOk && p !== undefined}
-   <g class="series series_line" style={lineStyleStr} title={title}>
+   <g class="series series-line" style={lineStyleStr} title={title}>
       <polyline class="line" points={p}/>
    </g>
 {/if}
