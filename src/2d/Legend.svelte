@@ -43,7 +43,7 @@
       const element = document.createElement('canvas');
       const context = element.getContext('2d');
       context.font = font;
-      return context.measureText(text).width;
+      return context.measureText(text.replace(/<(.|\n)*?>/g, '')).width;
    }
 
    /**
@@ -112,6 +112,13 @@
 <!-- individual legend item -->
 <svg x="{0}px" y="{i * (elHeight + 2 * elPadding)}px" width="{legendWidth}px" height="{elHeight + 2 * elPadding}px">
 
+   <style>
+   .legend-text,
+   .legend-text tspan {
+      dominant-baseline: hanging;
+   }
+   </style>
+
    <!-- line -->
    {#if item.lineType && item.lineType > 0 && item.lineType <= 4}
    <line x1={elPadding} x2={elPadding + elWidth} y1={(elHeight + elPadding * 2)/2} y2={(elHeight + elPadding * 2)/2} stroke="{item.lineColor ? item.lineColor : Colors.PRIMARY}" stroke-width="{item.lineWidth ? item.lineWidth : 1}px" stroke-dasharray="{axes.LINE_STYLES[$scale][item.lineType - 1]}"/>
@@ -124,9 +131,8 @@
    {/if}
 
 
-
    <!-- text -->
-   <text xml:space="preserve" x="{elWidth + elPadding * 3}px" y="{elPadding}px" dominant-baseline="hanging" text-anchor="start" fill="{Colors.LEGEND}" font-size="{fontSize}px">{@html ' ' + item.label}</text>
+   <text class="legend-text" xml:space="preserve" x="{elWidth + elPadding * 3}px" y="{elPadding}px" text-anchor="start" fill="{Colors.LEGEND}" font-size="{fontSize}px"> {@html item.label}</text>
 
 </svg>
 {/each}
