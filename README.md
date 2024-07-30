@@ -7,7 +7,7 @@ The library is under development and breaking changes may occur in the coming ve
 These websites and web-applications use `svelte-plots-basic` library:
 
 * [graasta.com](https://graasta.com) — interactive web-apps for learning statistics and beyond.
-* [mda.tools/ddsimca/](https://mda.tools/ddsimca/) — interactive web-app for one class classification of multivariate data using [DD-SIMCA](https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/epdf/10.1002/cem.3556) method.
+* [mda.tools/ddsimca/](https://mda.tools/ddsimca/) — interactive web-app for one class classification using [DD-SIMCA](https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/epdf/10.1002/cem.3556) method.
 
 ## News
 
@@ -35,7 +35,7 @@ New major release (v. 2.0.0) introduces many breaking changes as the library was
 
 ## Description
 
-`svelte-plots-basic` is a [Svelte](https://svelte.dev) component library for creating simple 2D and 3D plots/charts. The plots are created by generating [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) inside HTML document and are re-scalable.
+`svelte-plots-basic` is a [Svelte](https://svelte.dev) component library for creating simple responsive 2D and 3D plots/charts. The plots are created by generating [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) inside HTML document.
 
 The library provides building blocks for creating plots, one can think of this library as "Lego" bricks for plots. It has two groups of components: for 2D and for 3D plots. In addition to `svelte` the library has one direct dependence, [mdatools-js](https://github.com/svkucheryavski/mdatools-js) library which is used for vector/matrix operations, statistics, and other manipulations with data values.
 
@@ -57,11 +57,9 @@ yarn add -D svelte-plots-basic
 
 ## Quick start (2D plots)
 
-Below you will find several simple examples which help you to start with. To learn more, check [this website]() with demo examples and the corresponding [source code]().
+Below you will find several simple examples which help you to start with. It is assumed that you already know the basics of Svelte.
 
-It is assumed that you already know the basics of Svelte.
-
-Just create a new Svelte app following the [quick start guide](https://svelte.dev/blog/the-easiest-way-to-get-started). Then open `App.svelte` file, delete everything and write the following code, which creates a simple 2D bar chart:
+To make a plot, just create a new Svelte app following the [quick start guide](https://svelte.dev/blog/the-easiest-way-to-get-started). Then open `App.svelte` file, delete everything and write the following code, which creates a simple 2D bar chart:
 
 ```svelte
 <script>
@@ -108,7 +106,7 @@ Then run `npm run dev` in terminal and open the URL provided by npm in browser. 
 
 [This example](https://svelte.dev/repl/ad0f5631137d4a16b3a9b0e9dff23169?version=4.2.18) in Svelte REPL.
 
-You can also use all capabilities of the `mdatools` package, e.g. generated random numbers:
+You can also use all capabilities of the `mdatools` package, e.g. generating random numbers:
 
 ```svelte
 <script>
@@ -173,7 +171,7 @@ Here is an example of using the component with all available parameters:
 </Axes>
 ```
 
-Parameter `margin` must contain four values, relative margins for bottom, left, top and right sides around main plotting area. The larger margin value the more space available for axis ticks, labels, etc.
+Parameter `margin` must contain four values, relative margins for bottom, left, top and right sides around main plotting area. The larger margin value is the more space available for axis ticks, labels, etc.
 
 The last five parameters are needed to save plot to a file. See corresponding section with more details below.
 
@@ -210,6 +208,7 @@ The `YAxis` has identical parameters, just remember to change the `slot` value. 
 [This example](https://svelte.dev/repl/fbc54e9359a84cd39b5e1da0787b7274?version=4.2.18) in Svelte REPL.
 
 
+
 ### Box
 
 Simple component which adds a box (frame) around the main plotting area. Has only one parameter (it is mandatory), `slot`, which must always be `"box"`:
@@ -229,7 +228,7 @@ Simple component which adds a box (frame) around the main plotting area. Has onl
 
 ### Points
 
-Adds a series of points to the plot. Requires at least two sequence of values, x- and y-coordinates of the points, which can be specified as Javascript array or as a `Vector` instance (class from `mdatools` package).
+Adds a series of points to a plot. Requires at least two sequence of values, x- and y-coordinates of the points, which can be specified as Javascript array or as a `Vector` instance (class from `mdatools` package).
 
 Here is an example of using the component with all available parameters:
 
@@ -281,7 +280,6 @@ Here is an example of using the component with all available parameters:
       lineColor="#ff0000"
       lineType={3}
       lineWidth={2}
-      title="series1"
    />
 </Axes>
 ```
@@ -312,7 +310,6 @@ Here is an example of using the component with all available parameters:
       faceColor="#ff000080"
       borderColor="#ff0000"
       lineWidth={2}
-      title="series1"
    />
 </Axes>
 ```
@@ -338,7 +335,6 @@ Here is an example of using the component with all available parameters:
       lineColor="#ff0000"
       lineWidth={2}
       lineType={3}
-      title="series1"
    />
 </Axes>
 ```
@@ -366,16 +362,15 @@ Here is an example of using the component with all available parameters:
       borderColor="#aa0000"
       borderWidth={1}
       textSize={4}
-      title="series1"
    />
 </Axes>
 ```
 
-Parameter `pos` defines location of the text label relative to the coordinate of corresponding point. It can be one of the following: `0` (on the point), `1` (under), `2` (on the left side), `3` (over), `4` (on the right side).
+Parameter `pos` defines position of the text label relative to the coordinate of corresponding point. It can be one of the following: `0` (on the point), `1` (under), `2` (on the left side), `3` (over), `4` (on the right side).
 
 It can be specified as a single value, like in the example above, or as array of values — individual for each label.
 
-Same about `labels` — it can be a single value for all points or an array of individual values for each point like in the example above.
+Same about parameter `labels` — it can be a single value for all points or an array of individual values for each point like in the example above.
 
 [This example](https://svelte.dev/repl/ae58b8d4e92f4e748a679b60c4876347?version=4.2.18) in Svelte REPL.
 
@@ -398,7 +393,6 @@ Here is an example of using the component with all available parameters:
       faceColor="#ffcc0080"
       borderColor="#ff0000"
       borderWidth={2}
-      title="series1"
    />
 </Axes>
 ```
@@ -424,19 +418,18 @@ Here is an example of using the component with all available parameters:
       lineColor="#ff0000"
       lineWidth={2}
       lineType={3}
-      title="series1"
    />
 </Axes>
 ```
 
-The line parameters are similar to the ones in `Segments` component.
+The line parameters are similar to the ones used in `Segments` component.
 
 [This example](https://svelte.dev/repl/2006ca1441f845eb9ed40b3e583d0094?version=4.2.18) in Svelte REPL.
 
 
 ### Multilines
 
-This component is similar to `Lines` but lets you show multiple lines whose x-coordinates are the same but each line has its own y-coordinates. The parameters are similar to `Lines` component except one — `yValues` must be provided as an instance of `Matrix` class (from `mdatools` package). Every column of this matrix contains y-coordinates of corresponding line.
+This component is similar to `Lines` but it lets you showing multiple lines whose x-coordinates are the same but each line has its own y-coordinates. The parameters are similar to `Lines` component except one — `yValues` must be provided as an instance of `Matrix` class (from `mdatools` package). Every column of this matrix contains y-coordinates of corresponding line.
 
 Here is an example of using the component with all available parameters:
 
@@ -465,7 +458,6 @@ Here is an example of using the component with all available parameters:
       lineColor="#ff0000"
       lineWidth={2}
       lineType={1}
-      title="series1"
    />
 </Axes>
 ```
@@ -523,7 +515,7 @@ The `position` parameter can be one of the follows: `"topleft"`, `"top"`, `"topr
 
 ### Heatmap
 
-This component lets you visualize values of a matrix (instance of class `Matrix`). Matrix with values is the only mandatory parameter for the component, the other two are optional.
+This component lets you visualizing values of a matrix (instance of class `Matrix`). Matrix with values is the only mandatory parameter for the component, the other two are optional.
 
 ```svelte
 <script>
@@ -543,8 +535,8 @@ This component lets you visualize values of a matrix (instance of class `Matrix`
 <Axes limX={[0, 4]} limY={[0, 4]}>
    <Heatmap
 	   {values}
-		 {breaks}
-		 {colmap}
+		{breaks}
+		{colmap}
    />
 </Axes>
 ```
@@ -558,7 +550,7 @@ Both `breaks` and `colmap` are defined automatically by default.
 
 ### Colormap legend
 
-This component is useful when you have series of points or other primitives (including heatmap) shown using different colors. Especially if the colors are
+This component is useful when you have series of points or other primitives (including heatmap) shown using different colors. Especially if the colors are sequential.
 
 Here is an example from above with added `ColormapLegend`  component.
 
@@ -570,8 +562,8 @@ Here is an example from above with added `ColormapLegend`  component.
    // create values for a matrix
    const values = matrix([0.9, 0.7, 0.5, 0.3, 0.9, 0.1, 0.1, 0.5, 0.9], 3, 3);
 
-	 // create vector of breaks
-	 const breaks = vector([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]);
+	// create vector of breaks
+	const breaks = vector([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]);
 
 	// colmap
 	const colmap = ["blue", "green", "yellow", "orange", "red"]
@@ -580,8 +572,8 @@ Here is an example from above with added `ColormapLegend`  component.
 <Axes limX={[0, 4]} limY={[0, 4]}>
    <Heatmap
 	   {values}
-		 {breaks}
-		 {colmap}
+		{breaks}
+		{colmap}
    />
 
 	<ColormapLegend {breaks} {colmap} />
@@ -600,11 +592,11 @@ In addition to two mandatory parameters, `breaks` and `colmap`, it has the follo
 
 ### Handle mouse events
 
-Elements of points and bar series as well as axes component. When user clicks on axes area outside any series elements the `Axes` component dispatches event `'axesclick'`.
+Elements of points and bar series as well as axes component. When user clicks on axes area outside any series elements, the `Axes` component dispatches event `'axesclick'`.
 
-When user clicks on element of `Bars` component it dispatches `'barclick'` event supplements with data value which correspond to the bar index. Similar for `Points`, if user clicks on any marker the `Axes`  component dispatches `'markerclick'` event with point index as supplemented data.
+When user clicks on element (marker) of `Points` component it dispatches `'markerclick'` event supplements with data value which correspond to the marker index (position of the values with marker coordinates).
 
-Here is an example which utilizes this functionality to select a point (marker) when user clicks on it and remove selection if user clicks outside any series elements (but inside the plotting area).
+Here is an example which utilizes this functionality to select a point (marker) when user clicks on it and removes the selection if user clicks outside the markers (but inside the plotting area).
 
 ```svelte
 <script>
@@ -661,7 +653,7 @@ Play with [this example](https://svelte.dev/repl/e4705e10f1604e4cabc21f554337671
 From version *2.3.0* it is possible to save any plot as an SVG or PNG file. In order to use this you need to add additional parameter to `Axes` component, `downloadLinks`. This parameter may have the following values:
 
 * `"none"` — turns this functionality off (default value).
-* `"hover"` — buttons with download options appear when user hovers mouse on the plot.
+* `"hover"` — buttons with download options appear when user hovers mouse over the plot.
 * `"fixed"` — buttons with download options are always shown.
 
 You can also specify parameter `fileName` which should be the desired filename for the plot without extension (e.g. `fileName="myplot"`).
@@ -711,6 +703,8 @@ Here is a full example:
 
 3D plots can be created similar to 2D plots but its components must be imported from `svelte-plots-basic/3d`. Plus all elements must have three coordinates (x, y and z). Plot elements include axes pane, x-, y- and z-axis, as well as points, lines, segments and mesh series.
 
+The plots are also made as SVG elements, by using [isometric projection](https://en.wikipedia.org/wiki/Isometric_projection). The orientation of the projection plane is defined by parameters `phi` and `theta`. Parameter `zoom` defines the distance between the plane and the scene.
+
 Here is an example of simple 3D scatter plot:
 
 ```svelte
@@ -740,3 +734,5 @@ Here is an example of simple 3D scatter plot:
 [This example](https://svelte.dev/repl/2294eecba7d7477ab9a09c1734d32ac2?version=4.2.18) in Svelte REPL.
 
 You can also add `Lines`, `Segments` and `Mesh` series to 3D plots.
+
+
