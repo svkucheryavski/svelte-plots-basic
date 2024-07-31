@@ -66,26 +66,26 @@
 
    // font size for plot element
    const LEGEND_FONT_SIZE = {
-      "small": 10,
-      "medium": 12,
-      "large": 14,
-      "xlarge": 16
+      "small": 11,
+      "medium": 13,
+      "large": 15,
+      "xlarge": 17
    };
 
    // font size for legend items in pixels
    const PLOT_FONT_SIZE = {
-      "small": 11,
-      "medium": 13,
-      "large": 16,
-      "xlarge": 19
+      "small": 12,
+      "medium": 14,
+      "large": 17,
+      "xlarge": 20
    };
 
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
-      'small': 10,
-      'medium': 13,
-      'large': 15,
-      'xlarge': 17
+      'small': 11,
+      'medium': 14,
+      'large': 16,
+      'xlarge': 18
    };
 
    // line styles for different scales and types
@@ -440,9 +440,11 @@
       z-index: 10;
       padding: 0.5em 1em 0.5em 1em;
       background: #fefefe;
-      border-top-left-radius: 0.5em;
+      border-radius: 0.5em;
       transition: bottom 0.35s ease;
       box-shadow: 0 0 1em #00000040;
+      margin: 0.5em;
+      box-sizing: border-box;
 
       display: flex;
       align-items: center;
