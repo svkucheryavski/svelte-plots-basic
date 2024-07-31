@@ -68,24 +68,24 @@
    const LEGEND_FONT_SIZE = {
       "small": 11,
       "medium": 13,
-      "large": 15,
-      "xlarge": 17
+      "large": 16,
+      "xlarge": 18
    };
 
    // font size for legend items in pixels
    const PLOT_FONT_SIZE = {
       "small": 12,
       "medium": 14,
-      "large": 17,
-      "xlarge": 20
+      "large": 18,
+      "xlarge": 21
    };
 
    // margin between plot series elements and data labels
    const LABELS_MARGIN = {
       'small': 11,
       'medium': 14,
-      'large': 16,
-      'xlarge': 18
+      'large': 17,
+      'xlarge': 19
    };
 
    // line styles for different scales and types
