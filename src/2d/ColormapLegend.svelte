@@ -14,13 +14,16 @@
    /* Input parameters                      */
    /*****************************************/
 
-   export let breaks;                  // vector with breaks for color intervals
+   export let breaks;                  // vector with breaks for color intervals or vector with their indices
    export let colmap;                  // array with colors for each interval
    export let decNum = 1;              // number of decimals to show the interval boundaries with
-   export let labels = null;           // optional vector with labels for interval boundaries
+   export let labels = null;           // optional vector with labels for interval boundaries or elements
    export let labelColor = '#909090';  // color of labels
    export let fontSize = 0.85;         // font size for labels in em
 
+   // if number of breaks is the same as number of elements in color map
+   // the corresponding labels will be placed in the middle inder each color element in the legend
+   // if this number is by one larger, the labels will be placed on the boundaries
 
    /*****************************************/
    /* Component code                        */
@@ -40,7 +43,10 @@
    }
 
    // check colormap values
-   $: if (!colmap || colmap.length !== breaks.length - 1) {
+   $: if (!colmap || !(colmap.length === breaks.length - 1 || colmap.length === breaks.length )) {
+      console.log(colmap)
+      console.log(breaks)
+      console.log(labels)
       throw new Error('ColormapLegend: number of color values in colormap does not match number of intervals defined by breaks.');
    }
 
@@ -61,9 +67,10 @@
 
    // number of elements
    $: n = colmap.length;
+   $: isCentered = lLabels && lLabels.length === n;
 
    // compute screen coordinates of the elements
-   let rx, ry, rw, rh = undefined;
+   let dxl, rx, ry, rw, rh = undefined;
    $: {
       if ($isOk) {
          // compute size of the whole block in plot coordinates
@@ -82,6 +89,7 @@
          rx = axes.transform(Vector.seq(0, n).apply(v => left + v * elWidth), $tX.coords);
          rw = axes.transform([elWidth], $tX.objects);
          rh = EL_HEIGHTS_PX[$scale];
+         dxl = isCentered ? rw[0] / 2 : 0
       }
    };
 </script>
@@ -90,9 +98,11 @@
    <g class="series colormap_legend" style="stroke:0;stroke-width:0px;">
    {#each colmap as col, i}
       <rect x={rx[i]} y={ry} width={rw} height={rh} fill="{col}"/>
-      <text x={rx[i]} y={ry} dx={0} dy={rh * 1.25} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[i]}</text>
+      <text x={rx[i]} y={ry} dx={dxl} dy={rh * 1.25} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[i]}</text>
    {/each}
+   {#if !isCentered}
    <text x={rx[n]} y={ry} dx={0} dy={rh * 1.25} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[n]}</text>
+   {/if}
    </g>
 {/if}
 
