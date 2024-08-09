@@ -35,7 +35,7 @@
    const TOP_MARGIN = 0.25;     // legend top margin is 25% of its height
 
    // height of the legend elements in pixels
-   const EL_HEIGHTS_PX = {'small': 5, 'medium': 10, 'large': 15, 'xlarge': 20};
+   const EL_HEIGHTS_PX = {'small': 5, 'medium': 8, 'large': 12, 'xlarge': 15};
 
    // check breaks values
    $: if (!breaks || breaks.length < 2) {
