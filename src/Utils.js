@@ -417,7 +417,6 @@ export function downloadPNG (svg, fileName, width, height, res) {
       canvas.width =  svgWidth * scaleFactor;
       canvas.height = svgHeight * scaleFactor;
 
-      console.log([svgHeight, svgWidth, height, width])
       svg.setAttribute('width', canvas.width);
       svg.setAttribute('height', canvas.height);
 
