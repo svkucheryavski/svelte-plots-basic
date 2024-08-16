@@ -243,115 +243,115 @@ export function getScale(width, height) {
 }
 
 
-   /*************************************************************/
-   /* Functions needed to adjust DPI of resulting PNG image     */
-   /* taken from: https://github.com/shutterstock/changeDPI     */
-   /* and modified                                              */
-   /*************************************************************/
+/*************************************************************/
+/* Functions needed to adjust DPI of resulting PNG image     */
+/* taken from: https://github.com/shutterstock/changeDPI     */
+/* and modified                                              */
+/*************************************************************/
 
-   /**
-    * Create table for PNG CRC calculation
-    */
-   function createPngDataTable() {
-      const crcTable = new Int32Array(256);
-      for (let n = 0; n < 256; n++) {
-         let c = n;
-         for (let k = 0; k < 8; k++) {
-            c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-         }
-         crcTable[n] = c;
+/**
+ * Create table for PNG CRC calculation
+ */
+function createPngDataTable() {
+   const crcTable = new Int32Array(256);
+   for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) {
+         c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
       }
-      return crcTable;
+      crcTable[n] = c;
    }
+   return crcTable;
+}
 
-   /**
-    * Calculate CRC for PNG image
-    * @param buf image data
-    */
-   function calcCrc(buf) {
-      let c = -1;
-      let pngDataTable = createPngDataTable();
-      for (let n = 0; n < buf.length; n++) {
-         c = pngDataTable[(c ^ buf[n]) & 0xFF] ^ (c >>> 8);
-      }
-      return c ^ -1;
+/**
+ * Calculate CRC for PNG image
+ * @param buf image data
+ */
+function calcCrc(buf) {
+   let c = -1;
+   let pngDataTable = createPngDataTable();
+   for (let n = 0; n < buf.length; n++) {
+      c = pngDataTable[(c ^ buf[n]) & 0xFF] ^ (c >>> 8);
    }
+   return c ^ -1;
+}
 
-   /**
-    * Change DPI of PNG image
-    * @param dataArray image data
-    * @param dpi new DPI
-    */
-   function changeDpiOnArray(dataArray, dpi) {
+/**
+ * Change DPI of PNG image
+ * @param dataArray image data
+ * @param dpi new DPI
+ */
+function changeDpiOnArray(dataArray, dpi) {
 
-      const physChunk = new Uint8Array(13);
-      // chunk header pHYs
-      // 9 bytes of data
-      // 4 bytes of crc
-      // this multiplication is because the standard is dpi per meter.
-      dpi *= 39.3701;
-      physChunk[0] = 'p'.charCodeAt(0);
-      physChunk[1] = 'H'.charCodeAt(0);
-      physChunk[2] = 'Y'.charCodeAt(0);
-      physChunk[3] = 's'.charCodeAt(0);
-      physChunk[4] = dpi >>> 24; // dpiX byte 3
-      physChunk[5] = dpi >>> 16; // dpiX byte 2
-      physChunk[6] = dpi >>> 8;  // dpiX byte 1
-      physChunk[7] = dpi & 0xff; // dpiX byte 0
-      physChunk[8] = physChunk[4];  // dpiY byte 3
-      physChunk[9] = physChunk[5];  // dpiY byte 2
-      physChunk[10] = physChunk[6]; // dpiY byte 1
-      physChunk[11] = physChunk[7]; // dpiY byte 0
-      physChunk[12] = 1; // dot per meter....
+   const physChunk = new Uint8Array(13);
+   // chunk header pHYs
+   // 9 bytes of data
+   // 4 bytes of crc
+   // this multiplication is because the standard is dpi per meter.
+   dpi *= 39.3701;
+   physChunk[0] = 'p'.charCodeAt(0);
+   physChunk[1] = 'H'.charCodeAt(0);
+   physChunk[2] = 'Y'.charCodeAt(0);
+   physChunk[3] = 's'.charCodeAt(0);
+   physChunk[4] = dpi >>> 24; // dpiX byte 3
+   physChunk[5] = dpi >>> 16; // dpiX byte 2
+   physChunk[6] = dpi >>> 8;  // dpiX byte 1
+   physChunk[7] = dpi & 0xff; // dpiX byte 0
+   physChunk[8] = physChunk[4];  // dpiY byte 3
+   physChunk[9] = physChunk[5];  // dpiY byte 2
+   physChunk[10] = physChunk[6]; // dpiY byte 1
+   physChunk[11] = physChunk[7]; // dpiY byte 0
+   physChunk[12] = 1; // dot per meter....
 
-      // compute and add CRC for physChunk
-      const crc = calcCrc(physChunk);
-      const crcChunk = new Uint8Array(4);
-      crcChunk[0] = crc >>> 24;
-      crcChunk[1] = crc >>> 16;
-      crcChunk[2] = crc >>> 8;
-      crcChunk[3] = crc & 0xff;
+   // compute and add CRC for physChunk
+   const crc = calcCrc(physChunk);
+   const crcChunk = new Uint8Array(4);
+   crcChunk[0] = crc >>> 24;
+   crcChunk[1] = crc >>> 16;
+   crcChunk[2] = crc >>> 8;
+   crcChunk[3] = crc & 0xff;
 
-      // chunk structur 4 bytes for length is 9
-      const chunkLength = new Uint8Array(4);
-      chunkLength[0] = 0;
-      chunkLength[1] = 0;
-      chunkLength[2] = 0;
-      chunkLength[3] = 9;
+   // chunk structur 4 bytes for length is 9
+   const chunkLength = new Uint8Array(4);
+   chunkLength[0] = 0;
+   chunkLength[1] = 0;
+   chunkLength[2] = 0;
+   chunkLength[3] = 9;
 
-      const finalHeader = new Uint8Array(54);
-      finalHeader.set(dataArray, 0);
-      finalHeader.set(chunkLength, 33);
-      finalHeader.set(physChunk, 37);
-      finalHeader.set(crcChunk, 50);
-      return finalHeader;
+   const finalHeader = new Uint8Array(54);
+   finalHeader.set(dataArray, 0);
+   finalHeader.set(chunkLength, 33);
+   finalHeader.set(physChunk, 37);
+   finalHeader.set(crcChunk, 50);
+   return finalHeader;
+}
+
+/**
+ * Change DPI of PNG image
+ * @param base64Image image data
+ * @param dpi new DPI
+ */
+function changeDPI(base64Image, dpi) {
+
+   const dataSplitted = base64Image.split(',');
+   const format = dataSplitted[0];
+   const body = dataSplitted[1];
+
+   // here we assume there is pHYS chunk in the header
+   const headerLength = 33 / 3 * 4;
+
+   const stringHeader = body.substring(0, headerLength);
+   const restOfData = body.substring(headerLength);
+   const headerBytes = atob(stringHeader);
+   const dataArray = new Uint8Array(headerBytes.length);
+   for (let i = 0; i < dataArray.length; i++) {
+      dataArray[i] = headerBytes.charCodeAt(i);
    }
-
-   /**
-    * Change DPI of PNG image
-    * @param base64Image image data
-    * @param dpi new DPI
-    */
-   function changeDPI(base64Image, dpi) {
-
-      const dataSplitted = base64Image.split(',');
-      const format = dataSplitted[0];
-      const body = dataSplitted[1];
-
-      // here we assume there is pHYS chunk in the header
-      const headerLength = 33 / 3 * 4;
-
-      const stringHeader = body.substring(0, headerLength);
-      const restOfData = body.substring(headerLength);
-      const headerBytes = atob(stringHeader);
-      const dataArray = new Uint8Array(headerBytes.length);
-      for (let i = 0; i < dataArray.length; i++) {
-         dataArray[i] = headerBytes.charCodeAt(i);
-      }
-      const finalArray = changeDpiOnArray(dataArray, dpi, 'image/png');
-      const base64Header = btoa(String.fromCharCode(...finalArray));
-      return [format, ',', base64Header, restOfData].join('');
-   }
+   const finalArray = changeDpiOnArray(dataArray, dpi, 'image/png');
+   const base64Header = btoa(String.fromCharCode(...finalArray));
+   return [format, ',', base64Header, restOfData].join('');
+}
 
 
 /**
@@ -417,6 +417,7 @@ export function downloadPNG (svg, fileName, width, height, res) {
       canvas.width =  svgWidth * scaleFactor;
       canvas.height = svgHeight * scaleFactor;
 
+   // set corresponding attributes for SVG element
       svg.setAttribute('width', canvas.width);
       svg.setAttribute('height', canvas.height);
 
@@ -484,3 +485,74 @@ export function downloadSVG(svg, fileName) {
    a.click()
 }
 
+
+/**
+ * Returns plot BLOB to copy it to clipboard.
+ *
+ * @param {SVGElement} svg - root SVG element of a plot
+ * @param {number} width - desired image width in pixels
+ * @param {number} height - desired image height in pixels
+ *
+ */
+export async function createPngBlob(svg, width, height) {
+
+   // compute canvas size based on SVG size and scaling factor
+   // based on desired size in pixels
+   const svgHeight = svg.clientHeight;
+   const svgWidth = svg.clientWidth;
+   const scaleFactor = Math.max(width / svgWidth, height / svgHeight);
+
+   // create a new canvas element and 2D context for it
+   const canvas = document.createElement('canvas');
+   const context = canvas.getContext('2d');
+
+   // set the canvas size to match the size of SVG element
+   canvas.width =  svgWidth * scaleFactor;
+   canvas.height = svgHeight * scaleFactor;
+
+   // scale the context
+   context.scale(scaleFactor, scaleFactor)
+
+   // set corresponding attributes for SVG element
+   svg.setAttribute('width', canvas.width);
+   svg.setAttribute('height', canvas.height);
+
+   // create promise
+   const promise = new Promise((resolve, reject) => {
+
+      // serialzie SVG, create blob and URL for it
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const DOMURL = window.URL || window.webkitURL || window;
+      const url = DOMURL.createObjectURL(svgBlob);
+
+      // create image an image and add callback
+      const img = new Image();
+      img.onload = function () {
+
+         // draw the image
+         context.drawImage(img, 0, 0, canvas.width, canvas.height);
+         DOMURL.revokeObjectURL(url);
+
+         // convert canvas to blob
+         canvas.toBlob(function (blob) {
+            if (blob) {
+               resolve(blob);
+            } else {
+               reject(new Error('Failed to create blob'));
+            }
+         }, 'image/png');
+      };
+
+      // add error callback
+      img.onerror = function (err) {
+         reject(err);
+      };
+
+      // assign value to run the onload callback
+      img.src = url;
+   });
+
+   // resolve promise and return the result
+   return (await promise);
+}

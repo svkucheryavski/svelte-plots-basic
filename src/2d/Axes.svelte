@@ -8,7 +8,7 @@
 	import { setContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
    import { isvector, vector, Vector } from 'mdatools/arrays';
-   import { roundCoords, getScale, downloadSVG, downloadPNG } from '../Utils.js';
+   import { roundCoords, getScale, downloadSVG, downloadPNG, createPngBlob } from '../Utils.js';
 
 
    /*****************************************/
@@ -23,14 +23,16 @@
    export let margins = [1.0, 0.75, 0.5, 0.5];        // margins [bottom, left, top, right] )
 
 
-   /*****************************************/
-   /* Input parameters for downloading      */
-   /*****************************************/
-   export let downloadLinks = 'hover';                // how to show download links panel ('none', 'hover', 'fixed')
+   /***********************************************/
+   /* Input parameters for downloading and copy   */
+   /***********************************************/
+   export let downloadLinks = 'none';                // how to show download links panel ('none', 'hover', 'fixed')
    export let fileName = 'plot';                      // file name for download (without extension)
    export let pngWidth = 8;                           // width of PNG image in cm
    export let pngHeight = 8;                          // height of PNG image in cm
    export let pngRes = 300;                           // resolution of PNG image (pixels per inch)
+   export let clipboardWidth = 1200;                  // width of PNG image to copy to clipboard in pixels
+   export let clipboardHeight = 800;                  // height of PNG image to copy to clipboard in pixels
 
 
    /*****************************************/
@@ -129,7 +131,7 @@
    }
 
    /**
-    * Handler (router) for click events.
+    * Handler (router) for axes or series click events.
     *
     * @param {event} e - event object.
     *
@@ -155,12 +157,52 @@
       dispatch('axesclick');
    }
 
-   function handleClickSVG() {
-      downloadSVG(plotElement, fileName)
+
+   /**
+    * Handler (router) for click event on copy plot button.
+    *
+    * @description
+    * Copy plot to clipboard as PNG image.
+    *
+    */
+   async function handleClickCopy(e) {
+      navigator.clipboard.write([
+         new ClipboardItem({ 'image/png': createPngBlob(plotElement, clipboardWidth, clipboardHeight) })
+      ]).catch(function (error) { console.error(error); });
+
+      const content = e.target.textContent;
+      e.target.classList.add('copied');
+      e.target.textContent = '✓ done';
+
+      // Remove the class after 1 second and revert the text
+      setTimeout(() => {
+        e.target.classList.remove('copied');
+        e.target.textContent = content;
+      }, 500);
    }
 
+
+   /**
+    * Handler (router) for click event to download SVG image.
+    *
+    * @description
+    * Copy plot to clipboard as SVG image.
+    *
+    */
+   function handleClickSVG() {
+      downloadSVG(plotElement, fileName);
+   }
+
+
+   /**
+    * Handler (router) for click event to download PNG image.
+    *
+    * @description
+    * Copy plot to clipboard as PNG image.
+    *
+    */
    function handleClickPNG() {
-      downloadPNG(plotElement, fileName, pngWidth, pngHeight, pngRes)
+      downloadPNG(plotElement, fileName, pngWidth, pngHeight, pngRes);
    }
 
    /**
@@ -413,6 +455,7 @@
    <div class="download-links">
       <button on:click={handleClickSVG} on:keydown={handleClickSVG}>⇩ svg</button>
       <button on:click={handleClickPNG} on:keydown={handleClickPNG}>⇩ png</button>
+      <button on:click={handleClickCopy} on:keydown={handleClickCopy}>⧉ copy</button>
    </div>
    {/if}
 
@@ -432,6 +475,7 @@
    }
 
    .download-links {
+      box-sizing: border-box;
       bottom: right 0.5s ease;
       position: absolute;
       font-size: 0.8em;
@@ -442,8 +486,8 @@
       background: #fefefe;
       border-radius: 0.5em;
       transition: bottom 0.35s ease;
-      box-shadow: 0 0 1em #00000040;
-      margin: 0.5em;
+      box-shadow: 0 0 1em #00000060;
+      margin: 0.6em;
       box-sizing: border-box;
 
       display: flex;
@@ -452,6 +496,7 @@
    }
 
    .download-links > button{
+      box-sizing: border-box;
       color: #606060;
       border: none;
       box-shadow: none;
@@ -464,6 +509,7 @@
       background: #443333;
       color: #fafafa;
    }
+
 
    /* Plot container */
    .plot-container {
