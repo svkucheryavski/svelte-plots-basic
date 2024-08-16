@@ -11,6 +11,10 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 2.4.0
+
+* added possibility to copy a plot to clipboard.
+
 
 ### 2.3.0
 
