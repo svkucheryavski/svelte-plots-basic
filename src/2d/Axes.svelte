@@ -486,7 +486,7 @@
       background: #fefefe;
       border-radius: 0.5em;
       transition: bottom 0.35s ease;
-      box-shadow: 0 0 1em #00000060;
+      box-shadow: 0 0 0.75em #00000060;
       margin: 0.6em;
       box-sizing: border-box;
 
