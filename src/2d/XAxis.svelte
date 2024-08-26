@@ -21,6 +21,7 @@
    export let tickLabels = undefined;        // vector with labels for each tick (by default tick values will be used)
    export let showGrid = false;              // logical, show or not grid lines
    export let las = 1;                       // orientation of tick labels (1 - horizontal, 2 - vertical)
+   export let whole = false;                 // should the ticks be a whole number or not
 
    export let lineColor = Colors.DARKGRAY;   // color of axis and tick lines
    export let gridColor = Colors.MIDDLEGRAY; // color og grid lines
@@ -57,7 +58,7 @@
    $: if ($isOk) {
 
       // compute x-coordinates of the ticks or take the ones manually specified by user
-      const ticksX = getAxisTicks(ticks, $xLim, axes.TICK_NUM[$scale], true);
+      const ticksX = getAxisTicks(ticks, $xLim, axes.TICK_NUM[$scale], true, whole);
       const tickNum = ticksX.length;
 
       // compute tick y-coordinates (up and bottom)

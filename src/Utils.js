@@ -15,19 +15,31 @@ export function getTickLabels(ticks) {
 
    const step = Math.abs(min(diff(ticks)));
    let tickFactor = 0;
-   if (step < 1 && Math.abs(max(ticks)) < 1) {
-      // values between 0 and 1 (absolute)
+
+   // step is large (over 1)
+   if (step >= 1) {
+      if (step < 100) return [0, Array.from(ticks).map(v => v.toFixed(0))];
+
+      let digNum = Math.ceil(Math.log10(step));
+      tickFactor = digNum - 2;
+      return [tickFactor, Array.from(ticks).map(v => (v / Math.pow(10, tickFactor)).toFixed(0))];
+
+   }
+
+   if (Math.abs(max(ticks)) < 1) {
+      // tick values between 0 and 1 (absolute) and step is below 1
       let decNum = Math.ceil(-Math.log10(step));
       if (decNum <= 2) {
-         return [0, Array.from(ticks).map(v => v.toFixed(decNum).toString())];
+         return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
       }
       tickFactor = decNum - 2;
       decNum = 2;
-      return [-tickFactor, Array.from(ticks).map(v => (v * Math.pow(10, tickFactor)).toFixed(decNum).toString())];
+      return [-tickFactor, Array.from(ticks).map(v => (v * Math.pow(10, tickFactor)).toFixed(decNum))];
    } else {
-      let decNum = Math.ceil(Math.log10(step));
+      // tick values above 1 (absolute) and step is below 1
+      let decNum = Math.ceil(-Math.log10(step));
       if (decNum <= 2) {
-         return [0, Array.from(ticks).map(v => v.toString())];
+         return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
       }
       tickFactor = decNum - 2;
       decNum = 2;
@@ -132,11 +144,20 @@ export function val2p(x, y, tX, tY, axes) {
  * @param {Array} lim - vector with axis limits tickets must be computed for.
  * @param {number} maxTickNum - maximum number of ticks to compute.
  * @param {boolean} round - round or not the fractions when computing nice numbers for the ticks.
+ * @param {boolean} whole - should the ticks be a whole number.
  *
  * @returns {Array} an array with computed tick positions.
  *
  */
-export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
+export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
+
+   if (round === undefined || round === null) {
+      round = true;
+   }
+
+   if (whole === undefined || whole === null) {
+      whole = false;
+   }
 
    // if ticks are already provided do not recompute them
    if (ticks !== undefined) {
@@ -156,8 +177,17 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
 
    // get range as a nice number and compute min, max and steps for the tick sequence
    const delta = (lim[1] - lim[0]) / 50;
-   const range = niceNum(lim[1] - lim[0] - 1 * delta, round);
-   const tickSpacing = niceNum(range / (maxTickNum - 1), round);
+   const localRange = lim[1] - lim[0] - delta;
+   const exponent = Math.floor(Math.log10(localRange));
+   const fraction =  1 / Math.pow(10, exponent - 1);
+   const range = Math.round(localRange * fraction) / fraction;
+
+   let tickSpacing = niceNum(range / (maxTickNum - 1), round);
+   if (whole) {
+      if (tickSpacing < 1) tickSpacing = 1;
+      tickSpacing = Math.round(tickSpacing);
+   }
+
    const tickMin = Math.ceil((lim[0] + delta) / tickSpacing) * tickSpacing;
    const tickMax = Math.floor((lim[1] - delta) / tickSpacing) * tickSpacing;
 
@@ -188,7 +218,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round = true) {
  * @returns {Number} the computed spacing value.
  *
  */
-export function niceNum( localRange,  round) {
+export function niceNum(localRange,  round) {
 
    const exponent = Math.floor(Math.log10(localRange));
    const fraction = localRange / Math.pow(10, exponent);
@@ -236,9 +266,9 @@ export function roundCoords(x) {
  *
  */
 export function getScale(width, height) {
-   if (height < 300.2 || width < 300.2) return "small";
-   if (height < 600.2 || width < 600.2) return "medium";
-   if (height < 850.2 || width < 850.2) return "large";
+   if (height < 300.2 || width < 400.2) return "small";
+   if (height < 400.2 || width < 700.2) return "medium";
+   if (height < 650.2 || width < 850.2) return "large";
    return "xlarge";
 }
 
