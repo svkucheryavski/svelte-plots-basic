@@ -13,11 +13,13 @@ export function getTickLabels(ticks) {
 
    if (ticks === undefined) return undefined;
 
+   if (ticks.length === 1) return [0, [ticks[0].toString()]];
+
    const step = Math.abs(min(diff(ticks)));
    let tickFactor = 0;
 
    // step is large (over 1)
-   if (step >= 1) {
+   if (step >= 1 && ticks.length > 1) {
       if (step < 100) return [0, Array.from(ticks).map(v => v.toFixed(0))];
 
       let digNum = Math.ceil(Math.log10(step));
