@@ -11,6 +11,12 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 2.5.0
+
+* improvements to axis ticks and tick labels estimation.
+* `<XAxis>` and `<YAxis>` got a new logical parameter `whole` to force using whole numbers as ticks.
+
+
 ### 2.4.0
 
 * added possibility to copy a plot to clipboard.
