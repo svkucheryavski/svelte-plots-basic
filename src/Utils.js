@@ -28,7 +28,11 @@ export function getTickLabels(ticks) {
 
    if (Math.abs(max(ticks)) < 1) {
       // tick values between 0 and 1 (absolute) and step is below 1
-      let decNum = Math.ceil(-Math.log10(step));
+      let decNum = -Math.log10(step);
+
+      // adjust the decNum value in case if small decimals are present
+      decNum = Math.ceil(Math.round(decNum * 100)/100);
+
       if (decNum <= 2) {
          return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
       }
@@ -38,7 +42,10 @@ export function getTickLabels(ticks) {
    } else {
       // tick values above 1 (absolute) and step is below 1
       let decNum = -Math.log10(step);
-      decNum = Math.ceil(Math.round(decNum * 10)/100);
+
+      // adjust the decNum value in case if small decimals are present
+      decNum = Math.ceil(Math.round(decNum * 100)/100);
+
       if (decNum <= 2) {
          return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
       }
