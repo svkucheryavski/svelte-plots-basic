@@ -12,7 +12,6 @@ import { min, max, diff } from 'mdatools/stat';
 export function getTickLabels(ticks) {
 
    if (ticks === undefined) return undefined;
-
    if (ticks.length === 1) return [0, [ticks[0].toString()]];
 
    const step = Math.abs(min(diff(ticks)));
@@ -25,7 +24,6 @@ export function getTickLabels(ticks) {
       let digNum = Math.ceil(Math.log10(step));
       tickFactor = digNum - 2;
       return [tickFactor, Array.from(ticks).map(v => (v / Math.pow(10, tickFactor)).toFixed(0))];
-
    }
 
    if (Math.abs(max(ticks)) < 1) {
@@ -39,7 +37,8 @@ export function getTickLabels(ticks) {
       return [-tickFactor, Array.from(ticks).map(v => (v * Math.pow(10, tickFactor)).toFixed(decNum))];
    } else {
       // tick values above 1 (absolute) and step is below 1
-      let decNum = Math.ceil(-Math.log10(step));
+      let decNum = -Math.log10(step);
+      decNum = Math.ceil(Math.round(decNum * 10)/100);
       if (decNum <= 2) {
          return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
       }
@@ -190,14 +189,18 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
       tickSpacing = Math.round(tickSpacing);
    }
 
+   // compute smallest and largest tick rounded to tickSpacing
    const tickMin = Math.ceil((lim[0] + delta) / tickSpacing) * tickSpacing;
    const tickMax = Math.floor((lim[1] - delta) / tickSpacing) * tickSpacing;
 
    // recompute maxTickNum
-   maxTickNum = Math.round((tickMax - tickMin + 1) / tickSpacing) + 1;
+   maxTickNum = Math.ceil((tickMax - tickMin) / tickSpacing) + 1;
 
    // create a sequence of ticks
-   ticks = Vector.seq(tickMin, tickMax, tickSpacing);
+   ticks = Vector.zeros(maxTickNum);
+   for (let i = 0; i < maxTickNum; i++) {
+      ticks.v[i] = tickMin + tickSpacing * i;
+   }
 
    // if step is smaller than 1 round values to remove small decimals accidentially added by JS
    if (Math.abs(tickSpacing) < 1) {
