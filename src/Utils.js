@@ -1,6 +1,25 @@
 import { cbind, vector, isvector, Vector } from 'mdatools/arrays';
 import { min, max, diff } from 'mdatools/stat';
 
+/**
+ * Trim number leaving only significant decimals.
+ * @param {number} num
+ * @returns trimmed number
+ */
+function trimNum(num) {
+
+   // check if number is whole — return as is
+   if (num === Math.round(num)) return num;
+
+   // Convert to string with precision to maintain significant digits
+   let str = num.toPrecision(12);
+
+   // Remove trailing zeros
+   str = str.replace(/\.?0+$/, '');
+
+   // Convert back to number
+   return parseFloat(str);
+}
 
 /**
  * Generate vector with axis tick labels and tick factor based on numeric tick values.
@@ -14,44 +33,29 @@ export function getTickLabels(ticks) {
    if (ticks === undefined) return undefined;
    if (ticks.length === 1) return [0, [ticks[0].toString()]];
 
-   const step = Math.abs(min(diff(ticks)));
+   // compute and correct step between ticks
+   let step = trimNum(Math.abs(min(diff(ticks))));
    let tickFactor = 0;
 
    // step is large (over 1)
    if (step >= 1 && ticks.length > 1) {
       if (step < 100) return [0, Array.from(ticks).map(v => v.toFixed(0))];
-
-      let digNum = Math.ceil(Math.log10(step));
+      let digNum = Math.ceil(trimNum(Math.log10(step)));
       tickFactor = digNum - 2;
       return [tickFactor, Array.from(ticks).map(v => (v / Math.pow(10, tickFactor)).toFixed(0))];
    }
 
-   if (Math.abs(max(ticks)) < 1) {
-      // tick values between 0 and 1 (absolute) and step is below 1
-      let decNum = -Math.log10(step);
+   let decNum = Math.ceil(-trimNum(Math.log10(step)));
+   if (decNum <= 2) {
+      return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
+   }
+   tickFactor = decNum - 2;
+   decNum = 2;
 
-      // adjust the decNum value in case if small decimals are present
-      decNum = Math.ceil(Math.round(decNum * 100)/100);
-
-      if (decNum <= 2) {
-         return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
-      }
-      tickFactor = decNum - 2;
-      decNum = 2;
+   if (trimNum(Math.abs(max(ticks))) <= 10) {
       return [-tickFactor, Array.from(ticks).map(v => (v * Math.pow(10, tickFactor)).toFixed(decNum))];
    } else {
-      // tick values above 1 (absolute) and step is below 1
-      let decNum = -Math.log10(step);
-
-      // adjust the decNum value in case if small decimals are present
-      decNum = Math.ceil(Math.round(decNum * 100)/100);
-
-      if (decNum <= 2) {
-         return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
-      }
-      tickFactor = decNum - 2;
-      decNum = 2;
-      return [tickFactor, Array.from(ticks).map(v => (v / Math.pow(10, tickFactor)).toString())];
+      return [-tickFactor, Array.from(ticks).map(v => (v / Math.pow(10, tickFactor)).toString())];
    }
 }
 
@@ -184,7 +188,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
    if (typeof(lim) !== "object" || lim[0] === undefined || lim[1] === undefined) return undefined;
 
    // get range as a nice number and compute min, max and steps for the tick sequence
-   const delta = (lim[1] - lim[0]) / 50;
+   const delta = (lim[1] - lim[0]) / 100;
    const localRange = lim[1] - lim[0] - delta;
    const exponent = Math.floor(Math.log10(localRange));
    const fraction =  1 / Math.pow(10, exponent - 1);
@@ -197,11 +201,15 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
    }
 
    // compute smallest and largest tick rounded to tickSpacing
-   const tickMin = Math.ceil((lim[0] + delta) / tickSpacing) * tickSpacing;
-   const tickMax = Math.floor((lim[1] - delta) / tickSpacing) * tickSpacing;
+   let tickMin = Math.ceil((lim[0] + delta ) / tickSpacing) * tickSpacing;
+   let tickMax = Math.floor((lim[1] - delta) / tickSpacing) * tickSpacing;
+
+   // adjust largest tick if it is too close to axis limit and tick spacing
+   // is small (so tick factor may appear)
+   if (tickSpacing < 0.1 && (lim[1] - tickMax) < (tickSpacing / 2)) tickMax = tickMax - tickSpacing;
 
    // recompute maxTickNum
-   maxTickNum = Math.ceil((tickMax - tickMin) / tickSpacing) + 1;
+   maxTickNum = (Math.ceil(trimNum((tickMax - tickMin) / tickSpacing)) + 1);
 
    // create a sequence of ticks
    ticks = Vector.zeros(maxTickNum);
