@@ -157,11 +157,12 @@ export function val2p(x, y, tX, tY, axes) {
  * @param {number} maxTickNum - maximum number of ticks to compute.
  * @param {boolean} round - round or not the fractions when computing nice numbers for the ticks.
  * @param {boolean} whole - should the ticks be a whole number.
+ * @param {Number} deltaFactor - percent of range to use as internal margins
  *
  * @returns {Array} an array with computed tick positions.
  *
  */
-export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
+export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) {
 
    if (round === undefined || round === null) {
       round = true;
@@ -169,6 +170,10 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
 
    if (whole === undefined || whole === null) {
       whole = false;
+   }
+
+   if (deltaFactor === undefined) {
+      deltaFactor = 0.001;
    }
 
    // if ticks are already provided do not recompute them
@@ -188,7 +193,7 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole) {
    if (typeof(lim) !== "object" || lim[0] === undefined || lim[1] === undefined) return undefined;
 
    // get range as a nice number and compute min, max and steps for the tick sequence
-   const delta = (lim[1] - lim[0]) / 100;
+   const delta = (lim[1] - lim[0]) * deltaFactor;
    const localRange = lim[1] - lim[0] - delta;
    const exponent = Math.floor(Math.log10(localRange));
    const fraction =  1 / Math.pow(10, exponent - 1);
