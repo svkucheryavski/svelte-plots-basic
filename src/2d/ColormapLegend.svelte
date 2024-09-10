@@ -6,7 +6,7 @@
    **********************************************************/
 
    import { getContext } from 'svelte';
-   import { checkCoords } from '../Utils';
+   import { checkCoords, getTickLabels, getTickFactorLabel } from '../Utils';
    import { Vector, isvector } from 'mdatools/arrays';
 
 
@@ -44,17 +44,21 @@
 
    // check colormap values
    $: if (!colmap || !(colmap.length === breaks.length - 1 || colmap.length === breaks.length )) {
-      console.log(colmap)
-      console.log(breaks)
-      console.log(labels)
       throw new Error('ColormapLegend: number of color values in colormap does not match number of intervals defined by breaks.');
    }
 
    // define local variables for breaks and prepare breaks labels
    $: lBreaks = isvector(breaks) ? breaks.v : breaks;
-   $: lLabels = labels && labels.length === lBreaks.length ?
-         labels :
-         Array.from(lBreaks).map(v => v.toFixed(decNum).toString());
+
+   let breakFactor, breakLabels;
+   $: if (lBreaks) {
+      [breakFactor, breakLabels] = getTickLabels(lBreaks);
+   } else {
+      breakFactor = null;
+      breakLabels = null;
+   }
+
+   $: lLabels = labels && labels.length === lBreaks.length ? labels : breakLabels;
 
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');
@@ -80,7 +84,7 @@
          const height = axesHeight * HEIGHT_RATIO;
 
          // compute elements size and position
-         const elWidth = width / n;
+         const elWidth = width / (n + (breakFactor !== 0));
          const left = $xLim[0] + axesWidth * (1 - WIDTH_RATIO) * 0.5 ;
          const elTop = $yLim[1] - height * TOP_MARGIN;
 
@@ -103,7 +107,14 @@
    {#if !isCentered}
    <text x={rx[n]} y={ry} dx={0} dy={rh * 1.25} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html lLabels[n]}</text>
    {/if}
+
+   {#if breakFactor !== 0}
+   <text x={rx[n] + rw[0] * 0.85} y={ry[0] + rh * 2.2} dx={0} dy={0} dominant-baseline="hanging" fill={labelColor} font-size="{fontSize}em" text-anchor="middle">{@html getTickFactorLabel(breakFactor)}</text>
+   {/if}
+
    </g>
+
+
 {/if}
 
 

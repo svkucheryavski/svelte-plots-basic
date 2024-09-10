@@ -1,12 +1,25 @@
 import { cbind, vector, isvector, Vector } from 'mdatools/arrays';
 import { min, max, diff } from 'mdatools/stat';
 
+
+/**
+ * Creates label for a tick factor.
+ *
+ * @param {Number} tf - tick factor value (negative or positive)
+ * @returns
+ */
+export function getTickFactorLabel(tf) {
+   if (tf === 0) return '';
+   return `<tspan>&times;10</tspan><tspan baseline-shift="super">${(tf).toString()}</tspan>`;
+}
+
+
 /**
  * Trim number leaving only significant decimals.
  * @param {number} num
  * @returns trimmed number
  */
-function trimNum(num) {
+export function trimNum(num) {
 
    // check if number is whole — return as is
    if (num === Math.round(num)) return num;

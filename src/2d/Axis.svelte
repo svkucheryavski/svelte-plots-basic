@@ -7,9 +7,10 @@
    *****************************************************/
 
    import { Colors } from '../Colors.js';
+   import { getTickFactorLabel } from '../Utils.js';
+
    import AxisLines from './AxisLines.svelte';
    import AxisTickLabels from './AxisTickLabels.svelte';
-
 
    /*****************************************/
    /* Input parameters                      */
@@ -32,14 +33,6 @@
    export let textColor = Colors.DARKGRAY;   // color of tick labels
 
    // generate text for tick factor label
-   function getTickFactorLabel(tf) {
-      if (tf === 0) return '';
-      if (tf < 0) {
-         return `&times;10<tspan dy="-0.5em">${(tf).toString()}</tspan>`;
-      } else {
-         return `&times;10<tspan dy="-0.5em">${(tf).toString()}</tspan>`;
-      }
-   }
 </script>
 
 <g class="mdaplot__axis {className}">
