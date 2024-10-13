@@ -44,6 +44,7 @@
    const xLim = axes.xLim;
    const yLim = axes.yLim;
    const scale = axes.scale;
+   const yscale = axes.yscale;
    const isOk = axes.isOk;
    const tX = axes.tX;
 
@@ -58,7 +59,7 @@
    $: if ($isOk) {
 
       // compute x-coordinates of the ticks or take the ones manually specified by user
-      const ticksY = getAxisTicks(ticks, $yLim, axes.TICK_NUM[$scale], true, whole);
+      const ticksY = getAxisTicks(ticks, $yLim, axes.YTICK_NUM[$yscale], true, whole);
       const tickNum = ticksY.length;
 
       // compute tick y-coordinates (up and bottom)

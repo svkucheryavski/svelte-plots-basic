@@ -8,7 +8,7 @@
 	import { setContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
    import { isvector, vector, Vector } from 'mdatools/arrays';
-   import { roundCoords, getScale, downloadSVG, downloadPNG, createPngBlob } from '../Utils.js';
+   import { roundCoords, getScale, downloadSVG, downloadPNG, createPngBlob, getAxisScale } from '../Utils.js';
 
 
    /*****************************************/
@@ -50,12 +50,20 @@
       'xlarge': 60
    }
 
-   // number of ticks along each axis
-   const TICK_NUM = {
+   // number of x-ticks along each axis
+   const XTICK_NUM = {
       'small': 5,
       'medium': 8,
       'large': 12,
       'xlarge': 15
+   };
+
+   // number of y-ticks along each axis
+   const YTICK_NUM = {
+      'small': 6,
+      'medium': 10,
+      'large': 14,
+      'xlarge': 18
    };
 
    // size of ticks
@@ -246,6 +254,8 @@
    /* Storage to share with children        */
    /*****************************************/
 
+   const xscale = writable('medium');                                 // scale factor for x-axis (influences number of ticks)
+   const yscale = writable('medium');                                 // scale factor for y-axis (influences number of ticks)
    const scale = writable('medium');                                  // scale factor (how big the shown plot is)
    const isOk = writable(false);                                      // are axes ready for drawing
    const xLim = writable(limX);                                       // validated values for x-axis limits
@@ -266,6 +276,8 @@
 
       // variables
       scale: scale,
+      xscale: xscale,
+      yscale: yscale,
       isOk: isOk,
       xLim: xLim,
       yLim: yLim,
@@ -277,7 +289,8 @@
       // constants
       LINE_STYLES: LINE_STYLES,
       LABELS_MARGIN: LABELS_MARGIN,
-      TICK_NUM: TICK_NUM,
+      XTICK_NUM: XTICK_NUM,
+      YTICK_NUM: YTICK_NUM,
       TICK_SIZE: TICK_SIZE,
       MARKER_SYMBOLS: MARKER_SYMBOLS,
       LEGEND_FONT_SIZE: LEGEND_FONT_SIZE
@@ -347,7 +360,11 @@
       for (let entry of entries) {
          const pcr = plotElement.getBoundingClientRect();
          const scl = getScale(pcr.width, pcr.height);
+         const xscl = getAxisScale(pcr.width);
+         const yscl = getAxisScale(pcr.height);
          scale.update(x => scl);
+         xscale.update(x => xscl);
+         yscale.update(x => yscl);
 
          const m = PLOT_FONT_SIZE[scl] * 1.5;
          left = xLabel && xLabel !== '' ? m : 0;

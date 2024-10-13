@@ -206,13 +206,13 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) 
    if (typeof(lim) !== "object" || lim[0] === undefined || lim[1] === undefined) return undefined;
 
    // get range as a nice number and compute min, max and steps for the tick sequence
-   const delta = (lim[1] - lim[0]) * deltaFactor;
-   const localRange = lim[1] - lim[0] - delta;
+   const delta = Math.abs((lim[1] - lim[0])) * deltaFactor;
+   const localRange = lim[1] - lim[0] - 2 * delta;
    const exponent = Math.floor(Math.log10(localRange));
    const fraction =  1 / Math.pow(10, exponent - 1);
    const range = Math.round(localRange * fraction) / fraction;
 
-   let tickSpacing = niceNum(range / (maxTickNum - 1), round);
+   let tickSpacing = niceNum(range / maxTickNum, false);
    if (whole) {
       if (tickSpacing < 1) tickSpacing = 1;
       tickSpacing = Math.round(tickSpacing);
@@ -310,6 +310,19 @@ export function getScale(width, height) {
    return "xlarge";
 }
 
+/**
+ * Computes a scale level for single axis.
+ *
+ * @param {numeric} size - width or height of plotting area in pixels.
+ * @returns {text} the scale level ("small", "medium" or "large").
+ *
+ */
+export function getAxisScale(width, size) {
+   if (width < 400.2) return "small";
+   if (width < 700.2) return "medium";
+   if (width < 900.2) return "large";
+   return "xlarge";
+}
 
 /*************************************************************/
 /* Functions needed to adjust DPI of resulting PNG image     */

@@ -1,9 +1,9 @@
 <script>
-   /****************************************************
-   * X-Axis                                            *
-   * --------------------                              *
-   * shows x-axis and its elements (ticks, grid, etc.) *
-   *****************************************************/
+   /*****************************************************/
+   /* X-Axis                                            */
+   /* --------------------                              */
+   /* shows x-axis and its elements (ticks, grid, etc.) */
+   /*****************************************************/
 
    import { getContext } from 'svelte';
    import { Vector, vector } from 'mdatools/arrays';
@@ -44,6 +44,7 @@
    const xLim = axes.xLim;
    const yLim = axes.yLim;
    const scale = axes.scale;
+   const xscale = axes.xscale;
    const isOk = axes.isOk;
    const tY = axes.tY;
 
@@ -58,7 +59,7 @@
    $: if ($isOk) {
 
       // compute x-coordinates of the ticks or take the ones manually specified by user
-      const ticksX = getAxisTicks(ticks, $xLim, axes.TICK_NUM[$scale], true, whole);
+      const ticksX = getAxisTicks(ticks, $xLim, axes.XTICK_NUM[$xscale], true, whole);
       const tickNum = ticksX.length;
 
       // compute tick y-coordinates (up and bottom)
