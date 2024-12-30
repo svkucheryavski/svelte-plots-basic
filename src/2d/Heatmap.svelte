@@ -1,99 +1,125 @@
+<!--
+@component Adds a heatmap visializing values of a matrix.
+
+   Main properties:
+   - `values` - matrix (object of class `Matrix` from `mdatools` package) with values to visualize.
+   - `breaks` - array (or vector) with interval breaks boundaries (optional).
+   - `colmap` - array with colors for each break (optional).
+   - `className` - extra CSS class name, will be added to wrapping `<g></g>` tag.
+   - `title` - series title, will be added as additional property for the `<g></g>` tag.
+
+   Example:
+   ```jsx
+   <script>
+      import { Matrix } from 'mdatools/arrays';
+      import { Axes, Heatmap } from 'svelte-plots-basic/2d';
+
+      // create matrix with 5 rows and 10 columns filled with 5random values.
+      const x = Matrix.rand(5, 10);
+   </script>
+
+   <Axes>
+      <Heatmap values={x} />
+   </Axes>
+   ```
+-->
 <script>
-   /*********************************************************
-   * Heatmap                                                *
-   * --------------------                                   *
-   * shows matrix values as a heatmap                       *
-   **********************************************************/
 
    import { getContext } from 'svelte';
-   import { Vector, ismatrix } from 'mdatools/arrays';
+   import { ismatrix, isvector } from 'mdatools/arrays';
    import { expandgrid } from 'mdatools/misc';
    import { split } from 'mdatools/stat';
 
-   import { getcolmap } from '../Colors';
-   import { checkCoords } from '../Utils';
+   import { getcolmap, transformObjects, transformCoords, seq } from '../methods';
+   import { HEATMAP_NUM_SPLITS } from '../constants';
 
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
-
-   export let values;                        // Matrix with values to show heatmap for
-   export let breaks = null;                 // vector with breaks to distribute the values in
-   export let colmap = null;                 // array with colors for each interval
-
-   export let className = 'series-heatmap';  // CSS class name of the SVG group
-   export let title = '';                    // title of the rectangle series (reserved for future use)
+   /** @type {Props} */
+   let {
+      values,                        // Matrix with values to show heatmap for
+      breaks,                        // vector with breaks to distribute the values in
+      colmap = null,                 // array with colors for each interval
+      className = 'series-heatmap',  // CSS class name of the SVG group
+      title = '',                    // title of the rectangle series (reserved for future use)
+   } = $props();
 
 
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
+   // check that values are provided as a matrix
+   let v = $derived(ismatrix(values) && values.nrows > 0 && values.ncols > 0 ? values : null);
 
-   // check values
-   $: if (!ismatrix(values) || values.v.length === 0) {
-      throw new Error('Heatmap: parameter "values" must be a matrix.');
-   }
+   // check and process left values for breaks
+   let lb = $derived.by(() => {
+      if (!v) return null;
+      if (breaks && Array.isArray(breaks)) return breaks;
+      if (breaks && isvector(breaks)) return breaks.v;
+      return split(v.v, HEATMAP_NUM_SPLITS).v;
+   });
 
-   // check breaks values
-   $: if (!lBreaks || lBreaks.length < 2) {
-      throw new Error('Heatmap: breaks values are neither defined nor can not be computed.');
-   }
-
-   // check colormap values
-   $: if (!lColmap || lColmap.length !== lBreaks.length - 1) {
-      throw new Error('Heatmap: number of color values in colormap does not match number of intervals defined by breaks.');
-   }
-
-   // define local variables for breaks and colormap
-   $: lBreaks = breaks ? breaks.v : split(values.v, 13).v;
-   $: lColmap = colmap ? colmap : getcolmap(lBreaks.length - 1);
-
-   // get axes context and reactive variables needed to compute coordinates
-   const axes = getContext('axes');
-   const tX = axes.tX;
-   const tY = axes.tY;
-   const isOk = axes.isOk;
-
-   // compute combinations of heatmap element positions
-   let top, left;
-   $: {
-      const x = Vector.seq(1, values.ncols);
-      const y = Vector.seq(1, values.nrows);
-      [top, left] = expandgrid(y.v, x.v);
-   }
-
-   // compute screen coordinates of the elements for each interval
-   let rx, ry, rw, rh = undefined;
-   $: {
-      if ($isOk) {
-         rx = [];
-         ry = [];
-         for (let i = 1; i < lBreaks.length; i++) {
-            let lleft = [];
-            let ltop = [];
-            for (let j = 0; j < values.v.length; j++) {
-               const v = values.v[j];
-               if (v > lBreaks[i - 1] && v <= lBreaks[i]) {
-                  lleft.push(left.v[j] - 0.5);
-                  ltop.push(top.v[j] + 0.5);
-               }
-            }
-            rx.push(lleft.length === 0 ? [] : axes.transform(checkCoords(lleft, 'Rectangles'), $tX.coords));
-            ry.push(ltop.length === 0 ? [] : axes.transform(checkCoords(ltop, 'Rectangles'), $tY.coords));
-         };
-
-         rw = axes.transform([1], $tX.objects);
-         rh = axes.transform([1], $tY.objects);
+   // check and process colormap values
+   let lc = $derived.by(() => {
+      if (colmap) {
+         if (!Array.isArray(colmap)) {
+            console.error('Heatmap: parameter "colmap" must be array with colors.');
+            return null;
+         }
+         if (colmap.length !== breaks.length - 1) {
+            console.error('Heatmap: number of color values in colormap does not match number of intervals defined by breaks.');
+            return null;
+         }
+         return colmap;
       }
-   };
+      return getcolmap(lb.length - 1);
+   });
 
+   // compute coordinates of heatmap elements (left top corners)
+   let l = $derived(v ? seq(v.ncols) : null);
+   let t = $derived(v ? seq(v.nrows) : null);
+   let lt = $derived(l && t ? expandgrid(t, l) : null);
+
+   // compute world coordinates of the elements for each interval in world coordinates
+   let wc = $derived.by( () => {
+      if (!lt || !lb || !lc) return null;
+      const [top, left] = lt;
+      const nv = left.length;  // number of values in matrix
+      const nb = lb.length;    // number of breaks
+      const rl = Array(nb).fill().map(() => []);     // coordinates of left for every break
+      const rt = Array(nb).fill().map(() => []);     // coordinates of top for every break
+
+      // adjust left side for the first break and right side for the last
+      const w = lb[1] - lb[0];
+      lb[0] = lb[0] - 0.1 * w;
+      lb[nb - 1] = lb[nb - 1] + 0.1 * w;
+
+      // loop over all breaks
+      for (let j = 0; j < nv; j++) {
+         const vj = v.v[j];
+         for (let i = 0; i < nb - 1; i++) {
+            if (vj > lb[i] && vj <= lb[i + 1]) {
+               rl[i].push(left.v[j] - 0.5);
+               rt[i].push(v.nrows - top.v[j] + 1.5);
+               break;
+            }
+         }
+      };
+      return {rl, rt};
+   });
+
+
+   // get axes context and compute screen coordinates
+   const axes = getContext('axes');
+   let rx = $derived(wc ? wc.rl.map(v => v.length >  0 ? transformCoords(v, axes.tX()) : []) : null);
+   let ry = $derived(wc ? wc.rt.map(v => v.length >  0 ? transformCoords(v, axes.tY()) : []) : null);
+   let rw = $derived(transformObjects([1], axes.tX()));
+   let rh = $derived(transformObjects([1], axes.tY()));
+
+   // check status
+   let isOk = $derived(rx && ry && rx.length === ry.length);
 </script>
 
-{#if $isOk && rx.length > 0}
+{#if isOk}
    <g class="series {className}" title={title} style="stroke:0;stroke-width:0px;">
    <!-- loop over colors/intervals -->
-   {#each lColmap as col, i}
+   {#each lc as col, i}
       <g title="heatmap-group" style="fill:{col};">
       {#if rx[i].length > 0}
          <!-- loop over elements which fall into the interval -->
@@ -105,5 +131,3 @@
    {/each}
    </g>
 {/if}
-
-

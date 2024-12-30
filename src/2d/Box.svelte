@@ -1,48 +1,26 @@
+<!--
+@component Shows box around axes.
+
+   Main properties:
+   - `lineWidth` - width of box line in pixels, default: `1`.
+   - `lineColor` - color of the box line, default: `'#606060'`.
+
+   Example:
+   ```jsx
+   <script>
+      import {Axes, Box} from 'svelte-plots-basic/2d';
+   </script>
+   <Axes>
+      // all other plotting components are here
+      <Box />
+   </Axes>
+   ```
+-->
 <script>
-   /****************************************************
-   * Box                                               *
-   * --------------------                              *
-   * shows border box around axes                      *
-   *****************************************************/
+   import { getContext } from "svelte";
 
-   import { getContext } from 'svelte';
-   import { Colors } from '../Colors';
-
-
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
-
-   export let slot;  // slot name, must be "box"
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   // check that the box is located in a correct slot
-   if (slot !== 'box') {
-      throw('Component Box must have \'slot="box"\' attribute.')
-   }
-
-
-   // get axes context and reactive variables needed to compute coordinates
+   let {lineWidth = 1, lineColor = '#606060'} = $props();
    const axes = getContext('axes');
-   const xLim = axes.xLim;
-   const yLim = axes.yLim;
-   const isOk = axes.isOk;
-   const tX = axes.tX;
-   const tY = axes.tY;
-
-   // reactive variables for coordinates of box points in pixels
-   $: xx = $isOk ? axes.transform($xLim, $tX.coords) : undefined;
-   $: yy = $isOk ? axes.transform($yLim, $tY.coords) : undefined;
-
+   axes.setBox({show:true, lineWidth, lineColor});
 </script>
-
-{#if $isOk}
-   <g style="pointer-events:none" class="mdaplot__axes-box">
-   <rect stroke="{Colors.DARKGRAY}" stroke-width="0.1em" fill="transparent" x={xx[0]} y={yy[1]} width={xx[1] - xx[0]} height={yy[0] - yy[1]} />
-   </g>
-{/if}
 

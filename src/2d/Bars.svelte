@@ -1,65 +1,121 @@
-<script>
-   /****************************************************
-   * Bars                                              *
-   * --------------------                              *
-   * shows series of bars on a plot                    *
-   *****************************************************/
+<!--
+@component Adds a series of bars.
 
-   import { max, diff } from 'mdatools/stat';
+   Main properties:
+   - `xValues` - vector with x-coordinates of middle points of the bars.
+   - `yValues` - vector with y-coordinates of top points of the bars.
+   - `barWidth` - width of bars as per cent of maximum width, defaul: `0.8`.
+   - `faceColor` - face color of the bars, default:  `Colors.PRIMARY`.
+   - `borderColor` - border color of the bars, default: `Colors.PRIMARY`.
+   - `borderWidth` - width (thickness) of border line in pixels, default: `1`.
+   - `title` - title of the bar series group.
+   - `onclick` - function (callback) to be called when user clicks on any bar.
+
+   Example:
+   ```jsx
+   <script>
+      import { Matrix } from 'mdatools/arrays';
+      import { Axes, Bars } from 'svelte-plots-basic/2d';
+
+      const xValues = [2000, 2010, 2020, 2030, 2040];
+      const yValues = [1, 100, 200, 300, -150];
+   </script>
+
+   <Axes limX={[1990, 2050]} limY={[-200, 350]}>
+      <Bars {xValues} {yValues} borderColor="red" faceColor="pink" />
+   </Axes>
+   ```
+-->
+<script>
    import { Vector } from 'mdatools/arrays';
-   import { Colors } from '../Colors';
-   import { checkCoords } from '../Utils';
+   import { Colors } from '../constants';
+   import { checkCoords } from '../methods';
 
    import Rectangles from './Rectangles.svelte';
 
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
+   /** @type {Props} */
+   let {
+	   xValues,                       // vector with x-coordinates of middle points of the bars.
+      yValues,                       // vector with y-coordinates of top points of the bars.
+      barWidth = 0.8,                // width of bars as per cent of maximum width, defaul: `0.8`.
+      barWidthExact,                 // 100% bar width in world coordinates (if not provided computed automatically).
+      faceColor = Colors.PRIMARY,    // face color of the bars, default:  `Colors.PRIMARY`.
+      borderColor = Colors.PRIMARY,  // border color of the bars, default: `Colors.PRIMARY`.
+      borderWidth = 1,               // width (thickness) of border line in pixels, default: 1.
+      title,                         // title of the bar series (reserved for future use).
+      onclick
+   } = $props();
 
-	export let xValues;                       // vector with x-coordinates of middle points of the bars
-   export let yValues;                       // vector with y-coordinates of top points of the bars
-   export let barWidth = 0.8;                // width of bars as per cent of maximum width
-   export let faceColor = Colors.PRIMARY;    // face color of the bars
-   export let borderColor = Colors.PRIMARY;  // border color of the bars
-   export let title = '';                    // title of the bar series (reserved for future use)
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   let width, left, top, height;
-
-   // reactive code for computing position of left sides and bar width
-   $: {
-
-      if (!barWidth) {
-         barWidth = 0.8;
-      }
-
+   const bw = $derived.by(() => {
       if (barWidth <= 0 || barWidth > 1) {
-         throw Error('BarSeries: parameters "barWidth" should be between 0 and 1.');
+         console.error('Bars: parameter "barWidth" should be between 0 and 1.');
+         return null;
       }
+      return barWidth;
+   });
 
-      // compute maximum bar width and position of left side
+   const x = $derived.by(() => {
+      if (!bw) return null;
       const xv = checkCoords(xValues, 'BarSeries');
-      const w = max(diff(xv.v)) * barWidth;
-      left = xv.subtract(w/2);
-      width = Vector.fill(w, xv.length);
-   }
+      if (!xv) return null;
+      const n = xv.length;
+      if (n < 1) return null;
 
-   // reactive code for computing position of top sides and bar height
-   $: {
-
-      const yv = checkCoords(yValues, 'BarSeries');
-      if (yv.length !== left.length) {
-         throw Error('BarSeries: parameters "yValues" must be vector of the same length as "xValues".');
+      let w;
+      if (barWidthExact) {
+         w = barWidthExact;
+      } else if (n == 1) {
+         console.error('Bars: if only one bar must be shown, value for property "barWidthExact" should be provided.');
+         return null;
+      } else {
+         w = 0;
+         let lw = 0;
+         for (let i = 1; i < n; i++) {
+            lw = Math.abs(xv.v[i - 1] - xv.v[i]);
+            if (lw > w) w = lw;
+         }
       }
 
-      top = yv.apply(v => v > 0 ? v : 0);
-      height = yv.apply(v => Math.abs(v));
-   }
+      w = w * barWidth;
+      const whalf = w / 2;
+      const left = Vector.zeros(n);
+      const width = Vector.zeros(n);
+      for (let i = 0; i < n; i++) {
+         left.v[i] = xv.v[i] - whalf;
+         width.v[i] = w;
+      }
+
+      return {left, width};
+   })
+
+   const y = $derived.by(() => {
+      if (!x) return null;
+      const yv = checkCoords(yValues, 'BarSeries');
+      if (!yv) return null;
+      const n = yv.length;
+      if (n !== x.left.length) {
+         console.error('BarSeries: parameters "yValues" must be vector of the same length as "xValues".');
+         return null;
+      }
+
+      const top = Vector.zeros(n);
+      const height = Vector.zeros(n);
+
+      for (let i = 0; i < n; i++) {
+         const v = yv.v[i];
+         top.v[i] = (v > 0 ? v : 0);
+         height.v[i] = Math.abs(v);
+      }
+
+      return {top, height};
+   })
+
+   // local check
+   const isOk = $derived(x && y);
 </script>
 
-<Rectangles className="series-bar" {left} {top} {width} {height} {borderColor} {faceColor} {title} />
+{#if isOk}
+<Rectangles className="series-bar" left={x.left} width={x.width} top={y.top} height={y.height}
+   lineWidth={borderWidth} {borderColor} {faceColor} {title} {onclick} />
+{/if}

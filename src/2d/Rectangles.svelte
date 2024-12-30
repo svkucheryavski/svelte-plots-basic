@@ -1,70 +1,82 @@
-<script>
-   /****************************************************
-   * Rectangles                                        *
-   * --------------------                              *
-   * shows series of rectangles                        *
-   *****************************************************/
+<!--
+@component Adds a series of rectangles.
 
+   Main properties:
+   - `left` - array or vector with world coordinates of left side of the rectangles.
+   - `top` - array or vector with world coordinates of left side of the rectangles.
+   - `width` - width of the rectangles (one value or array/vector with individual values).
+   - `height` - height of the rectangles (one value or array/vector with individual values).
+   - `facColor` - face color of the rectangles (same for all).
+   - `borderColor` - border color of each rectangle.
+   - `lineWidth` - width (thickness) of border lines in pixels.
+   - `className`- CSS class name for the labels group, default: `'series-rect'`.
+   - `title` - title of the point series group.
+   - `onclick` - function (callback) to be called when user clicks on any rectangle.
+
+
+   Example:
+   ```jsx
+   <script>
+      import { Matrix } from 'mdatools/arrays';
+      import { Axes, Rectangles } from 'svelte-plots-basic/2d';
+
+      const left = [0, 10, 20, 30];
+      const top = [10, 20, 30, 40];
+      const width = 5;
+      const height = 10;
+   </script>
+
+   <Axes limX={[0, 40]} limY={[0, 50]}>
+      <Rectangles {left} {top} {width} {height} borderColor="red" faceColor="pink"  />
+   </Axes>
+   ```
+-->
+<script>
    import { getContext } from 'svelte';
    import { Vector } from 'mdatools/arrays';
-   import { Colors } from '../Colors';
-   import { checkCoords } from '../Utils';
+   import { Colors } from '../constants';
+   import { checkCoords, transformCoords, transformObjects, handleClick } from '../methods';
 
+   /** @type {Props} */
+   let {
+	   left,                          // array of vector with coordinates of left sides of the bars
+      top,                           // array of vector with coordinates of top sides of the bars
+      width,                         // single value (same for all) or vector/array with bar width
+      height,                        // single value (same for all) or vector/array with bar height
+      faceColor = Colors.PRIMARY,    // color of bar faces (fill)
+      borderColor = faceColor,       // color of bar borders
+      lineWidth = 1,                 // width (thickness) of bar border lines
+      className = 'series-rect',     // CSS class name of the SVG group
+      title = '',                    // title of the rectangle series group.
+      onclick,                       // function to be called if onclick event fires
+   } = $props();
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
+   // process provided values and compute world coordinates of rectangles
+   const l = $derived(checkCoords(left, 'Rectangles (left)'));
+   const t = $derived(l ? checkCoords(top, 'Rectangles (top)', l.length) : null);
+   const w = $derived(t ? (typeof width !== 'object' ? Vector.fill(width, left.length) : width) : null);
+   const h = $derived(t ? (typeof height !== 'object' ? Vector.fill(height, left.length) : height) : null);
 
-	export let left;                          // array of vector with coordinates of left sides of the bars
-   export let top;                           // array of vector with coordinates of top sides of the bars
-   export let width;                         // single value (same for all) or vector/array with bar width
-   export let height;                        // single value (same for all) or vector/array with bar height
-   export let faceColor = Colors.PRIMARY;    // color of bar faces (fill)
-   export let borderColor = faceColor;       // color of bar borders
-   export let lineWidth = 1;                 // width (thickness) of bar border lines
-   export let className = 'series-rect';     // CSS class name of the SVG group
-   export let title = '';                    // title of the rectangle series (reserved for future use)
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   // get axes context and reactive variables needed to compute coordinates
+   // get axes context and compute screen coordinates
    const axes = getContext('axes');
-   const tX = axes.tX;
-   const tY = axes.tY;
-   const isOk = axes.isOk;
 
-   let rx, ry, rw, rh = undefined;
-   $: {
-      if ($isOk) {
-         rx = axes.transform(checkCoords(left, 'Rectangles'), $tX.coords);
-         ry = axes.transform(checkCoords(top, 'Rectangles'), $tY.coords);
-
-         if (rx.length !== ry.length) {
-            throw Error('Rectangles: parameters "left" and "top" must be vectors of the same length.');
-         }
-
-         if (typeof width !== 'object') {
-            width = Vector.fill(width, left.length);
-         }
-
-         if (typeof height !== 'object') {
-            height = Vector.fill(height, left.length);
-         }
-
-         rw = axes.transform(width, $tX.objects);
-         rh = axes.transform(height, $tY.objects);
-      }
-   }
+   const rx = $derived(l ? transformCoords(l, axes.tX()) : null);
+   const ry = $derived(t ? transformCoords(t, axes.tY()) : null);
+   const rw = $derived(w ? transformObjects(w, axes.tX()) : null);
+   const rh = $derived(h ? transformObjects(h, axes.tY()) : null);
 
    // styles for bars and labels
-   $: barsStyleStr = `fill:${faceColor};stroke:${borderColor};stroke-width:${lineWidth}px;`;
+   const barsStyleStr = $derived(`fill:${faceColor};stroke:${borderColor};stroke-width:${lineWidth}px;`);
+
+   // check if all coordinates are correct
+   const isOk = $derived(rx && ry && rw && rh && (rw.length === rx.length) && (rh.length === rx.length));
 </script>
 
-{#if $isOk}
-   <g class="series {className}" title={title} style={barsStyleStr}>
+{#if isOk}
+
+   <!-- svelte-ignore a11y_click_events_have_key_events -->
+   <!-- svelte-ignore a11y_no_static_element_interactions -->
+   <g class="series {className}" title={title} style={barsStyleStr} onclick={(e) => handleClick(e, 'rect', onclick)} >
    {#each left as v, i}
       <rect x={rx[i]} y={ry[i]} width={rw[i]} height={rh[i]} />
    {/each}

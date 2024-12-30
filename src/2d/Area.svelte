@@ -1,61 +1,71 @@
+<!--
+@component Adds a closed polygon (area).
+
+   Main properties:
+   - `xValues` - array of vector with x-coordinates of the polygon's points.
+   - `yValues` - array of vector with y-coordinates of the polygon's points.
+   - `lineWidth` - width (thickness) of the polygon's line in pixels, defailt: `1`.
+   - `lineColor` - line color, default: `Colors.PRIMARY`.
+   - `lineType` -  type of line (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
+   - `facColor` - face (fill) color of the polygon, default: `'transparent'`.
+   - `opacity` - opacity of the face color, default: `1`.
+   - `title` - title of the area group.
+   - `onclick` - function (callback) to be called when user clicks on a polygon.
+
+   Example:
+   ```jsx
+   <script>
+      import { Axes, Area } from 'svelte-plots-basic/2d';
+
+      const xValues = [-3, -2, -1, 0, 1, 2, 3];
+      const yValues = [9, 4, 1, 0, 1, 4, 9];
+   </script>
+
+   <Axes limX={[-4, 4]} limY={[-2, 10]}>
+      <Area {xValues} {yValues}  />
+   </Axes>
+   ```
+-->
 <script>
-   /****************************************************
-   * Area                                              *
-   * --------------------                              *
-   * shows area of a polygon defined by set of points  *
-   *****************************************************/
-
    import { getContext } from 'svelte';
-   import { vector } from 'mdatools/arrays';
-   import { Colors } from '../Colors';
-   import { checkCoords, val2p } from '../Utils';
+   import { Colors } from '../constants';
+   import { val2p, checkCoords, handleClick, transformCoords } from '../methods';
+   import { LINE_STYLES } from '../constants';
 
+   /** @type {Props} */
+   let {
+	   xValues,                       // vector or array with x-coordinates of the points
+      yValues,                       // vector or array with y-coordinates of the points
+      lineColor = Colors.PRIMARY,    // color of segment lines
+      lineType = 1,                  // type of segment lines (1 - solid, 2 - dashed, 3 - dotted, 4 - dashdot)
+      lineWidth = 1,                 // width (thickness) of segment lines
+      faceColor = 'transparent',     // color of segment lines
+      opacity = 1,                   // opacity of the area color
+      title = '',                    // title of the point series group
+      onclick,                       // function to be called if onclick event fires
+   } = $props();
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
+   // check user provided coordinates
+   const xv = $derived(checkCoords(xValues, 'Area'));
+   const yv = $derived(xv ? checkCoords(yValues, 'Area', xv.length) : null);
 
-	export let xValues;                       // x-coordinates of polygon (array or vector)
-   export let yValues;                       // y-coordinates of polygon (array or vector)
-   export let lineWidth = 1;                 // width of polygon lines
-   export let lineColor = Colors.PRIMARY;    // color for polygon lines
-   export let fillColor = Colors.PRIMARY;    // color of area inside polygon
-   export let opacity = 1;                   // opacity of the area color
-   export let lineType = 1;                  // type of lines connected the points (1 - solid, 2 - dashed, 3 - dotted)
-   export let title = '';                    // title of this element (reserved for future use)
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   // get axes context
+   // get axes context and compute coordinates of polyline
    const axes = getContext('axes');
+   const p = $derived(xv && yv ? val2p(xv, yv, axes.tX(), axes.tY()) : null);
 
-   const scale = axes.scale;
-   const isOk = axes.isOk;
-   const tX = axes.tX;
-   const tY = axes.tY;
+   const y0 = $derived(p ? transformCoords([0], axes.tY()) : null);
+   const xs = $derived(xv ? transformCoords(xv.subset(1), axes.tX()) : null);
+   const pa = $derived(p && xs && y0 ? xs + ',' + y0 + ' ' + p + ' ' + xs + ',' + y0 : null);
 
-   // reactive variables for coordinates of data points in pixels
-   let p, xs, y0, xe = undefined;
-   $: {
-
-      if ($isOk) {
-         const xv = checkCoords(xValues, 'AreaSeries');
-         p = val2p(xv, yValues, $tX, $tY, axes);
-         y0 = axes.transform(vector([0]), $tY.coords)[0];
-         xs = axes.transform(xv.subset(1), $tX.coords)[0];
-         xe = axes.transform(xv.subset(xValues.length), $tX.coords)[0];
-      }
-   }
-
-   $: areaStyleStr = `opacity:${opacity};fill:${fillColor};stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType - 1]}`;
+   const areaStyleStr = $derived(`opacity:${opacity};fill:${faceColor};stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType - 1]}`);
 </script>
 
-{#if $isOk && p !== undefined}
-   <g class="series series_area" style={areaStyleStr} title={title}>
-   <polygon points="{xs + "," + y0 + " " + p + " " + xs + "," + y0}"/>
-   </g>
+{#if pa}
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<g onclick={(e) => handleClick(e, 'polygon', onclick)}
+   class="series series_area" style={areaStyleStr} title={title}>
+   <polygon points={pa}/>
+</g>
 {/if}
 

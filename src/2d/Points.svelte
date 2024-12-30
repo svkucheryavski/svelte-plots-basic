@@ -1,68 +1,84 @@
+<!--
+@component Adds a series of points.
+
+   Main properties:
+   - `xValues` - array of vector with x-coordinates of the points.
+   - `yValues` - array of vector with y-coordinates of the points.
+   - `marker` - index for a point symbol (from 1 - default - to 8): `"●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"`.
+   - `faceColor` - face (fill) color of the markers, default: `'transparent'`.
+   - `borderColor` - border color of the markers, default: `Colors.PRIMARY`.
+   - `borderWidth` - width (thickness) of the markers' border in pixels, defailt: `1`.
+   - `markerSize` - size of the markers in em, defailt: `1`.
+   - `title` - title of the point series group.
+   - `onclick` - function (callback) to be called when user clicks on a marker.
+
+   Example:
+   ```jsx
+   <script>
+      import { Axes, Points } from 'svelte-plots-basic/2d';
+
+      const xValues = [-3, -2, -1, 0, 1, 2, 3];
+      const yValues = [9, 4, 1, 0, 1, 4, 9];
+   </script>
+
+   <Axes limX={[-4, 4]} limY={[-2, 10]}>
+      <Points {xValues} {yValues}  />
+   </Axes>
+   ```
+-->
 <script>
-   /****************************************************
-   * Points                                            *
-   * --------------------                              *
-   * shows series of points/markers on a plot          *
-   *****************************************************/
-
    import { getContext } from 'svelte';
-   import { Colors } from '../Colors';
-   import { checkCoords } from '../Utils';
+   import { Colors, MARKER_SYMBOLS } from '../constants';
+   import { checkCoords, transformCoords, handleClick } from '../methods';
+
+   /** @type {Props} */
+   let {
+	   xValues,                          // array of vector with x-coordinates of points
+      yValues,                          // array of vector with y-coordinates of points
+      marker = 1,                       // index for point symbol (from 1 to 8): "●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"
+      faceColor = 'transparent',        // face (fill) color of the points
+      borderColor = Colors.PRIMARY,     // border color of the points
+      borderWidth = 1,                  // width (thickness) of the points
+      markerSize = 1,                   // size of the marker symbols
+      title = '',                       // title of the point series group
+      onclick,                          // function to be called if onclick event fires
+   } = $props();
 
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
+   // select which symbol to use as a marker
+   const markerSymbol = $derived.by(() => {
+      if (typeof(marker) !== "number" || marker < 1 || marker > MARKER_SYMBOLS.length) {
+         console.errors('Points: parameter "marker" must be a number from 1 to ' + MARKER_SYMBOLS.length + '.');
+         return null;
+      }
+      return MARKER_SYMBOLS[marker - 1]
+   });
 
-	export let xValues;                          // array of vector with x-coordinates of points
-   export let yValues;                          // array of vector with y-coordinates of points
-   export let marker = 1                        // index for point symbol (from 1 to 8): "●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"
-   export let faceColor = 'transparent';        // face (fill) color of the points
-   export let borderColor = Colors.PRIMARY;     // border color of the points
-   export let borderWidth = 1;                  // width (thickness) of the points
-   export let markerSize = 1;                   // size of the marker symbols
-   export let title = '';                       // title of the point series - required for handling mouse click events
+   // check user provided coordinates
+   const xv = $derived(checkCoords(xValues, 'Points'));
+   const yv = $derived(xv ? checkCoords(yValues, 'Points', xv.length) : null);
 
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   // get axes context and adjust x margins
+   // get axes context and compute screen coordinates
    const axes = getContext('axes');
-   const tX = axes.tX;
-   const tY = axes.tY;
-   const isOk = axes.isOk;
+   const x = $derived(xv ? transformCoords(xv, axes.tX()) : null);
+   const y = $derived(x && yv ? transformCoords(yv, axes.tY()) : null);
 
-   let x, y, markerSymbol;
-
-   // reactive calculations triggered by changes in coordinates and plot parameters
-   $: if ($isOk) {
-
-      if (typeof(marker) !== "number" || marker < 1 || marker > axes.MARKER_SYMBOLS.length) {
-         throw Error(`Points: parameter "marker" must be a number from 1 to ${axes.MARKER_SYMBOLS.length}.`);
-      }
-
-      markerSymbol = axes.MARKER_SYMBOLS[marker - 1];
-
-      x = axes.transform(checkCoords(xValues, 'Points'), $tX.coords);
-      y = axes.transform(checkCoords(yValues, 'Points'), $tY.coords);
-
-      // sanity check for input parameters
-      if (x.length !== y.length) {
-         throw Error('Points: parameters "xValues" and "yValues" must be vectors of the same length.')
-      }
-   }
-
-   // styles for the elements
-   $: textStyleStr = ['＋', '✳', '✕'].includes(markerSymbol)  ?
+   // styles for the markers
+   const textStyleStr = $derived(['＋', '✳', '✕'].includes(markerSymbol)  ?
        `fill:${borderColor && borderColor !== 'transparent' ? borderColor : faceColor};stroke-width:0px;font-size:${markerSize}em;` :
-       `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor}; font-size:${markerSize}em;`;
+       `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor}; font-size:${markerSize}em;`
+   );
 
+   // check if all coordinates are correct
+   const isOk = $derived(x && y && x.length === y.length);
 </script>
 
-{#if $isOk && x !== undefined && y !== undefined}
-<g class="series series-points" title={title} style={textStyleStr} dominant-baseline="middle" text-anchor="middle">
+{#if isOk}
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<g onclick={(e) => handleClick(e, 'text', onclick)}
+   class="series series-points"
+   title={title} style={textStyleStr} dominant-baseline="middle" text-anchor="middle">
    {#each x as v, i}
       <text x={x[i]} y={y[i]}>{markerSymbol}</text>
    {/each}

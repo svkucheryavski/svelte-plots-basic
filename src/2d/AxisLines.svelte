@@ -1,48 +1,50 @@
+<!--
+@component Draws line segments for axis elements (axis, ticks, etc.).
+
+   Main properties:
+   - `lineCoords` - coordinates of the line segments as 2D array.
+   - `lineColor` - color of the box line, default: `Colors.DARKGRAY`.
+   - `lineWidth` - width of box line in pixels, default: `1`.
+   - `lineType` - line type (`1` - solid (default), `2` - dashed, `3` - dotted, `4` - dashdot).
+   - `className` - string with classname to be added to `<g></g>` tag wrapping the lines.
+
+   **Description:**
+
+   The coordinates msut be provided in form of nested arrays. Each element of this array contains
+   `Vector` or `Array` with the coordinates in world (not screen) coordinate system:
+   - `lineCoords[0][0]` - x-coordinates of start points of segments.
+   - `lineCoords[1][0]` - x-coordinates of end points of segments.
+   - `lineCoords[0][1]` - y-coordinates of start points of segments.
+   - `lineCoords[1][1]` - y-coordinates of end points of segments.
+
+   ```
+-->
 <script>
-   /****************************************************
-   * Axis lines                                        *
-   * --------------------                              *
-   * generic component for axis lines (main, grid, ...)*
-   * !!! not for users !!!                             *
-   *****************************************************/
-
    import { getContext } from 'svelte';
-   import { Colors } from '../Colors.js';
+   import { Colors, LINE_STYLES } from '../constants.js';
+   import { transformCoords } from '../methods.js';
 
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
-
-   export let lineCoords = [];               // coordinates of start and end points of the lines
-   export let lineColor = Colors.DARKGRAY;   // line color
-   export let lineType = 1;                  // line type
-   export let lineWidth = 1;                 // lined width (thickness)
-   export let className = '';                // CSS class name for the component
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
+   /** @type {Props} */
+   let {
+      lineCoords = [],               // coordinates of start and end points of the lines
+      lineColor = Colors.DARKGRAY,   // line color
+      lineType = 1,                  // line type
+      lineWidth = 1,                 // lined width (thickness)
+      className = ''                 // CSS class name for the component
+   } = $props();
 
    // get axes context and adjust x margins
    const axes = getContext('axes');
-   const scale = axes.scale;
-   const tX = axes.tX;
-   const tY = axes.tY;
 
    // reactive variables for coordinates of axis lines
-   let x1, x2, y1, y2 = undefined;
-   $: if (lineCoords.length == 2) {
-      x1 = axes.transform(lineCoords[0][0], $tX.coords);
-      y1 = axes.transform(lineCoords[0][1], $tY.coords);
-      x2 = axes.transform(lineCoords[1][0], $tX.coords);
-      y2 = axes.transform(lineCoords[1][1], $tY.coords);
-   }
+   let x1 = $derived(transformCoords(lineCoords[0][0], axes.tX()));
+   let x2 = $derived(transformCoords(lineCoords[1][0], axes.tX()));
+   let y1 = $derived(transformCoords(lineCoords[0][1], axes.tY()));
+   let y2 = $derived(transformCoords(lineCoords[1][1], axes.tY()));
 
-   /* styles for axis and grid lines */
-   $: lineStyleStr = `stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${axes.LINE_STYLES[$scale][lineType-1]}`;
-
+   // line style
+   let lineStyleStr = $derived(`stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType-1]}`);
 </script>
 
 {#if x1 !== undefined && y1 !== undefined && x2 !== undefined && y2 !== undefined}

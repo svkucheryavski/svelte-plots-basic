@@ -1,111 +1,47 @@
+<!--
+@component Adds x-axis with ticks, label, etc.
+
+   Main properties:
+   - `label` - text label for the axis (optional).
+   - `showGrid` - logical, show or not vertical grid lines, default: `false`.
+   - `ticks` - array or vector with tick positions (by default will be generated automatically based on `limX`).
+   - `tickLabels` - array with tick labels to show at each tick (by default will be generated automatically).
+   - `las` - orientation of tick labels (`1` - horizontal - default, `2` - vertical).
+   - `whole` - logical, show numeric tick labels as whole numbers (without decimals) or not, default: `false`.
+
+   Example:
+   ```jsx
+   <script>
+      import {Axes, XAxis} from 'svelte-plots-basic/2d';
+   </script>
+   <Axes>
+      // all other plotting components are here
+      <XAxis label="x-axis label" showGrid={true} />
+   </Axes>
+   ```
+-->
 <script>
-   /*****************************************************/
-   /* X-Axis                                            */
-   /* --------------------                              */
-   /* shows x-axis and its elements (ticks, grid, etc.) */
-   /*****************************************************/
 
    import { getContext } from 'svelte';
-   import { Vector, vector } from 'mdatools/arrays';
-   import { Colors } from '../Colors.js';
-   import { getAxisTicks, getTickLabels } from '../Utils.js';
-   import Axis from './Axis.svelte';
+   import { text2svg } from '../methods';
 
+   /** @type {Props} */
+   let {
+      label,             // text label
+      showGrid = false,  // logical, show or not grid lines
+      ticks,             // vector with numeric tick positions (by default is computed automatically)
+      tickLabels,        // vector with labels for each tick (by default tick values will be used)
+      las = 1,           // orientation of tick labels (1 - horizontal, 2 - vertical)
+      whole = false      // should the ticks be a whole number or not.
+   } = $props();
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
-
-   export let slot = 'xaxis';                // slot the component must be placed in (must be "xaxis")
-   export let ticks = undefined;             // vector with numeric tick positions (by default is computed automatically)
-   export let tickLabels = undefined;        // vector with labels for each tick (by default tick values will be used)
-   export let showGrid = false;              // logical, show or not grid lines
-   export let las = 1;                       // orientation of tick labels (1 - horizontal, 2 - vertical)
-   export let whole = false;                 // should the ticks be a whole number or not
-
-   export let lineColor = Colors.DARKGRAY;   // color of axis and tick lines
-   export let gridColor = Colors.MIDDLEGRAY; // color og grid lines
-   export let textColor = Colors.DARKGRAY;   // color of text tick labels
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   // sanity checks of input parameters
-   if (slot !== 'xaxis') {
-      throw('Component XAxis must have "slot=\'xaxis\'" attribute.');
-   }
-
-   // get axes context and adjust x margins
+   // get axes context and send axis parameters to parent
    const axes = getContext('axes');
-
-   // get reactive variables needed to compute coordinates
-   const xLim = axes.xLim;
-   const yLim = axes.yLim;
-   const scale = axes.scale;
-   const xscale = axes.xscale;
-   const isOk = axes.isOk;
-   const tY = axes.tY;
-
-   // prepare variables for coordinates
-   let grid = [];
-   let axisLine = [];
-   let tickCoords = [];
-   let tfCoords = [];
-   let tickFactor = 0;
-
-   // compute coordinates for ticks, grid and axis line
-   $: if ($isOk) {
-
-      // compute x-coordinates of the ticks or take the ones manually specified by user
-      const ticksX = getAxisTicks(ticks, $xLim, axes.XTICK_NUM[$xscale], true, whole);
-      const tickNum = ticksX.length;
-
-      // compute tick y-coordinates (up and bottom)
-      const dY = axes.invTransform([axes.TICK_SIZE[$scale]], $tY.objects)[0];
-      const ticksY1 = Vector.fill($yLim[0], tickNum);
-      const ticksY2 = ticksY1.add(dY);
-
-      // compute coordinates for the ends of grid
-      const gridYEnd = Vector.fill($yLim[1], tickNum);
-
-      // tick labels and tick factor
-      if (ticks === undefined || tickLabels === undefined) {
-         [tickFactor, tickLabels] = getTickLabels(ticksX.v);
-      }
-
-      if (tickLabels.length !== ticksX.length) {
-         throw('XAxis: "tickLabels" must be a array of the same size as ticks.')
-      }
-
-      // combine all coordinates together
-      grid = [
-         [ticksX, ticksY1],
-         [ticksX, gridYEnd]
-      ];
-
-      axisLine = [
-         [vector([$xLim[0]]), vector([$yLim[0]])],
-         [vector([$xLim[1]]), vector([$yLim[0]])]
-      ]
-
-      tickCoords = [
-         [ticksX, ticksY2],
-         [ticksX, ticksY1]
-      ];
-
-      tfCoords = [
-         [null, null],
-         [[$xLim[1]], [ticksY1.v[tickNum - 1] - 1.5 * dY]],
-      ];
-   }
+   $effect(() => {
+      // process label text in case if there are sub or superscripts and adjust height of label correspondingly
+      const axisLabel = text2svg(label);
+      const labelHeight = axisLabel ? (axisLabel.length === label.length ? 1 : 1.4) : 0;
+      axes.setXAxis({show: true, label: axisLabel, labelHeight, ticks, tickLabels, showGrid, las, whole})
+   });
 </script>
 
-{#if $isOk && axisLine.length > 0}
-<Axis
-   className="mdaplot__xaxis" pos={1}
-   {lineColor} {gridColor} {textColor} {showGrid} {grid} {axisLine}
-   {tickCoords} {tickLabels} {tfCoords} {tickFactor} {las}
-/>
-{/if}

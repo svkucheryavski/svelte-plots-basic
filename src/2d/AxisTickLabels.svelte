@@ -1,63 +1,57 @@
+<!--
+@component Adds axis tick labels.
+
+   Main properties:
+   - `tickCoords` - coordinates of the positions of the ticks line segments in world coordinates.
+   - `textColor` - color of the labels' text.
+   - `tickLabels` - array with the labels (strings).
+   - `pos` - position of the labels related to coordinates (`0` - on, `1` - under - default, `2` - left, `3` - over, `4` - right).
+   - `las` - orientation of the labels (`1` - horizontal - default, `2` - vertical).
+
+   **Description:**
+
+   The ticks coordinates are provided in form of nested arrays. Each element of this array contains
+   `Vector` or `Array` with the coordinates in world (not screen) coordinate system:
+   - `tickCoords[0][0]` - x-coordinates of start points of tick segments.
+   - `tickCoords[1][0]` - x-coordinates of end points of tick segments.
+   - `tickCoords[0][1]` - y-coordinates of start points of tick segments.
+   - `tickCoords[1][1]` - y-coordinates of end points of tick segments.
+
+   ```
+-->
 <script>
-   /****************************************************
-   * AxisTickLabels                                    *
-   * --------------------                              *
-   * shows a series of tick labels along an axis       *
-   * !!! not for users !!!                             *
-   *****************************************************/
 
    import { getContext } from 'svelte';
+   import { transformCoords } from '../methods';
+   import { LABELS_MARGIN } from '../constants';
 
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
+   /** @type {Props} */
+   let {
+	   tickCoords,  // nested array with tick coordinates
+      textColor,   // color of tick labels
+      tickLabels,  // array with tick labels
+      pos = 1,     // position of tick labels
+      las = 1,     // rotation of tick labels (1 - horizontal, 2 - vertical)
+   } = $props();
 
-	export let tickCoords;  // array with tick coordinates
-   export let textColor;   // color of tick labels
-   export let tickLabels;  // array with tick labels
-   export let pos = 1;     // position of tick labels
-   export let las = 1;     // rotation of tick labels (1 - horizontal, 2 - vertical)
 
+   // reactive selection of labels' position and line style
+   let textAnchor = $derived((['middle', 'middle', 'start', 'middle', 'end'])[pos]);
+   let textStyleStr = $derived(`fill:${textColor};`);
 
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
-
-   // get axes context and reactive variables needed to compute coordinates
+   // get axes context and compute screen coordinates
    const axes = getContext('axes');
-   const scale = axes.scale;
-   const tX = axes.tX;
-   const tY = axes.tY;
-   const isOk = axes.isOk;
+   let x = $derived(transformCoords(tickCoords[1][0], axes.tX()));
+   let y = $derived(transformCoords(tickCoords[1][1], axes.tY()));
 
-   let el;
-
-   let x, y = undefined;
-   let dx = 0, dy = 0, textAnchor;
-
-   // reactive calculations triggered by changes in coordinates and plot parameters
-   $: if ($isOk) {
-      x = axes.transform(tickCoords[1][0], $tX.coords);
-      y = axes.transform(tickCoords[1][1], $tY.coords);
-   }
-
-   // reactive calculations triggered by changes in scale
-   $: m = axes.LABELS_MARGIN[$scale];
-
-   // reactive calculations triggered by changes in pos
-   $: {
-      textAnchor = (['middle', 'middle', 'start', 'middle', 'end'])[pos];
-      dx = ([0, 0, m,  0, -m])[pos];
-      dy = ([0, m, 0, -m, 0])[pos];
-   }
-
-   // styles for the elements
-   $: textStyleStr = `fill:${textColor};`;
+   // compute coordinate shifts based on position and plot scales
+   let m = $derived(LABELS_MARGIN[axes.scales().plot]);
+   let dx = $derived(([0, 0, m,  0, -m])[pos]);
+   let dy = $derived(([0, m, 0, -m, 0])[pos]);
 </script>
 
-{#if x !== undefined && y !== undefined}
-<g class="tick-labels" bind:this={el} style={textStyleStr} >
+<g class="tick-labels" style={textStyleStr} >
    {#if las === 2 && pos === 4}
    {#each x as v, i}
       <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={dx*1.25} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"middle"}>{@html tickLabels[i]}</text>
@@ -72,4 +66,3 @@
    {/each}
    {/if}
 </g>
-{/if}

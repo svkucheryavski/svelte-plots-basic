@@ -1,178 +1,69 @@
+<!--
+@component Parent component for any plot, all other components should be nested inside `<Axes></Axes>`.
+
+   Main properties:
+   - `limX` - array with limits for x-axis (in plot units), default: `[0, 1]`.
+   - `limY` - array with limits for y-axis (in plot units), default: `[0, 1]`.
+   - `title` - title of the plot (string).
+   - `margins` - array with relative margins (bottom, left, top, right), default `[1.0, 0.85, 0.5, 0.5]`.
+
+   Properties for downloading the plot as PNG or SVG file or copying it to clipboard:
+   - `downloadLinks` - how to show download links panel (`'none'` - default, `'hover'`, `'fixed'`).
+   - `fileName` - file name for download (without extension), default: `'plot'`.
+   - `pngWidth` - width of PNG image in cm, default `8`
+   - `pngHeight` - height of PNG image in cm, default `8`.
+   - `pngRes` - resolution of PNG image (pixels per inch), default `300`.
+   - `clipboardWidth` - width of plot image to copy to clipboard in pixels.
+   - `clipboardHeight` - height of plot image to copy to clipboard in pixels.
+
+   Example:
+   ```jsx
+   <script>
+      import {Axes} from 'svelte-plots-basic/2d';
+   </script>
+
+   <Axes limX={[2000, 2050]} limY={[0, 100]} title="GDP of contries">
+      //all other plotting components are here
+   </Axes>
+   ```
+-->
 <script>
-   /****************************************************
-   * Axes                                              *
-   * --------------------                              *
-   * root item for any plot                            *
-   *****************************************************/
+   import { setContext } from 'svelte';
+   import { Colors, PLOT_FONT_SIZE, AXES_MARGIN_FACTORS, TICK_SIZE, LINE_STYLES, MARKER_SYMBOLS } from '../constants.js';
+   import { downloadSVG, downloadPNG, createPngBlob, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
+            transformCoords, getColormapLegendParams, getColormapLegendCoords, getTickFactorLabel,
+            getGroupLegendCoords, text2svg} from '../methods.js';
 
-	import { setContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import { writable } from 'svelte/store';
-   import { isvector, vector, Vector } from 'mdatools/arrays';
-   import { roundCoords, getScale, downloadSVG, downloadPNG, createPngBlob, getAxisScale } from '../Utils.js';
+   import AxisLines from './AxisLines.svelte';
+   import AxisTickLabels from './AxisTickLabels.svelte';
 
 
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
-
-   export let limX;                                   // array with limits for x-axis (in plot units) [min, max]
-   export let limY;                                   // array with limits for y-axis (in plot units) [min, max]
-   export let title = '';                             // title of the plot
-   export let xLabel = '';                            // label for x-axis
-   export let yLabel = '';                            // label for y-axis
-   export let margins = [1.0, 0.75, 0.5, 0.5];        // margins [bottom, left, top, right] )
-
-
-   /***********************************************/
-   /* Input parameters for downloading and copy   */
-   /***********************************************/
-   export let downloadLinks = 'none';                // how to show download links panel ('none', 'hover', 'fixed')
-   export let fileName = 'plot';                      // file name for download (without extension)
-   export let pngWidth = 8;                           // width of PNG image in cm
-   export let pngHeight = 8;                          // height of PNG image in cm
-   export let pngRes = 300;                           // resolution of PNG image (pixels per inch)
-   export let clipboardWidth = 1200;                  // width of PNG image to copy to clipboard in pixels
-   export let clipboardHeight = 800;                  // height of PNG image to copy to clipboard in pixels
+   /** @type {Props} */
+   let {
+      title,
+      limX = [0, 1],
+      limY = [0, 1],
+      margins = [1.0, 1.1, 0.55, 0.60],
+      downloadLinks = 'none',
+      fileName = 'plot',
+      pngWidth = 8,
+      pngHeight = 8,
+      pngRes = 300,
+      clipboardWidth = 1200,
+      clipboardHeight = 800,
+      onclick,
+      children
+   } = $props();
 
 
-   /*****************************************/
-   /* Constants                             */
-   /*****************************************/
-
-   // event dispatcher
-   const dispatch = createEventDispatcher();
-
-   // how big are margins (number of pixels in unit margin value) between axis and plot area if axis are shown
-   const AXES_MARGIN_FACTORS = {
-      'small': 30,
-      'medium': 40,
-      'large': 50,
-      'xlarge': 60
-   }
-
-   // number of x-ticks along each axis
-   const XTICK_NUM = {
-      'small': 5,
-      'medium': 8,
-      'large': 12,
-      'xlarge': 15
-   };
-
-   // number of y-ticks along each axis
-   const YTICK_NUM = {
-      'small': 6,
-      'medium': 10,
-      'large': 14,
-      'xlarge': 18
-   };
-
-   // size of ticks
-   const TICK_SIZE = {
-      'small': 4,
-      'medium': 6,
-      'large': 8,
-      'xlarge': 10
-   };
-
-   // font size for plot element
-   const LEGEND_FONT_SIZE = {
-      "small": 11,
-      "medium": 14,
-      "large": 16,
-      "xlarge": 18
-   };
-
-   // font size for legend items in pixels
-   const PLOT_FONT_SIZE = {
-      "small": 12,
-      "medium": 15,
-      "large": 19,
-      "xlarge": 21
-   };
-
-   // margin between plot series elements and data labels
-   const LABELS_MARGIN = {
-      'small': 11,
-      'medium': 15,
-      'large': 17,
-      'xlarge': 19
-   };
-
-   // line styles for different scales and types
-   const LINE_STYLES = {
-      small: ['0', '3,3', '1,1', '3,1'],
-      medium: ['0', '5,5', '2,2', '5,2'],
-      large: ['0', '7,7', '3,3', '7,3'],
-      xlarge: ['0', '9,9', '4,4', '9,3'],
-   }
-
-   // marker symbols
-   const MARKER_SYMBOLS = ["●", "◼", "▲", "▼", "⬥", "＋", "✳", "✕"];
-
-   // constant to make clip path ID unique
-   const clipPathID = 'plottingArea' + Math.round(Math.random() * 10000);
-
-
-   /*****************************************/
-   /* Variable parameters for internal use  */
-   /*****************************************/
-
-   /* parameters for internal use inside the component */
-   let plotElement;
-   let width = 100, height = 100;
-   let left = 0, bottom = 0, top = 0;
-
-
-   /*****************************************/
-   /* Helper functions                      */
-   /*****************************************/
-
-   /**
-    * Dispatcher for click events.
-    * @param {string} eventName - name of the event.
-    * @param {HTMLDOMElement} el - DOM element the click was registered for.
-    *
-    */
-   function dispatchClickEvent(eventName, el) {
-      const id = Array.prototype.indexOf.call(el.parentNode.children, el)
-      dispatch(eventName, {seriesTitle: el.parentNode.getAttribute('title'), elementID: id});
-   }
-
-   /**
-    * Handler (router) for axes or series click events.
-    *
-    * @param {event} e - event object.
-    *
-    * @description
-    * Checks which element the click was made on and dispatch a corresponding event.
-    *
-    */
+   /* handles click events */
    function handleClick(e) {
-
-      // click on scatter plot markers
-      if (e.target.tagName === 'text' && e.target.parentNode.classList.contains('series-points')) {
-         dispatchClickEvent('markerclick', e.target);
-         return;
+      if (onclick) {
+         onclick(e);
       }
-
-      // click on bar plot bars
-      if (e.target.tagName === 'rect' && e.target.parentNode.classList.contains('series-bar')) {
-         dispatchClickEvent('barclick', e.target);
-         return;
-      }
-
-      // click outside any plot element
-      dispatch('axesclick');
    }
 
-
-   /**
-    * Handler (router) for click event on copy plot button.
-    *
-    * @description
-    * Copy plot to clipboard as PNG image.
-    *
-    */
+   /* Copy plot to clipboard as PNG image. */
    async function handleClickCopy(e) {
       navigator.clipboard.write([
          new ClipboardItem({ 'image/png': createPngBlob(plotElement, clipboardWidth, clipboardHeight) })
@@ -189,209 +80,229 @@
       }, 500);
    }
 
-
-   /**
-    * Handler (router) for click event to download SVG image.
-    *
-    * @description
-    * Copy plot to clipboard as SVG image.
-    *
-    */
+   /* Download plot as SVG image. */
    function handleClickSVG() {
       downloadSVG(plotElement, fileName);
    }
 
-
-   /**
-    * Handler (router) for click event to download PNG image.
-    *
-    * @description
-    * Copy plot to clipboard as PNG image.
-    *
-    */
+   /* Download plot as PNG image. */
    function handleClickPNG() {
       downloadPNG(plotElement, fileName, pngWidth, pngHeight, pngRes);
    }
 
-   /**
-    * Generic function to transform x or y-values from plot coordinates to screen (SVG) coordinates.
-    *
-    * @param {Array|Vector} v - vector with coordinates (or objects size) in original plot coordinates.
-    * @param {Object} tA - array with scaling and translation factors.
-    *
-    * @returns {Vector} vector with rescaled values
-    *
-    */
-   const transform = function(v, tA) {
 
-      if (!$isOk || v === undefined || v === null) return undefined;
-      if (Array.isArray(v)) v = vector(v);
-      if (!isvector(v) || v.length < 1) return undefined;
+   // unique ID for clip path
+   const clipPathID = 'plottingArea' + Math.round(Math.random() * 10000);
 
-      return v.apply(a => roundCoords((a - tA[1]) * tA[0] + tA[2])).v;
-   }
+   // pointers to plot DOM element and its width and height
+   let plotElement = $state(0);
+   let plotWidth = $state(0);
+   let plotHeight = $state(0);
 
+   // scales and related parameters
+   let scales = $derived({'plot': getScale(plotWidth, plotHeight), 'x': getAxisScale(plotWidth), 'y': getAxisScale(plotHeight)});
+   let pxMargins = $derived(margins.map(v => v * AXES_MARGIN_FACTORS[scales.plot]));
+   let fontSize = $derived(PLOT_FONT_SIZE[scales.plot]);
+   let tickSize = $derived(TICK_SIZE[scales.plot]);
+   let lineStyles = $derived(LINE_STYLES[scales.plot]);
 
-   /**
-    * Generic function to transform x or y-values from screen (SVG) coordinates to plot coordinates.
-    *
-    * @param {Array|Vector} v - vector with coordinates (or objects size) in screen (SVG) coordinates.
-    * @param {Object} tA - array with scaling and translation factors.
-    *
-    * @returns {Vector} vector plot coordinates.
-    *
-    */
-   const invTransform = function(v, tA) {
+   // left and bottom margins as well as width and height of the axes area (including margins)
+   let left = $derived(xaxis && xaxis.label !== '' ? fontSize * 1.5 : 0);
+   let bottom = $derived(yaxis && yaxis.label !== '' ? fontSize * 1.5 : 0);
+   let top = $derived(title && title !== '' ? fontSize * 1.5 : 0);
+   let width = $derived(plotWidth > left ? plotWidth - left : 0);
+   let height = $derived(plotHeight > (bottom + top) ? plotHeight - bottom - top : 0);
 
-      if (!$isOk || v === undefined || v === null) return undefined;
-      if (Array.isArray(v)) v = vector(v);
-      if (!isvector(v) || v.length < 1) return undefined;
+   // size of only axes area
+   let axisHeight = $derived(height - pxMargins[0] - pxMargins[2]);
+   let axisWidth = $derived(width - pxMargins[1] - pxMargins[3]);
 
-      return v.apply(a => (a - tA[2]) / tA[0] + tA[1]).v;
-   }
-
-   /*****************************************/
-   /* Storage to share with children        */
-   /*****************************************/
-
-   const xscale = writable('medium');                                 // scale factor for x-axis (influences number of ticks)
-   const yscale = writable('medium');                                 // scale factor for y-axis (influences number of ticks)
-   const scale = writable('medium');                                  // scale factor (how big the shown plot is)
-   const isOk = writable(false);                                      // are axes ready for drawing
-   const xLim = writable(limX);                                       // validated values for x-axis limits
-   const yLim = writable(limY);                                       // validated values for y-axis limits
-   const tX = writable({'coords': [1, 0, 0], 'objects': [1, 0, 0]});  // scaling and translation factors for x-dimension
-   const tY = writable({'coords': [1, 0, 0], 'objects': [1, 0, 0]});  // scaling and translation factors for y-dimension
-
-
-   /*****************************************/
-   /* Axes context                          */
-   /*****************************************/
-
-   let context = {
-
-      // methods
-      transform: transform,
-      invTransform: invTransform,
-
-      // variables
-      scale: scale,
-      xscale: xscale,
-      yscale: yscale,
-      isOk: isOk,
-      xLim: xLim,
-      yLim: yLim,
-      tX: tX,
-      tY: tY,
-      xLabel: xLabel,
-      yLabel: yLabel,
-
-      // constants
-      LINE_STYLES: LINE_STYLES,
-      LABELS_MARGIN: LABELS_MARGIN,
-      XTICK_NUM: XTICK_NUM,
-      YTICK_NUM: YTICK_NUM,
-      TICK_SIZE: TICK_SIZE,
-      MARKER_SYMBOLS: MARKER_SYMBOLS,
-      LEGEND_FONT_SIZE: LEGEND_FONT_SIZE
-   }
-
-	setContext('axes', context);
-
-   /*****************************************/
-   /* Reactive updates of the parameters    */
-   /*****************************************/
-
-   // computes real margins in pixels based on current scale
-   $: pxMargins = margins.map(v => v * AXES_MARGIN_FACTORS[$scale]);
-
-   // update limits if necessary
-   $: xLim.update(v => limX);
-   $: yLim.update(v => limY);
-
-   // computes status which tells that axes limits look fine and it is safe to draw
-   // the status is based on the axis limits validity
-   $: isOk.update(v =>
-      Array.isArray($yLim) &&
-      Array.isArray($xLim) &&
-      $xLim.length === 2 &&
-      $yLim.length === 2 &&
-      !$yLim.some(v => v === undefined) &&
-      !$xLim.some(v => v === undefined) &&
-      !$yLim.some(v => isNaN(v)) &&
-      !$xLim.some(v => isNaN(v)) &&
-      $xLim[1] !== $xLim[0] &&
-      $yLim[1] !== $yLim[0] &&
+   // plot status
+   let isOk = $derived(
+      checkArray(limX, 2) &&
+      checkArray(limY, 2) &&
+      limX[0] < limX[1] &&
+      limY[0] < limY[1] &&
       width > (pxMargins[1] + pxMargins[3]) &&
       height > (pxMargins[0] + pxMargins[2])
-   )
+   );
 
-   // update transformation array for x-coordinates
-   $: {
-      if ($isOk) {
-         tX.update(v => ({
-            'coords':  [ (width - pxMargins[1] - pxMargins[3]) / ($xLim[1] - $xLim[0]), $xLim[0], pxMargins[1]],
-            'objects': [ (width - pxMargins[1] - pxMargins[3]) / ($xLim[1] - $xLim[0]),       0,             0]
-         }));
+   // transformation matrix for x
+   let tX = $derived(!isOk ? {'coords': [1, 0, 0], 'objects': [1, 0, 0]} :
+      {
+         'coords':  [ axisWidth / (limX[1] - limX[0]), limX[0], pxMargins[1]],
+         'objects': [ axisWidth / (limX[1] - limX[0]),       0,            0]
       }
-   };
+   );
 
-   // update transformation array for y-coordinates
-   $: {
-      if ($isOk) {
-         tY.update(v => ({
-            'coords':  [-(height - pxMargins[0] - pxMargins[2]) / ($yLim[1] - $yLim[0]), $yLim[1], pxMargins[2]],
-            'objects': [ (height - pxMargins[0] - pxMargins[2]) / ($yLim[1] - $yLim[0]),        0,            0]
-         }));
+   // transformation matrix for y
+   let tY = $derived(!isOk ? {'coords': [0, 1, 0], 'objects': [0, 1, 0]} :
+      {
+         'coords':  [-axisHeight / (limY[1] - limY[0]), limY[1], pxMargins[2]],
+         'objects': [ axisHeight / (limY[1] - limY[0]),       0,            0]
       }
-   };
+   );
 
-   // computes coordinates for clip path box
-   $: cpx = $isOk ? transform($xLim, $tX.coords) : [0, 1];
-   $: cpy = $isOk ? transform($yLim, $tY.coords) : [1, 0];
+   // coordinates if the middle point of plotting area (needed for axis labels location)
+   let my = $derived(axisHeight * 0.5 + top + pxMargins[2]);
+   let mx = $derived(axisWidth * 0.5 + left + pxMargins[1]);
 
+   // coordinates for clip path box
+   let cpx = $derived(isOk ? transformCoords(limX, tX) : [0, 1]);
+   let cpy = $derived(isOk ? transformCoords(limY, tY) : [1, 0]);
 
-   /*****************************************/
-   /* Events observers                      */
-   /*****************************************/
+   // parameters of box, axis elements, colomap legend and group legend
+   let plotTitle = $derived(text2svg(title));
+   let titleHeight = $derived(plotTitle ? (plotTitle.length === title.left ? 1.0 : 1.4) : 0);
+   let box = $state({show: false, lineColor: Colors.DARKGRAY, lineWidth: 1});
+   let xaxis = $state({show: false, label: "", showGrid: false, las: 1, whole: false, ticks: null, tickLabels: null});
+   let yaxis = $state({show: false, label: "", showGrid: false, las: 1, whole: false, ticks: null, tickLabels: null});
+   let clg = $state({show: false, colmap: null, breaks: null});
+   let glg = $state({show: false, items: null, position: null});
 
-   // observer for the plot area size — to update the scale
-   const ro = new ResizeObserver(entries => {
-      for (let entry of entries) {
-         const pcr = plotElement.getBoundingClientRect();
-         const scl = getScale(pcr.width, pcr.height);
-         const xscl = getAxisScale(pcr.width);
-         const yscl = getAxisScale(pcr.height);
-         scale.update(x => scl);
-         xscale.update(x => xscl);
-         yscale.update(x => yscl);
+   // get colormap legend parameters
+   let clgParams = $derived(isOk && clg && clg.show ? getColormapLegendParams(clg) : null);
 
-         const m = PLOT_FONT_SIZE[scl] * 1.5;
-         left = xLabel && xLabel !== '' ? m : 0;
-         bottom = yLabel && yLabel !== '' ? m : 0;
-         top = title && title !== '' ? m : 0;
-         width = pcr.width > left ? pcr.width - left : 0;
-         height = pcr.height > (bottom + top) ? pcr.height - bottom - top : 0;
-      }
+   // compute world coordinates of axis elements
+   let xaxisCoords = $derived(isOk && xaxis.show ? getXAxisParams(limX, limY, scales, tY, xaxis): null);
+   let yaxisCoords = $derived(isOk && yaxis.show ? getYAxisParams(limX, limY, scales, tX, yaxis): null);
+
+   // compute screen coordinates of legend elements
+   let clgCoords = $derived(isOk && clgParams ? getColormapLegendCoords(clgParams, axisWidth, pxMargins, scales) : null);
+   let glgCoords = $derived(isOk && glg && glg.show && cpx? getGroupLegendCoords(glg, cpx, cpy, fontSize, tickSize) : null);
+
+   // axes context to share with children
+   setContext('axes', {
+      setBox: (v) => box = v,
+      setXAxis: (v) => xaxis = v,
+      setYAxis: (v) => yaxis = v,
+      setColmapLegend: (v) => clg = v,
+      setGroupLegend: (v) => glg = v,
+      scales: () => scales,
+      tX: () => tX,
+      tY: () => tY
    });
-
-   $: fontSize = PLOT_FONT_SIZE[$scale];
-
-   onMount(() => {
-      ro.observe(plotElement);
-   });
-
-   onDestroy(() => {
-      ro.unobserve(plotElement);
-   })
-
 </script>
 
-<div class="plot-container show-download-links-{downloadLinks}" class:plot_error={!$isOk}>
+<!-- snippet for axis -->
+{#snippet axisSnippet(axisCoords, axisParams)}
+   {#if axisParams.showGrid }
+      <AxisLines lineCoords={axisCoords.grid} lineColor={Colors.MIDDLEGRAY} lineType={3} />
+   {/if}
 
-   <svg class="plot" bind:this={plotElement} xmlns="http://www.w3.org/2000/svg"
-      style={`font-size:${fontSize}px`}>
+   <AxisLines lineCoords={axisCoords.axisLine} lineColor={Colors.DARKGRAY} lineType={1} />
+   <AxisLines lineCoords={axisCoords.tickCoords} lineColor={Colors.DARKGRAY} lineType={1} />
 
+   {#if axisCoords.tickCoords.length === 2 && axisCoords.tickLabels.length === axisCoords.tickCoords[1][0].length}
+   <AxisTickLabels las={axisParams.las} pos={axisParams.pos} tickCoords={axisCoords.tickCoords}
+      tickLabels={axisCoords.tickLabels} tickColor={Colors.DARKGRAY} hideLast={axisParams.hideLast}/>
+   {/if}
+
+   <!-- tick factor -->
+   {#if axisCoords.tickFactor !== 0}
+   <AxisTickLabels pos={axisParams.pos} tickCoords={axisCoords.tfCoords} tickLabels={[axisCoords.tfLabel]} textColor={Colors.DARKGRAY} />
+   {/if}
+{/snippet}
+
+<!-- snippedt for colormap legend -->
+{#snippet clgSnippet(params, coords)}
+
+   {@const dy = coords.height * 1.25}
+   {@const n = params.colmap.length}
+
+   {#each params.colmap as col, i}
+      {@const x = coords.start + i * coords.width}
+      <rect {x} y={coords.top} width={coords.width} height={coords.height} fill={col} />
+      <text {x} y={coords.ltop} dx={coords.dxl} dy={0} dominant-baseline="hanging"
+         fill={params.labelColor}
+         font-size={params.fontSize + "em"}
+         text-anchor="middle"
+      >{@html params.labels[i]}</text>
+   {/each}
+
+   {#if !params.isCentered}
+      {@const x = coords.start + n * coords.width }
+      <text {x} y={coords.ltop} dx={0} dy={0} dominant-baseline="hanging"
+         fill={params.labelColor}
+         font-size="{params.fontSize}em"
+         text-anchor="middle"
+      >{@html params.labels[n]}</text>
+   {/if}
+
+
+   {#if params.labelsFactor !== 0}
+      {@const x = coords.start + (n + 0.85) * coords.width  }
+      <text {x} y={coords.ltop} dx={0} dy={0} dominant-baseline="hanging"
+         fill={params.labelColor}
+         font-size="{params.fontSize}em"
+         text-anchor="middle"
+      >{@html getTickFactorLabel(params.labelsFactor)}</text>
+   {/if}
+{/snippet}
+
+<!-- snipped for group legend -->
+{#snippet glgSnippet(params, coords)}
+   {@const elw = coords.elw + 2 * coords.elp}
+   {@const elp = coords.elp}
+   {@const elh = coords.elh}
+   {@const ely = coords.ely}
+
+   <svg x={coords.lgl} y={coords.lgt} height={coords.lgh} width={coords.lgw}>
+      <rect height="100%" width="100%" fill={params.faceColor} stroke={params.lineColor} stroke-width={params.lineWidth} />
+
+      {#each params.items as item, i}
+      <svg x={0} y={ely[i]} width={coords.lgw} height={elh[i]}>
+
+         <!-- line -->
+         {#if item.lineType}
+         <line
+            x1={elp}
+            x2={elw - elp}
+            y1={elh[i]/2}
+            y2={elh[i]/2}
+            stroke={item.lineColor}
+            stroke-width={item.lineWidth}
+            stroke-dasharray={lineStyles[item.lineType - 1]}
+         />
+         {/if}
+
+         <!-- marker -->
+         {#if item.marker}
+         <text
+            x={elw/2}
+            y={elh[i]/2}
+            dominant-baseline="middle"
+            text-anchor="middle"
+            fill={item.faceColor}
+            stroke-width={item.borderWidth}
+            stroke={item.borderColor}
+            font-size={fontSize}
+         >{MARKER_SYMBOLS[item.marker - 1]}</text>
+         {/if}
+
+         <!-- text -->
+         <text
+            class="legend-text"
+            xml:space="preserve"
+            x={elw + elp}
+            y={elh[i]/2}
+            dominant-baseline="middle"
+            text-anchor="start"
+            fill={Colors.LEGEND}
+            font-size="{params.fontSize}em"
+         > {@html item.label}</text>
+
+      </svg>
+      {/each}
+   </svg>
+{/snippet}
+
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="plot-container show-download-links-{downloadLinks}" onkeydown={handleClick} onclick={handleClick} class:plot_error={!isOk}>
+
+   <svg class="plot" bind:this={plotElement} bind:clientWidth={plotWidth} bind:clientHeight={plotHeight}
+      xmlns="http://www.w3.org/2000/svg" style="font-size:{fontSize}px">
       <style>
          .plot {
             font-family: Arial, Helvetica, sans-serif;
@@ -400,6 +311,7 @@
          .plot-labels text {
             font-weight:bold;
             text-anchor:middle;
+            user-select: none;
          }
 
          .tick-labels text,
@@ -416,31 +328,39 @@
          .series-text text,
          .series-text tspan {
             text-anchor: middle;
+            user-select: none;
          }
 
          .tick-labels text,
          .tick-labels tspan {
             font-size:1em;
+            user-select: none;
          }
       </style>
 
+      {#if isOk}
       <g class="plot-labels">
-         <!-- y-axis label -->
-         {#if yLabel && yLabel !== ''}
-         <text x={0} y={(height + top) /2} dx={0} dy={0} dominant-baseline="top" transform={`rotate(-90, 10, ${height/2})`} style="font-size:1.1em;">{@html yLabel}</text>
-         {/if}
          <!-- x-axis label -->
-         {#if xLabel && xLabel !== ''}
-         <text x={left + width/2 } y={height + top} dx={0} dy={5} dominant-baseline="middle" style="font-size:1.1em;">{@html xLabel}</text>
+         {#if xaxis.show && xaxis.label && xaxis.label !== ''}
+         <text x={mx} y={height + top} dx={0} dy={0} dominant-baseline="middle"
+            style="font-size:1.1em;">{@html xaxis.label}</text>
          {/if}
+
+         <!-- y-axis label -->
+         {#if yaxis.show && yaxis.label && yaxis.label !== ''}
+         <text x={fontSize / 1.1 * yaxis.labelHeight} y={my} dx={0} dy={0} dominant-baseline="middle" transform={`rotate(-90, ${fontSize * yaxis.labelHeight / 1.1}, ${my})`} style="font-size:1.1em;">{@html yaxis.label}</text>
+         {/if}
+
          <!-- plot title -->
-         {#if title && title !== ''}
-         <text x={left + width/2 } y={0} dx={0} dy={10}  dominant-baseline="hanging" style="font-size:1.2em;">{@html title}</text>
+         {#if plotTitle && plotTitle !== ''}
+         <text x={mx} y={fontSize * titleHeight} dx={0} dy={0}  dominant-baseline="middle"
+            style="font-size:1.2em;">{@html plotTitle}</text>
+         <line x1={0} x2={1000} y1={0} y2={0} stroke="red"/>
          {/if}
       </g>
+      {/if}
 
-      <svg x={left} y={top} width={width} height={height} on:click={handleClick}
-         on:keydown={handleClick} preserveAspectRatio="none" class="axes">
+      <svg x={left} y={top} width={width} height={height} preserveAspectRatio="none" class="axes">
 
          <!-- define clipping path -->
          <defs>
@@ -449,33 +369,66 @@
             </clipPath>
          </defs>
 
-         <!-- axis and box -->
-         <slot name="xaxis"></slot>
-         <slot name="yaxis"></slot>
+         {#if isOk}
 
-         <!-- main plot content -->
-         <g class="axes-content" clip-path="url(#{clipPathID})">
-            <slot></slot>
-         </g>
+            <!-- xaxis -->
+            {#if xaxis.show && xaxisCoords}
+            <g class="mdaplot__axis mdaplot__xaxis">
+               {@render axisSnippet(xaxisCoords, xaxis)}
+            </g>
+            {/if}
 
-         <!-- axis and box -->
-         <slot name="box"></slot>
+            <!-- yaxis -->
+            {#if yaxis.show && yaxisCoords}
+            <g class="mdaplot__axis mdaplot__yaxis">
+               {@render axisSnippet(yaxisCoords, yaxis)}
+            </g>
+            {/if}
+
+            <!-- main plot content -->
+            <g class="axes-content" clip-path="url(#{clipPathID})">
+               {@render children?.()}
+            </g>
+
+            <!-- colormap legend -->
+            {#if clgParams && clgCoords && clg.show}
+            <g class="mdaplot__colormap_legend" style="stroke:0;stroke-width:0px;">
+               {@render clgSnippet(clgParams, clgCoords)}
+            </g>
+            {/if}
+
+            <!-- group legend -->
+            {#if glg && glgCoords && glg.show}
+            <g class="mdaplot__group_legend" style="stroke:0;stroke-width:0px;">
+               {@render glgSnippet(glg, glgCoords)}
+            </g>
+            {/if}
+
+            <!-- box -->
+            {#if box.show}
+            <g style="pointer-events:none" class="mdaplot__axes-box">
+            <rect stroke={box.lineColor} stroke-width="{box.lineWidth}px" fill="transparent"
+               x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]} />
+            </g>
+            {/if}
+
+         {/if}
+
       </svg>
    </svg>
 
-   {#if !$isOk}
+   {#if !isOk}
    <p class="message_error">
       Axes component was not properly initialized. <br />
       Check that you defined axes limits and margins correctly.
    </p>
    {:else}
    <div class="download-links">
-      <button on:click={handleClickSVG} on:keydown={handleClickSVG}>⇩ svg</button>
-      <button on:click={handleClickPNG} on:keydown={handleClickPNG}>⇩ png</button>
-      <button on:click={handleClickCopy} on:keydown={handleClickCopy}>⧉ copy</button>
+      <button onclick={handleClickSVG} onkeydown={handleClickSVG}>⇩ svg</button>
+      <button onclick={handleClickPNG} onkeydown={handleClickPNG}>⇩ png</button>
+      <button onclick={handleClickCopy} onkeydown={handleClickCopy}>⧉ copy</button>
    </div>
    {/if}
-
 </div>
 
 <style>
