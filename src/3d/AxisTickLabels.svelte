@@ -1,46 +1,29 @@
+<!--
+@component shows tick labels.
+-->
 <script>
-   /****************************************************
-   * AxisTickLabels for 3D plots                       *
-   * ----------------------------                      *
-   * shows a series of tick labels along an axis       *
-   *****************************************************/
 
    import { getContext } from 'svelte';
+   import { transform3D } from '../methods';
 
-
-   /*****************************************/
-   /* Input parameters                      */
-   /*****************************************/
-
-	export let tickCoords;
-   export let textColor;
-   export let tickLabels;
-
-
-   /*****************************************/
-   /* Component code                        */
-   /*****************************************/
+   let {
+	   tickCoords, // nested array with coordinates of axis ticks.
+      textColor,  // color of tick labels text.
+      tickLabels, // array with the labels.
+   } = $props();
 
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');
-   const isOk = axes.isOk;
-   const tM = axes.tM;
-
-   let x, y = undefined;
-
-   // reactive calculations triggered by changes in coordinates and plot parameters
-   $: if ($isOk) {
-      [x, y] = axes.transform(tickCoords, $tM);
-   }
+   const s = $derived(transform3D(tickCoords, axes.tM()));
 
    // styles for the elements
-   $: textStyleStr = `dominant-baseline:middle;fill:${textColor};font-size:0.85em; text-anchor:middle;`;
+   const textStyleStr = $derived(`dominant-baseline:middle;fill:${textColor};font-size:0.85em; text-anchor:middle;`);
 </script>
 
-{#if x !== undefined && y !== undefined}
-<g class="tick_labels" style={textStyleStr} >
-   {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={0}>{@html tickLabels[i]}</text>
+{#if s}
+<g class="tick-labels" style={textStyleStr} >
+   {#each s.x as v, i}
+      <text data-id={i} x={s.x[i]} y={s.y[i]} dx={0} dy={0}>{@html tickLabels[i]}</text>
    {/each}
 </g>
 {/if}
