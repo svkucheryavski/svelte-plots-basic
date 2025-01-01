@@ -94,3 +94,10 @@ export const Colors = {
 }
 
 
+// number of ticks along each axis for 3D plots
+export const TICK_NUM = {
+   "small": 5,
+   "medium": 8,
+   "large": 12,
+   "xlarge": 15
+};
