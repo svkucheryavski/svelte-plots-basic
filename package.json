@@ -1,16 +1,19 @@
 {
    "name": "svelte-plots-basic",
    "description": "Svelte components for creating simple plots",
-   "version": "2.5.8",
+   "version": "3.0.0",
    "author": "Sergey Kucheryavskiy",
    "license": "MIT",
    "private": false,
    "exports": {
-      "./utils":  "./src/Utils.js",
+      "./utils":  "./src/methods.js",
       "./2d":  "./src/2d/index.js",
       "./2d/*.svelte":  "./src/2d/*.svelte",
       "./3d":  "./src/3d/index.js",
       "./3d/*.svelte":  "./src/3d/*.svelte"
+   },
+   "devDependencies": {
+      "svelte": "^5.x.x"
    },
    "dependencies": {
       "mdatools": "^1.x.x"
