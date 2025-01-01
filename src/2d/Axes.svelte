@@ -30,7 +30,7 @@
 <script>
    import { setContext } from 'svelte';
    import { Colors, PLOT_FONT_SIZE, AXES_MARGIN_FACTORS, TICK_SIZE, LINE_STYLES, MARKER_SYMBOLS } from '../constants.js';
-   import { downloadSVG, downloadPNG, createPngBlob, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
+   import { downloadSVG, downloadPNG, copyToClipboard, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
             transformCoords, getColormapLegendParams, getColormapLegendCoords, getTickFactorLabel,
             getGroupLegendCoords, text2svg} from '../methods.js';
 
@@ -65,19 +65,7 @@
 
    /* Copy plot to clipboard as PNG image. */
    async function handleClickCopy(e) {
-      navigator.clipboard.write([
-         new ClipboardItem({ 'image/png': createPngBlob(plotElement, clipboardWidth, clipboardHeight) })
-      ]).catch(function (error) { console.error(error); });
-
-      const content = e.target.textContent;
-      e.target.classList.add('copied');
-      e.target.textContent = '✓ done';
-
-      // Remove the class after 1 second and revert the text
-      setTimeout(() => {
-        e.target.classList.remove('copied');
-        e.target.textContent = content;
-      }, 500);
+      copyToClipboard(e.target, plotElement, clipboardWidth, clipboardHeight);
    }
 
    /* Download plot as SVG image. */
@@ -100,25 +88,25 @@
    let plotHeight = $state(0);
 
    // scales and related parameters
-   let scales = $derived({'plot': getScale(plotWidth, plotHeight), 'x': getAxisScale(plotWidth), 'y': getAxisScale(plotHeight)});
-   let pxMargins = $derived(margins.map(v => v * AXES_MARGIN_FACTORS[scales.plot]));
-   let fontSize = $derived(PLOT_FONT_SIZE[scales.plot]);
-   let tickSize = $derived(TICK_SIZE[scales.plot]);
-   let lineStyles = $derived(LINE_STYLES[scales.plot]);
+   const scales = $derived({'plot': getScale(plotWidth, plotHeight), 'x': getAxisScale(plotWidth), 'y': getAxisScale(plotHeight)});
+   const pxMargins = $derived(margins.map(v => v * AXES_MARGIN_FACTORS[scales.plot]));
+   const fontSize = $derived(PLOT_FONT_SIZE[scales.plot]);
+   const tickSize = $derived(TICK_SIZE[scales.plot]);
+   const lineStyles = $derived(LINE_STYLES[scales.plot]);
 
    // left and bottom margins as well as width and height of the axes area (including margins)
-   let left = $derived(xaxis && xaxis.label !== '' ? fontSize * 1.5 : 0);
-   let bottom = $derived(yaxis && yaxis.label !== '' ? fontSize * 1.5 : 0);
-   let top = $derived(title && title !== '' ? fontSize * 1.5 : 0);
-   let width = $derived(plotWidth > left ? plotWidth - left : 0);
-   let height = $derived(plotHeight > (bottom + top) ? plotHeight - bottom - top : 0);
+   const left = $derived(xaxis && xaxis.label !== '' ? fontSize * 1.5 : 0);
+   const bottom = $derived(yaxis && yaxis.label !== '' ? fontSize * 1.5 : 0);
+   const top = $derived(title && title !== '' ? fontSize * 1.5 : 0);
+   const width = $derived(plotWidth > left ? plotWidth - left : 0);
+   const height = $derived(plotHeight > (bottom + top) ? plotHeight - bottom - top : 0);
 
    // size of only axes area
-   let axisHeight = $derived(height - pxMargins[0] - pxMargins[2]);
-   let axisWidth = $derived(width - pxMargins[1] - pxMargins[3]);
+   const axisHeight = $derived(height - pxMargins[0] - pxMargins[2]);
+   const axisWidth = $derived(width - pxMargins[1] - pxMargins[3]);
 
    // plot status
-   let isOk = $derived(
+   const isOk = $derived(
       checkArray(limX, 2) &&
       checkArray(limY, 2) &&
       limX[0] < limX[1] &&
@@ -128,7 +116,7 @@
    );
 
    // transformation matrix for x
-   let tX = $derived(!isOk ? {'coords': [1, 0, 0], 'objects': [1, 0, 0]} :
+   const tX = $derived(!isOk ? {'coords': [1, 0, 0], 'objects': [1, 0, 0]} :
       {
          'coords':  [ axisWidth / (limX[1] - limX[0]), limX[0], pxMargins[1]],
          'objects': [ axisWidth / (limX[1] - limX[0]),       0,            0]
@@ -136,7 +124,7 @@
    );
 
    // transformation matrix for y
-   let tY = $derived(!isOk ? {'coords': [0, 1, 0], 'objects': [0, 1, 0]} :
+   const tY = $derived(!isOk ? {'coords': [0, 1, 0], 'objects': [0, 1, 0]} :
       {
          'coords':  [-axisHeight / (limY[1] - limY[0]), limY[1], pxMargins[2]],
          'objects': [ axisHeight / (limY[1] - limY[0]),       0,            0]
@@ -144,16 +132,18 @@
    );
 
    // coordinates if the middle point of plotting area (needed for axis labels location)
-   let my = $derived(axisHeight * 0.5 + top + pxMargins[2]);
-   let mx = $derived(axisWidth * 0.5 + left + pxMargins[1]);
+   const my = $derived(axisHeight * 0.5 + top + pxMargins[2]);
+   const mx = $derived(axisWidth * 0.5 + left + pxMargins[1]);
 
    // coordinates for clip path box
-   let cpx = $derived(isOk ? transformCoords(limX, tX) : [0, 1]);
-   let cpy = $derived(isOk ? transformCoords(limY, tY) : [1, 0]);
+   const cpx = $derived(isOk ? transformCoords(limX, tX) : [0, 1]);
+   const cpy = $derived(isOk ? transformCoords(limY, tY) : [1, 0]);
+
+   // parameters of plot title
+   const plotTitle = $derived(text2svg(title));
+   const titleHeight = $derived(plotTitle ? (plotTitle.length === title.left ? 1.0 : 1.4) : 0);
 
    // parameters of box, axis elements, colomap legend and group legend
-   let plotTitle = $derived(text2svg(title));
-   let titleHeight = $derived(plotTitle ? (plotTitle.length === title.left ? 1.0 : 1.4) : 0);
    let box = $state({show: false, lineColor: Colors.DARKGRAY, lineWidth: 1});
    let xaxis = $state({show: false, label: "", showGrid: false, las: 1, whole: false, ticks: null, tickLabels: null});
    let yaxis = $state({show: false, label: "", showGrid: false, las: 1, whole: false, ticks: null, tickLabels: null});
@@ -161,15 +151,15 @@
    let glg = $state({show: false, items: null, position: null});
 
    // get colormap legend parameters
-   let clgParams = $derived(isOk && clg && clg.show ? getColormapLegendParams(clg) : null);
+   const clgParams = $derived(isOk && clg && clg.show ? getColormapLegendParams(clg) : null);
 
    // compute world coordinates of axis elements
-   let xaxisCoords = $derived(isOk && xaxis.show ? getXAxisParams(limX, limY, scales, tY, xaxis): null);
-   let yaxisCoords = $derived(isOk && yaxis.show ? getYAxisParams(limX, limY, scales, tX, yaxis): null);
+   const xaxisCoords = $derived(isOk && xaxis.show ? getXAxisParams(limX, limY, scales, tY, xaxis): null);
+   const yaxisCoords = $derived(isOk && yaxis.show ? getYAxisParams(limX, limY, scales, tX, yaxis): null);
 
    // compute screen coordinates of legend elements
-   let clgCoords = $derived(isOk && clgParams ? getColormapLegendCoords(clgParams, axisWidth, pxMargins, scales) : null);
-   let glgCoords = $derived(isOk && glg && glg.show && cpx? getGroupLegendCoords(glg, cpx, cpy, fontSize, tickSize) : null);
+   const clgCoords = $derived(isOk && clgParams ? getColormapLegendCoords(clgParams, axisWidth, pxMargins, scales) : null);
+   const glgCoords = $derived(isOk && glg && glg.show && cpx? getGroupLegendCoords(glg, cpx, cpy, fontSize, tickSize) : null);
 
    // axes context to share with children
    setContext('axes', {
@@ -323,18 +313,21 @@
             dominant-baseline: middle;
             cursor: default;
             user-select: none;
+            -webkit-user-select: none;
          }
 
          .series-text text,
          .series-text tspan {
             text-anchor: middle;
             user-select: none;
+            -webkit-user-select: none;
          }
 
          .tick-labels text,
          .tick-labels tspan {
             font-size:1em;
             user-select: none;
+            -webkit-user-select: none;
          }
       </style>
 
@@ -355,7 +348,6 @@
          {#if plotTitle && plotTitle !== ''}
          <text x={mx} y={fontSize * titleHeight} dx={0} dy={0}  dominant-baseline="middle"
             style="font-size:1.2em;">{@html plotTitle}</text>
-         <line x1={0} x2={1000} y1={0} y2={0} stroke="red"/>
          {/if}
       </g>
       {/if}
@@ -446,7 +438,6 @@
 
    .download-links {
       box-sizing: border-box;
-      bottom: right 0.5s ease;
       position: absolute;
       font-size: 0.8em;
       bottom: -50%;
@@ -478,6 +469,14 @@
    .download-links > button:hover{
       background: #443333;
       color: #fafafa;
+   }
+
+   .download-links > :global(button.error){
+      background: #ee4433;
+   }
+
+   .download-links > :global(button.copied){
+      background: #4488ee;
    }
 
 
