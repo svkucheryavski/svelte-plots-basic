@@ -1,6 +1,6 @@
-import { cbind, vector, isvector, Vector } from 'mdatools/arrays';
+import { cbind, vector, isvector, Vector, matrix } from 'mdatools/arrays';
 import { min, max, diff } from 'mdatools/stat';
-import { XTICK_NUM, YTICK_NUM, TICK_SIZE, COLMAP_WIDTH_RATIO, COLMAP_EL_HEIGHTS_PX, COLMAP_TOP_MARGIN } from './constants';
+import { TICK_NUM, XTICK_NUM, YTICK_NUM, TICK_SIZE, COLMAP_WIDTH_RATIO, COLMAP_EL_HEIGHTS_PX, COLMAP_TOP_MARGIN } from './constants';
 
 
 /**
@@ -194,38 +194,6 @@ export function checkCoords(x, source, len) {
    }
 
    return x;
-}
-
-
-/**
- * Create string with coordinates of SVG polygon in 3D.
- *
- * @param {Array|Vector} x - vector with x-coordinates of polygon points.
- * @param {Array|Vector} y - vector with y-coordinates of polygon points.
- * @param {Array|Vector} z - vector with y-coordinates of polygon points.
- * @param {Array} tM - transformation matrix for 3D->2D (from 'Axes').
- * @param {Object} axes - JSON with Axes context.
- *
- * @returns {string} string with coordinates.
- *
- */
-export function val2p3d(x, y, z, tM, axes) {
-
-   if (x === undefined || y === undefined) return undefined;
-
-   const [px, py] = axes.transform(cbind(checkCoords(x), checkCoords(y), checkCoords(z)), tM);
-
-   if (px.length !== py.length) {
-      console.error('val2p3d: parameters "xValues", "yValues" and "zValues" must be numeric vectors of the same length.');
-      return null;
-   }
-
-   let p = "";
-   for (let i = 0; i < px.length; i++) {
-      p += px[i] + "," + py[i] + " ";
-   }
-
-   return p;
 }
 
 
@@ -679,6 +647,51 @@ export function downloadSVG(svg, fileName) {
    a.click()
 }
 
+/**
+ * Copies plot to clipboard as PNG image.
+ * @param {HTMLElement} btn - button element used to activate the copy event.
+ * @param {SVGAElement} svg - root SVG element of a plot.
+ * @param {number} width - width of the plot image to copy.
+ * @param {number} height - height of the plot image to copy.
+ */
+export function copyToClipboard(btn, svg, width, height) {
+
+   // save button conent
+   const content = btn.textContent;
+
+   navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': createPngBlob(svg, width, height) })
+   ])
+   .then(
+      () => {
+         // add class "copied" for visual confirmation
+         btn.classList.add('copied');
+         btn.textContent = '✓ done';
+
+         // Remove the class after 0.5 seconds and revert the text
+         setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.textContent = content;
+         }, 500);
+      },
+      (e) => {
+         console.error(e)
+
+         // add class "error" for visual confirmation
+         btn.classList.add('error');
+         btn.textContent = 'x copy';
+
+         // Remove the class after 0.5 seconds and revert the text
+         setTimeout(() => {
+            btn.classList.remove('error');
+            btn.textContent = content;
+         }, 500);
+      }
+   )
+   .catch((error) => console.error(error));
+
+}
+
 
 /**
  * Returns plot BLOB to copy it to clipboard.
@@ -750,6 +763,7 @@ export async function createPngBlob(svg, width, height) {
    // resolve promise and return the result
    return (await promise);
 }
+
 
 /**
  * Returns an array with 'n' colors.
@@ -1169,4 +1183,225 @@ export function text2svg(text) {
    }
 
    return svgText;
+}
+
+
+/**
+ * Transforms 3D world coordinates to 2D scene pixels by applying the transformation matrix 'tM'.
+ *
+ * @param {Matrix} coords - matrix with coordinates [X, Y, Z]
+ * @param {Matrix} tM - transformation matrix
+ *
+ * @returns {Array} array with transformed coordinates as two vectors [x, y].
+ *
+ */
+export function transform3D(coords, tM) {
+   const coords2D = cbind(coords, Vector.ones(coords.nrows)).dot(tM);
+   return {x: coords2D.getcolref(1).map(v => roundCoords(v)), y: coords2D.getcolref(2).map(v => roundCoords(v))};
+}
+
+
+/**
+ * Compute coordinates of "latent" ticks by replicating lim[0] value and adding shifts.
+ * @param {Array} lim - array with axis limits.
+ * @param {number} tickNum - number of ticks to generate.
+ * @returns
+ */
+function getLatentTicks(lim, tickNum) {
+   const dl = (lim[1] - lim[0]) / 100; // 1% of axis size
+   const ticks  = Vector.fill(lim[0], tickNum);
+   const ticks1 = ticks.subtract(dl * 1.5);
+   const ticks2 = ticks.add(dl * 1.5);
+   const ticks3 = ticks.subtract(dl * 5);
+
+   return [ticks, ticks1, ticks2, ticks3];
+}
+
+
+/**
+ * Computes coordinates of all elements (lines, labels, etc) for x-axis ticks.
+ * @param {Object} xaxis - JSON with x-axis paramaters.
+ * @param {Array} limX - array with x-axis limits.
+ * @param {Array} limY - array with y-axis limits.
+ * @param {Array} limZ - array with z-axis limits.
+ * @param {string} scale - current scale value.
+ * @returns {Object} JSON with coordinates.
+ */
+export function getXAxisCoords3D(xaxis, limX, limY, limZ, scale) {
+
+   const dX = (limX[1] - limX[0]) / 100; // 1% of axis size
+   const dY = (limY[1] - limY[0]) / 100; // 1% of axis size
+   const dZ = (limZ[1] - limZ[0]) / 100; // 1% of axis size
+   const ticksX = getAxisTicks(xaxis.ticks, limX, TICK_NUM[scale], true);
+   const tickNum = ticksX.length;
+
+   const [ticksY, ticksY1, ticksY2, ticksY3] = getLatentTicks(limY, tickNum);
+   const [ticksZ, ticksZ1, ticksZ2, ticksZ3] = getLatentTicks(limZ, tickNum);
+
+   // coordinates for the ends of grid
+   const gridYEnd = Vector.fill(limY[1], tickNum);
+   const gridZEnd = Vector.fill(limZ[1], tickNum);
+
+   // tick labels
+   const tickLabels = (!xaxis.ticks || !xaxis.tickLabels) ? ticksX.v : xaxis.tickLabels;
+   if (tickLabels.length !== ticksX.length) {
+      console.error('XAxis (3D): "tickLabels" must be a array of the same size as ticks.');
+   }
+
+   // combine all coordinates together
+   const grid1 = [
+      cbind(ticksX, ticksY, ticksZ),
+      cbind(ticksX, gridYEnd, ticksZ)
+   ];
+
+   const grid2 = [
+      cbind(ticksX, ticksY, ticksZ),
+      cbind(ticksX, ticksY, gridZEnd)
+   ];
+
+   const axisLine = [
+      matrix([limX[0], limY[0], limZ[0]], 1, 3),
+      matrix([limX[1], limY[0], limZ[0]], 1, 3)
+   ]
+
+   const tickCoords = [
+      cbind(ticksX, ticksY, ticksZ),    // middle point
+      cbind(ticksX, ticksY2, ticksZ),   // middle point with positive shift along Y
+      cbind(ticksX, ticksY, ticksZ2),   // middle point with positive shift along Z
+      cbind(ticksX, ticksY1, ticksZ1),  // middle point with negative shift along Y and Z
+      cbind(ticksX, ticksY3, ticksZ3)   // middle point with negative shift along Y and Z for ticks
+   ];
+
+   // here we do not need to make a matrix as the three values will be used as vectors
+   const titleCoords = [
+      [limX[1] + 3 * dX], [limY[0] - 2 * dY], [limZ[0] - 2 * dZ]
+   ];
+
+   return {grid1, grid2, axisLine, tickCoords, titleCoords, tickLabels};
+}
+
+
+/**
+ * Computes coordinates of all elements (lines, labels, etc) for y-axis ticks.
+ * @param {Object} yaxis - JSON with y-axis paramaters.
+ * @param {Array} limX - array with x-axis limits.
+ * @param {Array} limY - array with y-axis limits.
+ * @param {Array} limZ - array with z-axis limits.
+ * @param {string} scale - current scale value.
+ * @returns {Object} JSON with coordinates.
+ */
+export function getYAxisCoords3D(yaxis, limX, limY, limZ, scale) {
+
+   const dX = (limX[1] - limX[0]) / 100; // 1% of axis size
+   const dY = (limY[1] - limY[0]) / 100; // 1% of axis size
+   const dZ = (limZ[1] - limZ[0]) / 100; // 1% of axis size
+   const ticksY = getAxisTicks(yaxis.ticks, limY, TICK_NUM[scale], true);
+   const tickNum = ticksY.length;
+
+   const [ticksX, ticksX1, ticksX2, ticksX3] = getLatentTicks(limX, tickNum);
+   const [ticksZ, ticksZ1, ticksZ2, ticksZ3] = getLatentTicks(limZ, tickNum);
+
+   // coordinates for the ends of grid
+   const gridXEnd = Vector.fill(limX[1], tickNum);
+   const gridZEnd = Vector.fill(limZ[1], tickNum);
+
+   // tick labels
+   const tickLabels = (!yaxis.ticks || !yaxis.tickLabels) ? ticksY.v : yaxis.tickLabels;
+   if (tickLabels.length !== ticksY.length) {
+      console.error('YAxis (3D): "tickLabels" must be a array of the same size as ticks.');
+   }
+
+   // combine all coordinates together
+   const grid1 = [
+      cbind(ticksX, ticksY, ticksZ),
+      cbind(gridXEnd, ticksY, ticksZ)
+   ];
+
+   const grid2 = [
+      cbind(ticksX, ticksY, ticksZ),
+      cbind(ticksX, ticksY, gridZEnd)
+   ];
+
+   const axisLine = [
+      matrix([limX[0], limY[0], limZ[0]], 1, 3),
+      matrix([limX[0], limY[1], limZ[0]], 1, 3)
+   ]
+
+   const tickCoords = [
+      cbind(ticksX, ticksY, ticksZ),    // middle point
+      cbind(ticksX2, ticksY, ticksZ),   // middle point with positive shift along X
+      cbind(ticksX, ticksY, ticksZ2),   // middle point with positive shift along Z
+      cbind(ticksX1, ticksY, ticksZ1),  // middle point with negative shift along X and Z
+      cbind(ticksX3, ticksY, ticksZ3)   // middle point with negative shift along X and Z for ticks
+   ];
+
+   // here we do not need to make a matrix as the three values will be used as vectors
+   const titleCoords = [
+      [limX[0] - 2 * dX], [limY[1] + 3 * dY], [limZ[0] - 2 * dZ]
+   ];
+
+   return {grid1, grid2, axisLine, tickCoords, titleCoords, tickLabels};
+}
+
+
+/**
+ * Computes coordinates of all elements (lines, labels, etc) for z-axis ticks.
+ * @param {Object} yaxis - JSON with z-axis paramaters.
+ * @param {Array} limX - array with x-axis limits.
+ * @param {Array} limY - array with y-axis limits.
+ * @param {Array} limZ - array with z-axis limits.
+ * @param {string} scale - current scale value.
+ * @returns {Object} JSON with coordinates.
+ */
+export function getZAxisCoords3D(zaxis, limX, limY, limZ, scale) {
+
+   const dX = (limX[1] - limX[0]) / 100; // 1% of axis size
+   const dY = (limY[1] - limY[0]) / 100; // 1% of axis size
+   const dZ = (limZ[1] - limZ[0]) / 100; // 1% of axis size
+   const ticksZ = getAxisTicks(zaxis.ticks, limZ, TICK_NUM[scale], true);
+   const tickNum = ticksZ.length;
+
+   const [ticksY, ticksY1, ticksY2, ticksY3] = getLatentTicks(limY, tickNum);
+   const [ticksX, ticksX1, ticksX2, ticksX3] = getLatentTicks(limX, tickNum);
+
+   // coordinates for the ends of grid
+   const gridYEnd = Vector.fill(limY[1], tickNum);
+   const gridXEnd = Vector.fill(limX[1], tickNum);
+
+   // tick labels
+   const tickLabels = (!zaxis.ticks || !zaxis.tickLabels) ? ticksZ.v : zaxis.tickLabels;
+   if (tickLabels.length !== ticksX.length) {
+      console.error('XAxis (3D): "tickLabels" must be a array of the same size as ticks.');
+   }
+
+   // combine all coordinates together
+   const grid1 = [
+      cbind(ticksX, ticksY, ticksZ),
+      cbind(ticksX, gridYEnd, ticksZ)
+   ];
+
+   const grid2 = [
+      cbind(ticksX, ticksY, ticksZ),
+      cbind(gridXEnd, ticksY, ticksZ)
+   ];
+
+   const axisLine = [
+      matrix([limX[0], limY[0], limZ[0]], 1, 3),
+      matrix([limX[0], limY[0], limZ[1]], 1, 3)
+   ]
+
+   const tickCoords = [
+      cbind(ticksX, ticksY, ticksZ),    // middle point
+      cbind(ticksX, ticksY2, ticksZ),   // middle point with positive shift along Y
+      cbind(ticksX2, ticksY, ticksZ),   // middle point with positive shift along X
+      cbind(ticksX1, ticksY1, ticksZ),  // middle point with negative shift along Y and X
+      cbind(ticksX3, ticksY3, ticksZ)   // middle point with negative shift along Y and X for ticks
+   ];
+
+   // here we do not need to make a matrix as the three values will be used as vectors
+   const titleCoords = [
+      [limX[0] - 2 * dX], [limY[0] - 2 * dY], [limZ[1] + 3 * dZ]
+   ];
+
+   return {grid1, grid2, axisLine, tickCoords, titleCoords, tickLabels};
 }
