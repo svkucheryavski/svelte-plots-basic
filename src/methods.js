@@ -133,7 +133,8 @@ export function trimNum(num) {
  */
 export function getTickLabels(ticks) {
 
-   if (ticks === undefined) return undefined;
+   if (ticks === undefined) return [0, undefined];
+   if (ticks.length < 1) return [0, undefined];
    if (ticks.length === 1) return [0, [ticks[0].toString()]];
 
    // compute and correct step between ticks
@@ -141,7 +142,7 @@ export function getTickLabels(ticks) {
    let tickFactor = 0;
 
    // step is large (over 1)
-   if (step >= 1 && ticks.length > 1) {
+   if (step >= 1) {
       if (step < 100) return [0, Array.from(ticks).map(v => v.toFixed(0))];
       let digNum = Math.ceil(trimNum(Math.log10(step)));
       tickFactor = digNum - 2;
@@ -266,7 +267,9 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) 
          return null;
       }
 
-      return ticks.filter(x => x >= lim[0] & x <= lim[1]);
+      // check if provided ticks values are outside the axis limit range continue with automatic ticks
+      const newTicks = ticks.filter(x => x >= lim[0] & x <= lim[1]);
+      if (newTicks.length > 0) return newTicks;
    }
 
    // check if limits are ok
@@ -833,7 +836,7 @@ export function getXAxisParams(limX, limY, scales, tY, axis) {
       [tickFactor, tickLabels] = getTickLabels(ticksX.v);
    }
 
-   if (tickLabels.length !== ticksX.length) {
+   if (!tickLabels || tickLabels.length !== ticksX.length) {
       console.error('XAxis: "tickLabels" must be a array of the same size as ticks.');
       return null;
    }
