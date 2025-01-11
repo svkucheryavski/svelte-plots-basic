@@ -1155,7 +1155,7 @@ export function text2svg(text) {
    while (i < text.length) {
 
       const char = text[i];
-      if (char === '^' || char === '_') {
+      if ((char === '^' || char === '_') && i < text.length - 1) {
 
          const isSuperscript = char === '^';
          i++;
