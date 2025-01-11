@@ -95,8 +95,8 @@
    const lineStyles = $derived(LINE_STYLES[scales.plot]);
 
    // left and bottom margins as well as width and height of the axes area (including margins)
-   const left = $derived(xaxis && xaxis.label !== '' ? fontSize * 1.5 : 0);
-   const bottom = $derived(yaxis && yaxis.label !== '' ? fontSize * 1.5 : 0);
+   const bottom = $derived(xaxis && xaxis.label !== '' ? fontSize * 1.5 : 0);
+   const left = $derived(yaxis && yaxis.label !== '' ? fontSize * 1.5 : 0);
    const top = $derived(title && title !== '' ? fontSize * 1.5 : 0);
    const width = $derived(plotWidth > left ? plotWidth - left : 0);
    const height = $derived(plotHeight > (bottom + top) ? plotHeight - bottom - top : 0);
