@@ -58,6 +58,7 @@ export function transformObjects(v, t) {
    return transform(v, t.objects);
 }
 
+
 /**
  * Generic function to transform x or y-values from screen (SVG) coordinates to plot coordinates.
  *
@@ -230,6 +231,70 @@ export function val2p(x, y, tX, tY) {
 
 
 /**
+ * Validate tick labels entered by user and process them to SVG markup.
+ *
+ * @param {Array} tickLabels - array with tick labels.
+ * @param {Vector} ticks - vector with ticks (already validated).
+ * @returns {Array} - first element are processed tick labels, second - error message if any.
+ */
+export function validateTickLabels(tickLabels, ticks) {
+
+      if (!tickLabels) {
+         return [null, ''];
+      }
+
+      if (!Array.isArray(tickLabels)) {
+         return [null, 'tick labels must be provided as array.'];
+      }
+
+      if (!ticks || ticks.length < 1) {
+         return [null, 'tick labels must be accompanied with tick values.']
+      }
+
+      if (ticks.v.length !== tickLabels.length) {
+         return [null, 'number of tick labels and values should be the same.'];
+      }
+
+      return [tickLabels.map(v => text2svg(v)), ''];
+   }
+
+/**
+ * Validate tick values entered by user.
+ *
+ * @param {Array|Vector} ticks - array of vector with tick values.
+ * @param {Array} lim - array with axis limits.
+ * @returns {Array} - first element are processed ticks, second - error message if any.
+ */
+export function validateTicks(ticks, lim) {
+
+   if (Array.isArray(ticks)) {
+      ticks = vector(ticks);
+   }
+
+   if (!isvector(ticks)) {
+      return [null, 'tick values must be provided as an array or as a vector.'];
+   }
+
+   if (ticks.v.some(v => isNaN(v))) {
+      return [null, 'tick values must be numeric'];
+   }
+
+   const un = new Set(ticks.v);
+   if (ticks.length !== un.size) {
+      return [null, 'ticks values must be unique.'];
+   }
+
+   // check if provided ticks values are outside the axis limit range continue with automatic ticks
+   const newTicks = ticks.filter(x => x >= lim[0] & x <= lim[1]);
+   if (newTicks.length !== ticks.length) {
+      return [null, 'some of ticks values are outside axis limits.'];
+   }
+
+   return [newTicks, ''];
+}
+
+
+/**
  * Computes nice tick values for axis.
  *
  * @param {Array} ticks - vector with ticks if alredy available (if not, new will be computed).
@@ -257,24 +322,12 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) 
    }
 
    // if ticks are already provided do not recompute them
-   if (ticks) {
-      if (Array.isArray(ticks)) {
-         ticks = vector(ticks);
-      }
-
-      if (!isvector(ticks)) {
-         console.error('getAxisTicks: axis ticks must be provided as an array or as a vector.');
-         return null;
-      }
-
-      // check if provided ticks values are outside the axis limit range continue with automatic ticks
-      const newTicks = ticks.filter(x => x >= lim[0] & x <= lim[1]);
-      if (newTicks.length > 0) return newTicks;
-   }
+   // the validation is done in corresponding component, so no need to do it again
+   if (ticks) return ticks;
 
    // check if limits are ok
    if (typeof(lim) !== "object" || lim[0] === undefined || lim[1] === undefined) {
-      console.error('getAxisTicks: provided values for axis limits are not valid.');
+      console.error('getAxisTicks: provided axis limits are not valid.');
       return undefined;
    }
 
@@ -287,8 +340,12 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) 
 
    let tickSpacing = niceNum(range / maxTickNum, false);
    if (whole) {
-      if (tickSpacing < 1) tickSpacing = 1;
-      tickSpacing = Math.round(tickSpacing);
+      if (Math.abs(lim[1] - lim[0]) <= 1) {
+         console.error('getAxisTicks: parameter "whole" will be ignored as axis limits are too narrow to fit whole ticks.');
+      } else {
+         if (tickSpacing < 1) tickSpacing = 1;
+         tickSpacing = Math.round(tickSpacing);
+      }
    }
 
    // compute smallest and largest tick rounded to tickSpacing
@@ -1144,11 +1201,11 @@ export function text2svg(text) {
    if (!text || text.length < 1) return text;
 
    function toSuper(txt) {
-      return '<tspan dy="-0.5em" font-size="0.8em">' + txt + '</tspan><tspan dy="0.4em"> </tspan>';
+      return '<tspan font-size="0.75em" dy="-0.5em">' + txt + '</tspan><tspan dy="0.4em"> </tspan>';
    }
 
    function toSub(txt) {
-      return '<tspan dy="0.5em" font-size="0.8em">' + txt + '</tspan><tspan dy="-0.4em"> </tspan>';
+      return '<tspan font-size="0.75em" dy="0.5em">' + txt + '</tspan><tspan dy="-0.4em"> </tspan>';
    }
 
    let i = 0;

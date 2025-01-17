@@ -26,7 +26,6 @@
    import { LABELS_MARGIN } from '../constants';
 
 
-   /** @type {Props} */
    let {
 	   tickCoords,  // nested array with tick coordinates
       textColor,   // color of tick labels
@@ -54,7 +53,7 @@
 <g class="tick-labels" style={textStyleStr} >
    {#if las === 2 && pos === 4}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={dx*1.25} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"middle"}>{@html tickLabels[i]}</text>
+      <text data-id={i} x={x[i]} y={y[i]} dx={0} dy={dx*1.25} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor="middle">{@html tickLabels[i]}</text>
    {/each}
    {:else if las === 2 && pos === 1}
    {#each x as v, i}

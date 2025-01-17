@@ -14,16 +14,15 @@
    - `pngHeight` - height of PNG image in cm, default `8`.
    - `pngRes` - resolution of PNG image (pixels per inch), default `300`.
    - `clipboardWidth` - width of plot image to copy to clipboard in pixels.
-   - `clipboardHeight` - height of plot image to copy to clipboard in pixels.
+   - `clipboardHeight` - height of plot image to copy to clipboard in pixels.Axes
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes} from 'svelte-plots-basic/2d';
    </script>
 
-   <Axes limX={[2000, 2050]} limY={[0, 100]} title="GDP of contries">
-      //all other plotting components are here
+   <Axes limX={[2000, 2050]} limY={[0, 100]} title="GDP of contries" >
    </Axes>
    ```
 -->
@@ -32,13 +31,12 @@
    import { Colors, PLOT_FONT_SIZE, AXES_MARGIN_FACTORS, TICK_SIZE, LINE_STYLES, MARKER_SYMBOLS } from '../constants.js';
    import { downloadSVG, downloadPNG, copyToClipboard, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
             transformCoords, getColormapLegendParams, getColormapLegendCoords, getTickFactorLabel,
-            getGroupLegendCoords, text2svg} from '../methods.js';
+            getGroupLegendCoords, text2svg } from '../methods.js';
 
    import AxisLines from './AxisLines.svelte';
    import AxisTickLabels from './AxisTickLabels.svelte';
 
 
-   /** @type {Props} */
    let {
       title,
       limX = [0, 1],
@@ -101,7 +99,7 @@
    const width = $derived(plotWidth > left ? plotWidth - left : 0);
    const height = $derived(plotHeight > (bottom + top) ? plotHeight - bottom - top : 0);
 
-   // size of only axes area
+   // size of the axes area without margins
    const axisHeight = $derived(height - pxMargins[0] - pxMargins[2]);
    const axisWidth = $derived(width - pxMargins[1] - pxMargins[3]);
 
@@ -114,6 +112,7 @@
       width > (pxMargins[1] + pxMargins[3]) &&
       height > (pxMargins[0] + pxMargins[2])
    );
+
 
    // transformation matrix for x
    const tX = $derived(!isOk ? {'coords': [1, 0, 0], 'objects': [1, 0, 0]} :
@@ -143,19 +142,19 @@
    const plotTitle = $derived(text2svg(title));
    const titleHeight = $derived(plotTitle ? (plotTitle.length === title.left ? 1.0 : 1.4) : 0);
 
-   // parameters of box, axis elements, colomap legend and group legend
-   let box = $state({show: false, lineColor: Colors.DARKGRAY, lineWidth: 1});
-   let xaxis = $state({show: false, label: "", showGrid: false, las: 1, whole: false, ticks: null, tickLabels: null});
-   let yaxis = $state({show: false, label: "", showGrid: false, las: 1, whole: false, ticks: null, tickLabels: null});
+   // default parameters of box, axis elements, colomap legend and group legend
+   let box = $state({show: false});
+   let xaxis = $state({show: false, error: ''});
+   let yaxis = $state({show: false, error: ''});
    let clg = $state({show: false, colmap: null, breaks: null});
    let glg = $state({show: false, items: null, position: null});
 
-   // get colormap legend parameters
+   // set colormap legend parameters if requested
    const clgParams = $derived(isOk && clg && clg.show ? getColormapLegendParams(clg) : null);
 
    // compute world coordinates of axis elements
-   const xaxisCoords = $derived(isOk && xaxis.show ? getXAxisParams(limX, limY, scales, tY, xaxis): null);
-   const yaxisCoords = $derived(isOk && yaxis.show ? getYAxisParams(limX, limY, scales, tX, yaxis): null);
+   const xaxisCoords = $derived(isOk && xaxis.show ? getXAxisParams(limX, limY, scales, tY, xaxis) : null);
+   const yaxisCoords = $derived(isOk && yaxis.show ? getYAxisParams(limX, limY, scales, tX, yaxis) : null);
 
    // compute screen coordinates of legend elements
    const clgCoords = $derived(isOk && clgParams ? getColormapLegendCoords(clgParams, axisWidth, pxMargins, scales) : null);
@@ -170,28 +169,40 @@
       setGroupLegend: (v) => glg = v,
       scales: () => scales,
       tX: () => tX,
-      tY: () => tY
+      tY: () => tY,
+      limX: () => limX,
+      limY: () => limY
    });
 </script>
 
 <!-- snippet for axis -->
-{#snippet axisSnippet(axisCoords, axisParams)}
-   {#if axisParams.showGrid }
-      <AxisLines lineCoords={axisCoords.grid} lineColor={Colors.MIDDLEGRAY} lineType={3} />
+{#snippet axisSnippet(coords, params)}
+
+   {#if params.error}
+      {#if params.pos === 4}
+      <text x={cpx[0] - 10} y={my} fill="crimson" transform={`rotate(-90, ${cpx[0] - 10}, ${my})`} text-anchor="middle">{params.error}</text>
+      {:else}
+      <text x={mx} y={cpy[0]} dy='10px' fill="crimson" text-anchor="middle" dominant-baseline="hanging">{params.error}</text>
+      {/if}
+   {:else}
+      {#if params.showGrid }
+         <AxisLines lineCoords={coords.grid} lineColor={Colors.MIDDLEGRAY} lineType={3} />
+      {/if}
+
+      <AxisLines lineCoords={coords.axisLine} lineColor={Colors.DARKGRAY} lineType={1} />
+      <AxisLines lineCoords={coords.tickCoords} lineColor={Colors.DARKGRAY} lineType={1} />
+
+      {#if coords.tickCoords.length === 2 && coords.tickLabels.length === coords.tickCoords[1][0].length}
+      <AxisTickLabels las={params.las} pos={params.pos} tickCoords={coords.tickCoords}
+         tickLabels={coords.tickLabels} tickColor={Colors.DARKGRAY} hideLast={params.hideLast}/>
+      {/if}
+
+      <!-- tick factor -->
+      {#if coords.tickFactor !== 0}
+      <AxisTickLabels pos={params.pos} tickCoords={coords.tfCoords} tickLabels={[coords.tfLabel]} textColor={Colors.DARKGRAY} />
+      {/if}
    {/if}
 
-   <AxisLines lineCoords={axisCoords.axisLine} lineColor={Colors.DARKGRAY} lineType={1} />
-   <AxisLines lineCoords={axisCoords.tickCoords} lineColor={Colors.DARKGRAY} lineType={1} />
-
-   {#if axisCoords.tickCoords.length === 2 && axisCoords.tickLabels.length === axisCoords.tickCoords[1][0].length}
-   <AxisTickLabels las={axisParams.las} pos={axisParams.pos} tickCoords={axisCoords.tickCoords}
-      tickLabels={axisCoords.tickLabels} tickColor={Colors.DARKGRAY} hideLast={axisParams.hideLast}/>
-   {/if}
-
-   <!-- tick factor -->
-   {#if axisCoords.tickFactor !== 0}
-   <AxisTickLabels pos={axisParams.pos} tickCoords={axisCoords.tfCoords} tickLabels={[axisCoords.tfLabel]} textColor={Colors.DARKGRAY} />
-   {/if}
 {/snippet}
 
 <!-- snippedt for colormap legend -->
@@ -325,7 +336,6 @@
 
          .tick-labels text,
          .tick-labels tspan {
-            font-size:1em;
             user-select: none;
             -webkit-user-select: none;
          }
@@ -361,7 +371,7 @@
             </clipPath>
          </defs>
 
-         {#if isOk}
+         {#if isOk }
 
             <!-- xaxis -->
             {#if xaxis.show && xaxisCoords}
@@ -383,14 +393,14 @@
             </g>
 
             <!-- colormap legend -->
-            {#if clgParams && clgCoords && clg.show}
+            {#if clgCoords }
             <g class="mdaplot__colormap_legend" style="stroke:0;stroke-width:0px;">
                {@render clgSnippet(clgParams, clgCoords)}
             </g>
             {/if}
 
             <!-- group legend -->
-            {#if glg && glgCoords && glg.show}
+            {#if glgCoords }
             <g class="mdaplot__group_legend" style="stroke:0;stroke-width:0px;">
                {@render glgSnippet(glg, glgCoords)}
             </g>

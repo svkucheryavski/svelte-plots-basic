@@ -6,21 +6,23 @@
    - `lineColor` - color of the box line, default: `'#606060'`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes, Box} from 'svelte-plots-basic/2d';
    </script>
    <Axes>
-      // all other plotting components are here
       <Box />
    </Axes>
    ```
 -->
 <script>
-   import { getContext } from "svelte";
+   import { getContext } from 'svelte';
 
    let {lineWidth = 1, lineColor = '#606060'} = $props();
    const axes = getContext('axes');
-   axes.setBox({show:true, lineWidth, lineColor});
+
+   $effect(() => {
+      axes.setBox({show:true, lineWidth, lineColor});
+   });
 </script>
 

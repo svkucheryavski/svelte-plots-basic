@@ -10,12 +10,11 @@
    - `whole` - logical, show numeric tick labels as whole numbers (without decimals) or not, default: `false`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes, XAxis} from 'svelte-plots-basic/2d';
    </script>
    <Axes>
-      // all other plotting components are here
       <XAxis label="x-axis label" showGrid={true} />
    </Axes>
    ```
@@ -23,25 +22,40 @@
 <script>
 
    import { getContext } from 'svelte';
-   import { text2svg } from '../methods';
+   import { text2svg, validateTicks, validateTickLabels } from '../methods';
 
-   /** @type {Props} */
    let {
       label,             // text label
       showGrid = false,  // logical, show or not grid lines
       ticks,             // vector with numeric tick positions (by default is computed automatically)
-      tickLabels,        // vector with labels for each tick (by default tick values will be used)
+      tickLabels,        // vector with labels for each tick (by default tick position values will be used)
       las = 1,           // orientation of tick labels (1 - horizontal, 2 - vertical)
-      whole = false      // should the ticks be a whole number or not.
+      whole = false      // should the tick positions be a whole number or not.
    } = $props();
 
    // get axes context and send axis parameters to parent
    const axes = getContext('axes');
+
+   // reactive effects to validate and activate user input
    $effect(() => {
+
       // process label text in case if there are sub or superscripts and adjust height of label correspondingly
       const axisLabel = text2svg(label);
       const labelHeight = axisLabel ? (axisLabel.length === label.length ? 1 : 1.4) : 0;
-      axes.setXAxis({show: true, label: axisLabel, labelHeight, ticks, tickLabels, showGrid, las, whole})
+
+      // if ticks are provided check if they are valid and preprocess them
+      let ticksProcessed, error = '';
+      if (ticks) {
+         [ticksProcessed, error] = validateTicks(ticks, axes.limX())
+      }
+
+      // if tick labels are provided check if they are valid and preprocess them
+      if (!error && tickLabels) {
+         [tickLabels, error] = validateTickLabels(tickLabels, ticksProcessed);
+      }
+
+      // activate axis
+      axes.setXAxis({show: true, error: error, label: axisLabel, ticks: ticksProcessed,
+         labelHeight, showGrid, las, whole, tickLabels});
    });
 </script>
-

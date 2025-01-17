@@ -25,7 +25,6 @@
    import { transformCoords } from '../methods.js';
 
 
-   /** @type {Props} */
    let {
       lineCoords = [],               // coordinates of start and end points of the lines
       lineColor = Colors.DARKGRAY,   // line color
@@ -47,7 +46,7 @@
    let lineStyleStr = $derived(`stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType-1]}`);
 </script>
 
-{#if x1 !== undefined && y1 !== undefined && x2 !== undefined && y2 !== undefined}
+{#if x1 && y1 && x2 }
 <g class={className}>
    {#each x1 as v, i}
    <line vector-effect="non-scaling-stroke" x1={x1[i]} x2={x2[i]} y1={y1[i]} y2={y2[i]} style={lineStyleStr} />

@@ -10,23 +10,21 @@
    - `whole` - logical, show numeric tick labels as whole numbers (without decimals) or not, default: `false`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes, YAxis} from 'svelte-plots-basic/2d';
    </script>
    <Axes>
-      // all other plotting components are here
-      <YAxis label="x-axis label" showGrid={true} />
+      <YAxis label="y-axis label" showGrid={true} />
    </Axes>
    ```
 -->
 <script>
 
    import { getContext } from 'svelte';
-   import { text2svg } from '../methods';
+   import { text2svg, validateTicks, validateTickLabels } from '../methods';
 
 
-   /** @type {Props} */
    let {
       label,             // text label
       ticks,             // vector with numeric tick positions (by default is computed automatically)
@@ -39,10 +37,28 @@
 
    // get axes context and send axis parameters to parent
    const axes = getContext('axes');
+
+   // reactive effects to validate and activate user input
    $effect(() => {
+
       // process label text in case if there are sub or superscripts and adjust height of label correspondingly
       const axisLabel = text2svg(label);
       const labelHeight = axisLabel ? (axisLabel.length === label.length ? 1.0 : 1.4) : 0;
-      axes.setYAxis({show: true, label: axisLabel, labelHeight, ticks, tickLabels, showGrid, las, whole, pos: 4})
+
+
+      // if ticks are provided check if they are valid and preprocess them
+      let ticksProcessed, error = '';
+      if (ticks) {
+         [ticksProcessed, error] = validateTicks(ticks, axes.limY())
+      }
+
+      // if tick labels are provided check if they are valid and preprocess them
+      if (!error && tickLabels) {
+         [tickLabels, error] = validateTickLabels(tickLabels, ticksProcessed);
+      }
+
+      // activate axis
+      axes.setYAxis({show: true, error: error, label: axisLabel, ticks: ticksProcessed,
+         labelHeight, showGrid, las, whole, tickLabels, pos: 4});
    });
 </script>
