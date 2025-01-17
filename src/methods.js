@@ -239,24 +239,24 @@ export function val2p(x, y, tX, tY) {
  */
 export function validateTickLabels(tickLabels, ticks) {
 
-      if (!tickLabels) {
-         return [null, ''];
-      }
-
-      if (!Array.isArray(tickLabels)) {
-         return [null, 'tick labels must be provided as array.'];
-      }
-
-      if (!ticks || ticks.length < 1) {
-         return [null, 'tick labels must be accompanied with tick values.']
-      }
-
-      if (ticks.v.length !== tickLabels.length) {
-         return [null, 'number of tick labels and values should be the same.'];
-      }
-
-      return [tickLabels.map(v => text2svg(v)), ''];
+   if (!tickLabels) {
+      return [null, ''];
    }
+
+   if (!Array.isArray(tickLabels)) {
+      return [null, 'tick labels must be provided as array.'];
+   }
+
+   if (!ticks || ticks.length < 1) {
+      return [null, 'tick labels must be accompanied with tick values.']
+   }
+
+   if (ticks.v.length !== tickLabels.length) {
+      return [null, 'number of tick labels and values should be the same.'];
+   }
+
+   return [tickLabels.map(v => text2svg(v)), ''];
+}
 
 /**
  * Validate tick values entered by user.
@@ -889,9 +889,15 @@ export function getXAxisParams(limX, limY, scales, tY, axis) {
    const gridYEnd = Vector.fill(limY[1], tickNum);
 
    // tick labels and tick factor
-   if (!ticks || !tickLabels) {
-      [tickFactor, tickLabels] = getTickLabels(ticksX.v);
+   if (!tickLabels) {
+      if (ticks) {
+         tickFactor = 0;
+         tickLabels = ticks.v.map(v => trimNum(v).toString());
+      } else {
+         [tickFactor, tickLabels] = getTickLabels(ticksX.v);
+      }
    }
+
 
    if (!tickLabels || tickLabels.length !== ticksX.length) {
       console.error('XAxis: "tickLabels" must be a array of the same size as ticks.');
@@ -964,8 +970,13 @@ export function getYAxisParams(limX, limY, scales, tX, axis) {
    const gridXEnd = Vector.fill(limX[1], tickNum);
 
    // tick labels and tick factor
-   if (!ticks || !tickLabels) {
-      [tickFactor, tickLabels] = getTickLabels(ticksY.v)
+   if (!tickLabels) {
+      if (ticks) {
+         tickFactor = 0;
+         tickLabels = ticks.v.map(v => trimNum(v).toString());
+      } else {
+         [tickFactor, tickLabels] = getTickLabels(ticksY.v);
+      }
    }
 
    if (tickLabels.length !== ticksY.length) {
