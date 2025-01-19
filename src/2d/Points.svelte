@@ -13,7 +13,8 @@
    - `onclick` - function (callback) to be called when user clicks on a marker.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Axes, Points } from 'svelte-plots-basic/2d';
 
@@ -48,7 +49,7 @@
    // select which symbol to use as a marker
    const markerSymbol = $derived.by(() => {
       if (typeof(marker) !== "number" || marker < 1 || marker > MARKER_SYMBOLS.length) {
-         console.errors('Points: parameter "marker" must be a number from 1 to ' + MARKER_SYMBOLS.length + '.');
+         console.error('Points: parameter "marker" must be a number from 1 to ' + MARKER_SYMBOLS.length + '.');
          return null;
       }
       return MARKER_SYMBOLS[marker - 1]
@@ -69,6 +70,10 @@
        `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor}; font-size:${markerSize}em;`
    );
 
+   const alignStyleStr = $derived(['◼', '⬥', '＋', '✳', '✕'].includes(markerSymbol)  ?
+       `dominant-baseline:central;alignment-baseline:mathematical;` :
+       `dominant-baseline:middle;alignment-baseline:middle;`
+   );
    // check if all coordinates are correct
    const isOk = $derived(x && y && x.length === y.length);
 </script>
@@ -78,7 +83,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <g onclick={(e) => handleClick(e, 'text', onclick)}
    class="series series-points"
-   title={title} style={textStyleStr} dominant-baseline="middle" text-anchor="middle">
+   title={title} style={textStyleStr + alignStyleStr} text-anchor="middle">
    {#each x as v, i}
       <text x={x[i]} y={y[i]}>{markerSymbol}</text>
    {/each}
