@@ -53,9 +53,9 @@
    const axes = getContext('axes');
    const p = $derived(xv && yv ? val2p(xv, yv, axes.tX(), axes.tY()) : null);
 
-   const y0 = $derived(p ? transformCoords([0], axes.tY()) : null);
+   const ys = $derived(yv ? transformCoords(yv.subset(1), axes.tY()) : null);
    const xs = $derived(xv ? transformCoords(xv.subset(1), axes.tX()) : null);
-   const pa = $derived(p && xs && y0 ? xs + ',' + y0 + ' ' + p + ' ' + xs + ',' + y0 : null);
+   const pa = $derived(p && xs && ys ? xs + ',' + ys + ' ' + p + ' ' + xs + ',' + ys : null);
 
    const areaStyleStr = $derived(`opacity:${opacity};fill:${faceColor};stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType - 1]}`);
 </script>
