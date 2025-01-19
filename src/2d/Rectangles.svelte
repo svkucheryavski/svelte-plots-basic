@@ -8,7 +8,7 @@
    - `height` - height of the rectangles (one value or array/vector with individual values).
    - `facColor` - face color of the rectangles (same for all).
    - `borderColor` - border color of each rectangle.
-   - `lineWidth` - width (thickness) of border lines in pixels.
+   - `borderWidth` - width (thickness) of border lines in pixels.
    - `className`- CSS class name for the labels group, default: `'series-rect'`.
    - `title` - title of the point series group.
    - `onclick` - function (callback) to be called when user clicks on any rectangle.
@@ -45,7 +45,7 @@
       height,                        // single value (same for all) or vector/array with bar height
       faceColor = Colors.PRIMARY,    // color of bar faces (fill)
       borderColor = faceColor,       // color of bar borders
-      lineWidth = 1,                 // width (thickness) of bar border lines
+      borderWidth = 1,                 // width (thickness) of bar border lines
       className = 'series-rect',     // CSS class name of the SVG group
       title = '',                    // title of the rectangle series group.
       onclick,                       // function to be called if onclick event fires
@@ -66,7 +66,7 @@
    const rh = $derived(h ? transformObjects(h, axes.tY()) : null);
 
    // styles for bars and labels
-   const barsStyleStr = $derived(`fill:${faceColor};stroke:${borderColor};stroke-width:${lineWidth}px;`);
+   const barsStyleStr = $derived(`fill:${faceColor};stroke:${borderColor};stroke-width:${borderWidth}px;`);
 
    // check if all coordinates are correct
    const isOk = $derived(rx && ry && rw && rh && (rw.length === rx.length) && (rh.length === rx.length));
