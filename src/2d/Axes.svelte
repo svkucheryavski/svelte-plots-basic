@@ -315,13 +315,23 @@
             user-select: none;
          }
 
+         .series-points text {
+            /* dominant-baseline: central;
+            alignment-baseline: central */
+         }
          .tick-labels text,
          .tick-labels tspan,
          .series-text text,
-         .series-text tspan,
+         .series-text tspan {
+            dominant-baseline: middle;
+            cursor: default;
+            user-select: none;
+            -webkit-user-select: none;
+         }
+
+
          .series-points text,
          .series-points tspan {
-            dominant-baseline: middle;
             cursor: default;
             user-select: none;
             -webkit-user-select: none;
