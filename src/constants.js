@@ -56,10 +56,10 @@ export const LABELS_MARGIN = {
 
 // line styles for different scales and types
 export const LINE_STYLES = {
-   small: ['0', '3,3', '1,1', '3,1'],
-   medium: ['0', '5,5', '2,2', '5,2'],
-   large: ['0', '7,7', '3,3', '7,3'],
-   xlarge: ['0', '9,9', '4,4', '9,3'],
+   small: ['0', '3,3', '1,1', '3,1,1,1'],
+   medium: ['0', '5,5', '2,2', '5,2,2,2'],
+   large: ['0', '7,7', '3,3', '7,3,2,3'],
+   xlarge: ['0', '9,9', '4,4', '9,3,3,3'],
 }
 
 // marker symbols
