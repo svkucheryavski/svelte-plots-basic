@@ -9,8 +9,8 @@
       dy = "1.25em",                       // vertical margin between elements in 'em' units
       elements,                            // array with text elements (svg tags are acceptable)
       faceColor = Colors.PRIMARY_TEXT,     // face color of the text symbols
-      borderColor = "transparent",         // border color of the text symbols
-      borderWidth = 0,                     // border width of the text symbols
+      lineColor = "transparent",           // border color of the text symbols
+      lineWidth = 0,                       // border width of the text symbols
       textSize = 1,                        // size of the text symbols
    } = $props()
 
@@ -19,7 +19,7 @@
    const y = $derived(top ? transformCoords([top], axes.tY()) : null );
 
    // styles for bars and labels
-   const textStyleStr = $derived(`fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`);
+   const textStyleStr = $derived(`fill:${faceColor};stroke-width:${lineWidth}px;stroke:${lineColor};font-size:${textSize}em;`);
 </script>
 
 {#if x && y && elements.length > 0}

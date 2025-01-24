@@ -7,10 +7,9 @@
    - `width` - width of the rectangles (one value or array/vector with individual values).
    - `height` - height of the rectangles (one value or array/vector with individual values).
    - `facColor` - face color of the rectangles (same for all).
-   - `borderColor` - border color of each rectangle.
-   - `borderWidth` - width (thickness) of border lines in pixels.
+   - `lineColor` - border color of each rectangle.
+   - `lineWidth` - width (thickness) of border lines in pixels.
    - `className`- CSS class name for the labels group, default: `'series-rect'`.
-   - `title` - title of the point series group.
    - `onclick` - function (callback) to be called when user clicks on any rectangle.
 
 
@@ -27,7 +26,7 @@
    </script>
 
    <Axes limX={[0, 40]} limY={[0, 50]}>
-      <Rectangles {left} {top} {width} {height} borderColor="red" faceColor="pink"  />
+      <Rectangles {left} {top} {width} {height} lineColor="red" faceColor="pink"  />
    </Axes>
    ```
 -->
@@ -44,10 +43,9 @@
       width,                         // single value (same for all) or vector/array with bar width
       height,                        // single value (same for all) or vector/array with bar height
       faceColor = Colors.PRIMARY,    // color of bar faces (fill)
-      borderColor = faceColor,       // color of bar borders
-      borderWidth = 1,                 // width (thickness) of bar border lines
+      lineColor = faceColor,       // color of bar borders
+      lineWidth = 1,                 // width (thickness) of bar border lines
       className = 'series-rect',     // CSS class name of the SVG group
-      title = '',                    // title of the rectangle series group.
       onclick,                       // function to be called if onclick event fires
    } = $props();
 
@@ -66,17 +64,16 @@
    const rh = $derived(h ? transformObjects(h, axes.tY()) : null);
 
    // styles for bars and labels
-   const barsStyleStr = $derived(`fill:${faceColor};stroke:${borderColor};stroke-width:${borderWidth}px;`);
+   const barsStyleStr = $derived(`fill:${faceColor};stroke:${lineColor};stroke-width:${lineWidth}px;`);
 
    // check if all coordinates are correct
    const isOk = $derived(rx && ry && rw && rh && (rw.length === rx.length) && (rh.length === rx.length));
 </script>
 
 {#if isOk}
-
    <!-- svelte-ignore a11y_click_events_have_key_events -->
    <!-- svelte-ignore a11y_no_static_element_interactions -->
-   <g class="series {className}" title={title} style={barsStyleStr} onclick={(e) => handleClick(e, 'rect', onclick)} >
+   <g class="series {className}"  style={barsStyleStr} onclick={(e) => handleClick(e, 'rect', onclick)} >
    {#each left as v, i}
       <rect x={rx[i]} y={ry[i]} width={rw[i]} height={rh[i]} />
    {/each}

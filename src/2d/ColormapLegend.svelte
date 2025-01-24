@@ -17,8 +17,9 @@
    In the latter the labels will be shown in the middle of each break. If `labels` are not provided,
    the values from `breaks` will be used as the labels.
 
-      Example:
-   ```jsx
+   Example:
+
+   ```svelte
    <script>
       import { Axes, ColormapLegend } from 'svelte-plots-basic/2d';
 

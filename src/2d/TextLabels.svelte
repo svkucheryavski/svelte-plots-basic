@@ -12,11 +12,11 @@
    - `textSize`- size of label symbols in em, default: `1`.
    - `className`- CSS class name for the labels group, default: `'series-text'`.
    - `rotateAngle`- angle to rotate labels, default: `0`.
-   - `title` - title of the labels group.
    - `onclick` - function (callback) to be called when user clicks on a label.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Axes, TextLabels } from 'svelte-plots-basic/2d';
 
@@ -35,7 +35,6 @@
    import { Colors } from '../constants';
    import { checkCoords, transformCoords, handleClick } from '../methods';
    import { LABELS_MARGIN } from '../constants';
-    import Points from './Lines.svelte';
 
    let {
 	   xValues,                             // vector or array with x-coordinates for each label
@@ -48,7 +47,6 @@
       textSize = 1,                        // size of label symbols
       className = 'series-text',           // CSS class name for the labels group
       rotateAngle = 0,                     // angle to rotate labels
-      title = '',                          // title of the labels group
       onclick,                             // function to be called if onclick event fires
    } = $props();
 
@@ -103,7 +101,7 @@
 {#if isOk}
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<g class="series {className}" title={title} style={textStyleStr} onclick={(e) => handleClick(e, 'text', onclick)} >
+<g class="series {className}" style={textStyleStr} onclick={(e) => handleClick(e, 'text', onclick)} >
 
    {#if typeof labels === 'string'}
 

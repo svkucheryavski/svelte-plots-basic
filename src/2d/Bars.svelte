@@ -6,13 +6,13 @@
    - `yValues` - vector with y-coordinates of top points of the bars.
    - `barWidth` - width of bars as per cent of maximum width, defaul: `0.8`.
    - `faceColor` - face color of the bars, default:  `Colors.PRIMARY`.
-   - `borderColor` - border color of the bars, default: `Colors.PRIMARY`.
-   - `borderWidth` - width (thickness) of border line in pixels, default: `1`.
-   - `title` - title of the bar series group.
+   - `lineColor` - border color of the bars, default: `Colors.PRIMARY`.
+   - `lineWidth` - width (thickness) of border line in pixels, default: `1`.
    - `onclick` - function (callback) to be called when user clicks on any bar.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Matrix } from 'mdatools/arrays';
       import { Axes, Bars } from 'svelte-plots-basic/2d';
@@ -22,7 +22,7 @@
    </script>
 
    <Axes limX={[1990, 2050]} limY={[-200, 350]}>
-      <Bars {xValues} {yValues} borderColor="red" faceColor="pink" />
+      <Bars {xValues} {yValues} lineColor="red" faceColor="pink" />
    </Axes>
    ```
 -->
@@ -41,9 +41,8 @@
       barWidth = 0.8,                // width of bars as per cent of maximum width, defaul: `0.8`.
       barWidthExact,                 // 100% bar width in world coordinates (if not provided computed automatically).
       faceColor = Colors.PRIMARY,    // face color of the bars, default:  `Colors.PRIMARY`.
-      borderColor = Colors.PRIMARY,  // border color of the bars, default: `Colors.PRIMARY`.
-      borderWidth = 1,               // width (thickness) of border line in pixels, default: 1.
-      title,                         // title of the bar series (reserved for future use).
+      lineColor = Colors.PRIMARY,  // border color of the bars, default: `Colors.PRIMARY`.
+      lineWidth = 1,               // width (thickness) of border line in pixels, default: 1.
       onclick
    } = $props();
 
@@ -116,6 +115,6 @@
 </script>
 
 {#if isOk}
-<Rectangles className="series-bar" left={x.left} width={x.width} top={y.top} height={y.height}
-   lineWidth={borderWidth} {borderColor} {faceColor} {title} {onclick} />
+<Rectangles className="series series-bar" left={x.left} width={x.width} top={y.top} height={y.height}
+   lineWidth={lineWidth} {lineColor} {faceColor} {onclick} />
 {/if}

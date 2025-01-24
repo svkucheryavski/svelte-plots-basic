@@ -5,11 +5,10 @@
    - `values` - matrix (object of class `Matrix` from `mdatools` package) with values to visualize.
    - `breaks` - array (or vector) with interval breaks boundaries (optional).
    - `colmap` - array with colors for each break (optional).
-   - `className` - extra CSS class name, will be added to wrapping `<g></g>` tag.
-   - `title` - series title, will be added as additional property for the `<g></g>` tag.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Matrix } from 'mdatools/arrays';
       import { Axes, Heatmap } from 'svelte-plots-basic/2d';
@@ -39,8 +38,6 @@
       values,                        // Matrix with values to show heatmap for
       breaks,                        // vector with breaks to distribute the values in
       colmap = null,                 // array with colors for each interval
-      className = 'series-heatmap',  // CSS class name of the SVG group
-      title = '',                    // title of the rectangle series (reserved for future use)
    } = $props();
 
 
@@ -117,7 +114,7 @@
 </script>
 
 {#if isOk}
-   <g class="series {className}" title={title} style="stroke:0;stroke-width:0px;">
+   <g class="heatmap" style="stroke:0;stroke-width:0px;">
    <!-- loop over colors/intervals -->
    {#each lc as col, i}
       <g title="heatmap-group" style="fill:{col};">

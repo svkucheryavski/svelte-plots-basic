@@ -17,6 +17,7 @@
    - `clipboardHeight` - height of plot image to copy to clipboard in pixels.Axes
 
    Example:
+
    ```svelte
    <script>
       import {Axes} from 'svelte-plots-basic/2d';
@@ -300,7 +301,7 @@
 
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="plot-container show-download-links-{downloadLinks}" onkeydown={handleClick} onclick={handleClick} class:plot_error={!isOk}>
+<div class="plot-container show-download-links-{downloadLinks}" onkeydown={handleClick} onclick={handleClick} class:plot-error={!isOk}>
 
    <svg class="plot" bind:this={plotElement} bind:clientWidth={plotWidth} bind:clientHeight={plotHeight}
       xmlns="http://www.w3.org/2000/svg" style="font-size:{fontSize}px">
@@ -355,13 +356,13 @@
       <g class="plot-labels">
          <!-- x-axis label -->
          {#if xaxis.show && xaxis.label && xaxis.label !== ''}
-         <text x={mx} y={height + top} dx={0} dy={0} dominant-baseline="middle"
-            style="font-size:1.1em;">{@html xaxis.label}</text>
+         <text x={mx} y={height + top} dx={0} dy={0} dominant-baseline="middle" style="font-size:1.1em;">{@html xaxis.label}</text>
          {/if}
 
          <!-- y-axis label -->
          {#if yaxis.show && yaxis.label && yaxis.label !== ''}
-         <text x={fontSize / 1.1 * yaxis.labelHeight} y={my} dx={0} dy={0} dominant-baseline="middle" transform={`rotate(-90, ${fontSize * yaxis.labelHeight / 1.1}, ${my})`} style="font-size:1.1em;">{@html yaxis.label}</text>
+         <text x={fontSize / 1.1 * yaxis.labelHeight} y={my} dx={0} dy={0} dominant-baseline="middle"
+            transform={`rotate(-90, ${fontSize * yaxis.labelHeight / 1.1}, ${my})`} style="font-size:1.1em;">{@html yaxis.label}</text>
          {/if}
 
          <!-- plot title -->
@@ -385,14 +386,14 @@
 
             <!-- xaxis -->
             {#if xaxis.show && xaxisCoords}
-            <g class="mdaplot__axis mdaplot__xaxis">
+            <g class="axis x-axis">
                {@render axisSnippet(xaxisCoords, xaxis)}
             </g>
             {/if}
 
             <!-- yaxis -->
             {#if yaxis.show && yaxisCoords}
-            <g class="mdaplot__axis mdaplot__yaxis">
+            <g class="axis y-axis">
                {@render axisSnippet(yaxisCoords, yaxis)}
             </g>
             {/if}
@@ -404,21 +405,21 @@
 
             <!-- colormap legend -->
             {#if clgCoords }
-            <g class="mdaplot__colormap_legend" style="stroke:0;stroke-width:0px;">
+            <g class="colormap-legend" style="stroke:0;stroke-width:0px;">
                {@render clgSnippet(clgParams, clgCoords)}
             </g>
             {/if}
 
             <!-- group legend -->
             {#if glgCoords }
-            <g class="mdaplot__group_legend" style="stroke:0;stroke-width:0px;">
+            <g class="group-legend" style="stroke:0;stroke-width:0px;">
                {@render glgSnippet(glg, glgCoords)}
             </g>
             {/if}
 
             <!-- box -->
             {#if box.show}
-            <g style="pointer-events:none" class="mdaplot__axes-box">
+            <g style="pointer-events:none" class="axes-box">
             <rect stroke={box.lineColor} stroke-width="{box.lineWidth}px" fill="transparent"
                x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]} />
             </g>
@@ -430,7 +431,7 @@
    </svg>
 
    {#if !isOk}
-   <p class="message_error">
+   <p class="message-error">
       Axes component was not properly initialized. <br />
       Check that you defined axes limits and margins correctly.
    </p>
@@ -515,13 +516,13 @@
       background: #fff;
    }
 
-   .plot_error {
+   .plot-error {
       display: flex;
       justify-content: center;
       align-items: center;
    }
 
-   .message_error {
+   .message-error {
       font-size: 1.2em;
       color: crimson;
       padding: 1em;

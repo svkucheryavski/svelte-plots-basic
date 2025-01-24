@@ -9,8 +9,9 @@
    - `faceColor` - color of the legend box background: `'#fff'`.
    - `fontSize` - font size for the legend labels in em, default `0.85`.
 
-      Example:
-   ```jsx
+   Example:
+
+   ```svelte
    <script>
       import {Vector} from 'mdatools/array';
 

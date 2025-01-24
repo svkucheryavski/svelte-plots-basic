@@ -6,10 +6,9 @@
    - `yValues` - array of vector with y-coordinates of the points.
    - `marker` - index for a point symbol (from 1 - default - to 8): `"●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"`.
    - `faceColor` - face (fill) color of the markers, default: `'transparent'`.
-   - `borderColor` - border color of the markers, default: `Colors.PRIMARY`.
-   - `borderWidth` - width (thickness) of the markers' border in pixels, defailt: `1`.
+   - `lineColor` - border color of the markers, default: `Colors.PRIMARY`.
+   - `lineWidth` - width (thickness) of the markers' border in pixels, defailt: `1`.
    - `markerSize` - size of the markers in em, defailt: `1`.
-   - `title` - title of the point series group.
    - `onclick` - function (callback) to be called when user clicks on a marker.
 
    Example:
@@ -38,17 +37,16 @@
       yValues,                          // array of vector with y-coordinates of points
       marker = 1,                       // index for point symbol (from 1 to 8): "●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"
       faceColor = 'transparent',        // face (fill) color of the points
-      borderColor = Colors.PRIMARY,     // border color of the points
-      borderWidth = 1,                  // width (thickness) of the points
+      lineColor = Colors.PRIMARY,     // border color of the points
+      lineWidth = 1,                  // width (thickness) of the points
       markerSize = 1,                   // size of the marker symbols
-      title = '',                       // title of the point series group
       onclick,                          // function to be called if onclick event fires
    } = $props();
 
 
    // select which symbol to use as a marker
    const markerSymbol = $derived.by(() => {
-      if (typeof(marker) !== "number" || marker < 1 || marker > MARKER_SYMBOLS.length) {
+      if (typeof(marker) !== 'number' || marker < 1 || marker > MARKER_SYMBOLS.length) {
          console.error('Points: parameter "marker" must be a number from 1 to ' + MARKER_SYMBOLS.length + '.');
          return null;
       }
@@ -66,8 +64,8 @@
 
    // styles for the markers
    const textStyleStr = $derived(['＋', '✳', '✕'].includes(markerSymbol)  ?
-       `fill:${borderColor && borderColor !== 'transparent' ? borderColor : faceColor};stroke-width:0px;font-size:${markerSize}em;` :
-       `fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor}; font-size:${markerSize}em;`
+       `fill:${lineColor && lineColor !== 'transparent' ? lineColor : faceColor};stroke-width:0px;font-size:${markerSize}em;` :
+       `fill:${faceColor};stroke-width:${lineWidth}px;stroke:${lineColor}; font-size:${markerSize}em;`
    );
 
    const alignStyleStr = $derived(['◼', '⬥', '＋', '✳', '✕'].includes(markerSymbol)  ?

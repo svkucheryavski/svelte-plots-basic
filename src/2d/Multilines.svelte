@@ -7,11 +7,11 @@
    - `lineColor` - lines color, default: `Colors.PRIMARY`.
    - `lineWidth` - width (thickness) of the lines in pixels, defailt: `1`.
    - `lineType` -  type of segment lines (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
-   - `title` - title of the multiline series group.
    - `onclick` - function (callback) to be called when user clicks on a polyline.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Vector, cbind } from 'mdatools/arrays';
       import { Axes, Multilines } from 'svelte-plots-basic/2d';
@@ -45,7 +45,6 @@
       lineColor = Colors.PRIMARY,    // color of segment lines
       lineType = 1,                  // type of segment lines (1 - solid, 2 - dashed, 3 - dotted, 4 - dashdot)
       lineWidth = 1,                 // width (thickness) of segment lines
-      title = '',                    // title of the point series group
       onclick,                       // function to be called if onclick event fires
    } = $props();
 
@@ -86,7 +85,7 @@
 {#if pp && pp.length > 0}
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<g  onclick={(e) => handleClick(e, 'polyline', onclick)} class="series series-multiline" style={lineStyleStr} {title}>
+<g  onclick={(e) => handleClick(e, 'polyline', onclick)} class="series series-multiline" style={lineStyleStr}>
    {#each pp as p}
    <polyline class="line" points={p}/>
    {/each}

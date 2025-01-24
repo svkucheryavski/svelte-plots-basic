@@ -9,11 +9,11 @@
    - `lineType` -  type of line (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
    - `facColor` - face (fill) color of the polygon, default: `'transparent'`.
    - `opacity` - opacity of the face color, default: `1`.
-   - `title` - title of the area group.
    - `onclick` - function (callback) to be called when user clicks on a polygon.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Axes, Area } from 'svelte-plots-basic/2d';
 
@@ -41,7 +41,6 @@
       lineWidth = 1,                 // width (thickness) of segment lines
       faceColor = 'transparent',     // color of segment lines
       opacity = 1,                   // opacity of the area color
-      title = '',                    // title of the point series group
       onclick,                       // function to be called if onclick event fires
    } = $props();
 
@@ -63,8 +62,7 @@
 {#if pa}
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<g onclick={(e) => handleClick(e, 'polygon', onclick)}
-   class="series series_area" style={areaStyleStr} title={title}>
+<g onclick={(e) => handleClick(e, 'polygon', onclick)} class="series series-area" style={areaStyleStr}>
    <polygon points={pa}/>
 </g>
 {/if}

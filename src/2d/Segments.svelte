@@ -9,12 +9,11 @@
    - `lineColor` - color of segment lines, default: `Colors.PRIMARY`.
    - `lineType` -  type of segment lines (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
    - `lineWidth` - width (thickness) of segment lines in pixels, default: `1`.
-   - `className` - CSS class name of the SVG group, default: `'series-seg'`.
-   - `title` - title of the segment series group.
    - `onclick` - function (callback) to be called when user clicks on any segment.
 
    Example:
-   ```jsx
+
+   ```svelte
    <script>
       import { Axes, Segments } from 'svelte-plots-basic/2d';
 
@@ -43,8 +42,6 @@
       lineColor = Colors.PRIMARY,    // color of segment lines
       lineType = 1,                  // type of segment lines (1 - solid, 2 - dashed, 3 - dotted, 4 - dashdot)
       lineWidth = 1,                 // width (thickness) of segment lines
-      className = 'series-seg',      // CSS class name of the SVG group
-      title = '',                    // title of the segment series group.
       onclick,                       // function to be called if onclick event fires
    } = $props();
 
@@ -72,7 +69,7 @@
 {#if isOk}
    <!-- svelte-ignore a11y_click_events_have_key_events -->
    <!-- svelte-ignore a11y_no_static_element_interactions -->
-   <g class="series {className}" title={title} style={lineStyleStr} onclick={(e) => handleClick(e, 'line', onclick)}>
+   <g class="series series-segment" style={lineStyleStr} onclick={(e) => handleClick(e, 'line', onclick)}>
    {#each x1 as v, i}
       <line x1={x1[i]} x2={x2[i]} y1={y1[i]} y2={y2[i]} />
    {/each}
