@@ -80,8 +80,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <g onclick={(e) => handleClick(e, 'text', onclick)}
-   class="series series-points"
-   title={title} style={textStyleStr + alignStyleStr} text-anchor="middle">
+   class="series series-points" style={textStyleStr + alignStyleStr} text-anchor="middle">
    {#each x as v, i}
       <text x={x[i]} y={y[i]}>{markerSymbol}</text>
    {/each}

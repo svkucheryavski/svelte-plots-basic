@@ -83,15 +83,16 @@
       const rt = Array(nb).fill().map(() => []);     // coordinates of top for every break
 
       // adjust left side for the first break and right side for the last
-      const w = lb[1] - lb[0];
-      lb[0] = lb[0] - 0.1 * w;
-      lb[nb - 1] = lb[nb - 1] + 0.1 * w;
+      const llb = lb.slice();
+      const w = llb[1] - llb[0];
+      llb[0] = llb[0] - 0.1 * w;
+      llb[nb - 1] = llb[nb - 1] + 0.1 * w;
 
       // loop over all breaks
       for (let j = 0; j < nv; j++) {
          const vj = v.v[j];
          for (let i = 0; i < nb - 1; i++) {
-            if (vj > lb[i] && vj <= lb[i + 1]) {
+            if (vj > llb[i] && vj <= llb[i + 1]) {
                rl[i].push(left.v[j] - 0.5);
                rt[i].push(v.nrows - top.v[j] + 1.5);
                break;
