@@ -583,17 +583,9 @@ function changeDPI(base64Image, dpi) {
  */
 export function downloadPNG (svg, fileName, width, height, res) {
 
-   if (!width) {
-      width = 10;
-   }
-
-   if (!height) {
-      height = 10;
-   }
-
-   if (!res) {
-      res = 300;
-   }
+   if (!width) width = 10;
+   if (!height) height = 10;
+   if (!res) res = 300;
 
    if (width < 1 || width > 30) {
       console.error('Parameter "width" must be between 1 and 30 (cm).');
@@ -619,33 +611,41 @@ export function downloadPNG (svg, fileName, width, height, res) {
       fileName = 'plot';
    }
 
+
    // recalculate width and height to pixels
-   width = width / 2.54 * res;
-   height = height / 2.54 * res;
+   const pxWidth = width / 2.54 * res;
+   const pxHeight = height / 2.54 * res;
 
    setTimeout(() => {
 
       // compute canvas size based on SVG size and desired PNG WIDTH in pixels
       const svgHeight = svg.clientHeight;
       const svgWidth = svg.clientWidth;
-      const scaleFactor = Math.max(width / svgWidth, height / svgHeight);
+      let scaleFactor = Math.max(pxWidth / svgWidth, pxHeight / svgHeight);
+
+      // this is needed if SVG image is larger than the future PNG image
+      let specialScale = 1;
+      if (scaleFactor < 1) {
+         specialScale = scaleFactor;
+         scaleFactor = 1;
+      }
 
       // create a new canvas element
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
 
       // set the canvas size to match the SVG element
-      canvas.width =  svgWidth * scaleFactor;
-      canvas.height = svgHeight * scaleFactor;
+      canvas.width =  svgWidth * (specialScale < 1 ? specialScale : scaleFactor);
+      canvas.height = svgHeight * (specialScale < 1 ? specialScale : scaleFactor);
 
-   // set corresponding attributes for SVG element
-      svg.setAttribute('width', canvas.width);
-      svg.setAttribute('height', canvas.height);
+      // set corresponding attributes for SVG element
+      svg.setAttribute('width', svgWidth * scaleFactor);
+      svg.setAttribute('height', svgHeight * scaleFactor);
 
       // draw a white background
       context.fillStyle = 'white';
-      context.scale(scaleFactor, scaleFactor)
       context.fillRect(0, 0, canvas.width, canvas.height);
+      context.scale(scaleFactor, scaleFactor)
 
       // draw the SVG onto the canvas
       const svgXml = new XMLSerializer().serializeToString(svg);
@@ -656,7 +656,12 @@ export function downloadPNG (svg, fileName, width, height, res) {
 
       img.onload = function () {
 
-         // draw the image
+         // downscale image if it must be smaller than the current SVG element
+         if (specialScale < 0) {
+            img.width = img.width * specialScale;
+            img.height = img.height * specialScale;
+         }
+
          context.drawImage(img, 0, 0, canvas.width, canvas.height);
 
          // create a data URL for the canvas and adjust its DPI
@@ -674,6 +679,7 @@ export function downloadPNG (svg, fileName, width, height, res) {
       img.src = url;
    }, 20);
 }
+
 
 
 /**
