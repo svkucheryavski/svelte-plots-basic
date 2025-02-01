@@ -52,8 +52,8 @@
    // process provided values and compute world coordinates of rectangles
    const l = $derived(checkCoords(left, 'Rectangles (left)'));
    const t = $derived(l ? checkCoords(top, 'Rectangles (top)', l.length) : null);
-   const w = $derived(t ? (typeof width !== 'object' ? Vector.fill(width, left.length) : width) : null);
-   const h = $derived(t ? (typeof height !== 'object' ? Vector.fill(height, left.length) : height) : null);
+   const w = $derived(t ? (typeof width !== 'object' ? Vector.fill(width, l.length) : width) : null);
+   const h = $derived(t ? (typeof height !== 'object' ? Vector.fill(height, l.length) : height) : null);
 
    // get axes context and compute screen coordinates
    const axes = getContext('axes');
