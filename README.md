@@ -93,12 +93,12 @@ Finally you can also provide `title` of the plot which is shown on the top outsi
 
 Here is a table with main properties of `Axes` component.
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `title` | `''` | title of the plot, shown on top |
-| `limX` | `[0, 1]` | x-axis limits in plot coordinates |
-| `limY` | `[0, 1]` | y-axis limits in plot coordinates |
-| `margins` | `[1.0, 1.1, 0.6, 0.6]` | relative margins (bottom, left, top, right) |
+ Property name | Default value | Description
+--|--|--
+ `title` | `''` | title of the plot, shown on top
+ `limX` | `[0, 1]` | x-axis limits in plot coordinates
+ `limY` | `[0, 1]` | y-axis limits in plot coordinates
+ `margins` | `[1.0, 1.1, 0.6, 0.6]` | relative margins (bottom, left, top, right)
 
 
 The component also provides functionality for saving plots as SVG or PNG files and/or copying the plot to clipboard as PNG image. In order to activate it one has to set value for property `downloadLinks`. It can be one of the following: `'none'` (default value, hides download buttons), `'hover'` — the toolbar with buttons pops up when user hover mouse cursor over the plot area, and `'fixed'` — the toobar is always shown. By default the toolbar with buttons is shown in the right bottom corener of the plot. This can be changed by amending CSS styles of `.download-links` and `.download-links > button` elements.
