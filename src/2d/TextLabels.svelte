@@ -7,8 +7,8 @@
    - `labels`- single string or array with labels (strings).
    - `pos`- position of labels related to coordinates (`0` - middle - default, `1` - bottom, `2` - left, `3` - top, `4` - right).
    - `faceColor`-  face color of label symbols, default: `Colors.PRIMARY_TEXT`.
-   - `borderColor`- border colors of label symbols, default: `'transparent'`.
-   - `borderWidth`- border width of label symbols in pixels, default: `0`.
+   - `lineColor`- border colors of label symbols, default: `'transparent'`.
+   - `lineWidth`- border width of label symbols in pixels, default: `0`.
    - `textSize`- size of label symbols in em, default: `1`.
    - `className`- CSS class name for the labels group, default: `'series-text'`.
    - `rotateAngle`- angle to rotate labels, default: `0`.
@@ -42,10 +42,9 @@
       labels,                              // array with labels (strings)
       pos = 0,                             // position of labels related to coordinates (middle, bottom, left, top, right)
       faceColor = Colors.PRIMARY_TEXT,     // face color of label symbols
-      borderColor = 'transparent',         // border colors of label symbols
-      borderWidth = 0,                     // border width of label symbols
+      lineColor = 'transparent',         // border colors of label symbols
+      lineWidth = 0,                     // border width of label symbols
       textSize = 1,                        // size of label symbols
-      className = 'series-text',           // CSS class name for the labels group
       rotateAngle = 0,                     // angle to rotate labels
       onclick,                             // function to be called if onclick event fires
    } = $props();
@@ -92,7 +91,7 @@
    const dy = $derived([0, m, 0, -m, 0, m]);
 
    // styles for the elements
-   const textStyleStr = $derived(`fill:${faceColor};stroke-width:${borderWidth}px;stroke:${borderColor};font-size:${textSize}em;`);
+   const textStyleStr = $derived(`fill:${faceColor};stroke-width:${lineWidth}px;stroke:${lineColor};font-size:${textSize}em;`);
 
    // local status
    const isOk = $derived(x && y && p !== null && l && x.length === y.length);
@@ -101,7 +100,7 @@
 {#if isOk}
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<g class="series {className}" style={textStyleStr} onclick={(e) => handleClick(e, 'text', onclick)} >
+<g class="series series-textlabels" style={textStyleStr} onclick={(e) => handleClick(e, 'text', onclick)} >
 
    {#if typeof labels === 'string'}
 

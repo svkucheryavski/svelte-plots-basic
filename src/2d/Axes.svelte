@@ -345,6 +345,8 @@
 
          .tick-labels text,
          .tick-labels tspan,
+         .series-textlabels text,
+         .series-textlabels tspan,
          .series-text text,
          .series-text tspan {
             dominant-baseline: middle;
