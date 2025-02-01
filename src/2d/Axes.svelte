@@ -32,7 +32,9 @@
    import { Colors, PLOT_FONT_SIZE, AXES_MARGIN_FACTORS, TICK_SIZE, LINE_STYLES, MARKER_SYMBOLS } from '../constants.js';
    import { downloadSVG, downloadPNG, copyToClipboard, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
             transformCoords, getColormapLegendParams, getColormapLegendCoords, getTickFactorLabel,
-            getGroupLegendCoords, text2svg } from '../methods.js';
+            getGroupLegendCoords, text2svg,
+            invTransformCoords,
+            invTransformObjects} from '../methods.js';
 
    import AxisLines from './AxisLines.svelte';
    import AxisTickLabels from './AxisTickLabels.svelte';
@@ -50,16 +52,37 @@
       pngRes = 300,
       clipboardWidth = 1200,
       clipboardHeight = 800,
-      onclick,
+      onclick = null,
+      onmousemove = null,
+      onmousedown = null,
+      onmouseup = null,
       children
    } = $props();
 
 
-   /* handles click events */
-   function handleClick(e) {
-      if (onclick) {
-         onclick(e);
+   /* handler for mouse  events */
+   function handleMouse(e, f) {
+      if (f && e.target.id == "axes-box") {
+         const x = invTransformCoords([e.offsetX], tX)[0];
+         const y = invTransformCoords([e.offsetY], tY)[0];
+         f(x, y);
       }
+   }
+
+   function handleDown(e) {
+      handleMouse(e, onmousedown)
+   }
+
+   function handleUp(e) {
+      handleMouse(e, onmouseup)
+   }
+
+   function handleMove(e) {
+      handleMouse(e, onmousemove)
+   }
+
+   function handleClick(e) {
+      handleMouse(e, onclick)
    }
 
    /* Copy plot to clipboard as PNG image. */
@@ -256,30 +279,30 @@
       <svg x={0} y={ely[i]} width={coords.lgw} height={elh[i]}>
 
          <!-- line -->
-         {#if item.lineType}
+         {#if item.line}
          <line
             x1={elp}
             x2={elw - elp}
             y1={elh[i]/2}
             y2={elh[i]/2}
-            stroke={item.lineColor}
-            stroke-width={item.lineWidth}
-            stroke-dasharray={lineStyles[item.lineType - 1]}
+            stroke={item.line.lineColor}
+            stroke-width={item.line.lineWidth}
+            stroke-dasharray={lineStyles[item.line.lineType - 1]}
          />
          {/if}
 
          <!-- marker -->
-         {#if item.marker}
+         {#if item.point}
          <text
             x={elw/2}
             y={elh[i]/2}
             dominant-baseline="middle"
             text-anchor="middle"
-            fill={item.faceColor}
-            stroke-width={item.borderWidth}
-            stroke={item.borderColor}
+            fill={item.point.faceColor}
+            stroke-width={item.point.lineWidth}
+            stroke={item.point.lineColor}
             font-size={fontSize}
-         >{MARKER_SYMBOLS[item.marker - 1]}</text>
+         >{MARKER_SYMBOLS[item.point.marker - 1]}</text>
          {/if}
 
          <!-- text -->
@@ -300,8 +323,7 @@
 {/snippet}
 
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="plot-container show-download-links-{downloadLinks}" onkeydown={handleClick} onclick={handleClick} class:plot-error={!isOk}>
+<div class="plot-container show-download-links-{downloadLinks}" class:plot-error={!isOk}>
 
    <svg class="plot" bind:this={plotElement} bind:clientWidth={plotWidth} bind:clientHeight={plotHeight}
       xmlns="http://www.w3.org/2000/svg" style="font-size:{fontSize}px">
@@ -320,6 +342,7 @@
             /* dominant-baseline: central;
             alignment-baseline: central */
          }
+
          .tick-labels text,
          .tick-labels tspan,
          .series-text text,
@@ -373,12 +396,13 @@
       </g>
       {/if}
 
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <svg x={left} y={top} width={width} height={height} preserveAspectRatio="none" class="axes">
 
          <!-- define clipping path -->
          <defs>
             <clipPath id={clipPathID}>
-               <rect style="pointer-events:none" x={cpx[0]} y={cpy[1]} width={cpx[1]-cpx[0]} height={cpy[0]-cpy[1]} />
+               <rect x={cpx[0]} y={cpy[1]} width={cpx[1]-cpx[0]} height={cpy[0]-cpy[1]} />
             </clipPath>
          </defs>
 
@@ -397,6 +421,32 @@
                {@render axisSnippet(yaxisCoords, yaxis)}
             </g>
             {/if}
+
+            <!-- box -->
+            <g class="axes-box">
+            {#if box.show}
+            <rect stroke={box.lineColor} stroke-width="{box.lineWidth}px" fill="transparent"
+               x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]}
+               id="axes-box"
+               onkeydown={handleClick}
+               onclick={handleClick}
+               onmousemove={handleMove}
+               onmousedown={handleDown}
+               onmouseup={handleUp}
+            />
+            {:else}
+            <rect stroke="transparent" fill="transparent"
+               x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]}
+               id="axes-box"
+               onkeydown={handleClick}
+               onclick={handleClick}
+               onmousemove={handleMove}
+               onmousedown={handleDown}
+               onmouseup={handleUp}
+            />
+            {/if}
+            </g>
+
 
             <!-- main plot content -->
             <g class="axes-content" clip-path="url(#{clipPathID})">
@@ -417,13 +467,7 @@
             </g>
             {/if}
 
-            <!-- box -->
-            {#if box.show}
-            <g style="pointer-events:none" class="axes-box">
-            <rect stroke={box.lineColor} stroke-width="{box.lineWidth}px" fill="transparent"
-               x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]} />
-            </g>
-            {/if}
+
 
          {/if}
 
