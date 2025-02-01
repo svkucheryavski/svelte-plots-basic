@@ -46,10 +46,10 @@
 
    let {
       items,                     // array with text labels and their visual properties for each legend element.
-	   position = "topleft",      // position of the legend ("topleft", "top", "topright", "right", "bottomright", etc).
+	   position = 'topleft',      // position of the legend ("topleft", "top", "topright", "right", "bottomright", etc).
       lineColor = Colors.LEGEND, // color of the legend box line
       lineWidth = 1,             // width (thickness) of the legend box line
-      faceColor = "#fff",        // background color of the legend box
+      faceColor = '#fff',        // background color of the legend box
       fontSize = 0.85            // font size for labels in em.
    } = $props();
 
@@ -92,22 +92,24 @@
          item['labelHeight'] = labelHeight;
 
          // set default values for lines
-         if (item.lineType) {
-            if (!(item.lineType > 0 && item.lineType <= 4)) {
+         if (item.line) {
+            if (!item.line.lineType) item.line['lineType'] = 1
+            if (!(item.line.lineType > 0 && item.line.lineType <= 4)) {
                console.error('Legend: parameter "lineType" for legend item ' + (i + 1) + ' is incorrect.');
             }
-            item.lineColor = item.lineColor ? item.lineColor : Colors.PRIMARY;
-            item.lineWidth = item.lineWidth ? item.lineWidth : 1;
+            item.line.lineColor = item.line.lineColor ? item.line.lineColor : Colors.PRIMARY;
+            item.line.lineWidth = item.line.lineWidth ? item.line.lineWidth : 1;
          }
 
          // set default values for markers
-         if (item.marker) {
-            if (!(item.marker > 0 && item.marker <= MARKER_SYMBOLS.length)) {
+         if (item.point) {
+            if (!item.point.marker) item.point['marker'] = 1
+            if (!(item.point.marker > 0 && item.point.marker <= MARKER_SYMBOLS.length)) {
                console.error('Legend: parameter "marker" for legend item ' + (i + 1) + ' is incorrect.');
             }
-            item.faceColor =  item.faceColor ? item.faceColor : 'transparent';
-            item.borderWidth = item.borderWidth ? item.borderWidth : 1;
-            item.borderColor = item.borderColor ? item.borderColor : Colors.PRIMARY;
+            item.point.faceColor =  item.point.faceColor ? item.point.faceColor : 'transparent';
+            item.point.lineWidth = item.point.lineWidth ? item.point.lineWidth : 1;
+            item.point.lineColor = item.point.lineColor ? item.point.lineColor : Colors.PRIMARY;
          }
       }
       return items;
