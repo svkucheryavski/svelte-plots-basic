@@ -109,15 +109,15 @@ One can also adjust width and height of image, which is copied to clipboard. In 
 
 Here is a table with properties of the component related to saving plot to a file and copying it to clipboard.
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `downloadLinks` | `'none'` | show toolbar with download buttons: `'none'`, `'hover'` or `'fixed'`|
-| `fileName` | `'plot'` | filename for downloaded image file without extention |
-| `pngWidth` | `8` | size of PNG image in cm |
-| `pngHeight` | `8` | size of PNG image in cm |
-| `pngRes` | `300` | resolution of PNG image (pixels per inch)|
-| `clipboardWidth` | `1200` | width of image in clipboard in pixels |
-| `clipboardHeight` | `800` | height of image in clipboard in pixels |
+ Property name | Default value | Description
+--|--|--
+ `downloadLinks` | `'none'` | show toolbar with download buttons: `'none'`, `'hover'` or `'fixed'`
+ `fileName` | `'plot'` | filename for downloaded image file without extention
+ `pngWidth` | `8` | size of PNG image in cm
+ `pngHeight` | `8` | size of PNG image in cm
+ `pngRes` | `300` | resolution of PNG image (pixels per inch)
+ `clipboardWidth` | `1200` | width of image in clipboard in pixels
+ `clipboardHeight` | `800` | height of image in clipboard in pixels
 
 Please pay attention that most of the browsers enable clipboard functionality only if website is available via HTTPS.
 
@@ -128,12 +128,12 @@ Finally, one can also provide callback functions for several mouse events (click
 
 Here is a table with properties for handling mouse events.
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `onclick` | | callback for on mouse click event |
-| `onmousemove` | | callback for on mouse move event |
-| `onmousedown` | | callback for on mouse down |
-| `onmouseup` | | callback for on mouse up |
+ Property name | Default value | Description
+--|--|--
+ `onclick` | | callback for on mouse click event
+ `onmousemove` | | callback for on mouse move event
+ `onmousedown` | | callback for on mouse down
+ `onmouseup` | | callback for on mouse up
 
 
 ### Box
@@ -150,10 +150,10 @@ The simplest component is `<Box>` which creates a box/frame/rectangle around the
 
 The element has only two properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `lineWidth` | `1` | width/thickness of box line in pixels |
-| `lineColor` | `'#606060'` | color of the line |
+ Property name | Default value | Description
+--|--|--
+ `lineWidth` | `1` | width/thickness of box line in pixels
+ `lineColor` | `'#606060'` | color of the line
 
 
 
@@ -180,14 +180,14 @@ Tick and axis labels can include super and subscripts and specifal HTML symbols 
 
 Here is a full set of properties for both components:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `label` | `''` | axis label |
-| `showGrid` | `false` | show or not grid lines at tick positions |
-| `ticks` | | tick positions, by default will be computed automatically |
-| `tickLabels` | | tick labels, by default will be based on tick position values |
-| `las` | `1` | orientation of tick labels: `1` — for horizontal, `2` — for vertical |
-| `whole` | `false` | if `true` the automatic tick labels will be shown as whole numbers |
+ Property name | Default value | Description
+--|--|--
+ `label` | `''` | axis label
+ `showGrid` | `false` | show or not grid lines at tick positions
+ `ticks` | | tick positions, by default will be computed automatically
+ `tickLabels` | | tick labels, by default will be based on tick position values
+ `las` | `1` | orientation of tick labels: `1` — for horizontal, `2` — for vertical
+ `whole` | `false` | if `true` the automatic tick labels will be shown as whole numbers
 
 
 Check these Svelte REPL examples covering the use of all four components: [plots-axes-simple](https://svelte.dev/playground/d818a241c85844249b34e75196ac308c), [plots-axes-advanced](https://svelte.dev/playground/d06edc89a2d341faba03e0d03f43839f), [plots-axes-mouse](https://svelte.dev/playground/706b66ce008d40c9bcad1e4c89434e23). The last example also uses other elements which are described below.
@@ -239,16 +239,16 @@ Check more advanced example in Svelte REPL: [plots-points](https://svelte.dev/pl
 
 Here is a table with all properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `xValues` |  | array or vector with x-coordinates of the points |
-| `yValues` |  | array or vector with y-coordinates of the points |
-| `marker` | `1` | value between 1 and 8 defininng markers: `●, ◼, ▲, ▼, ⬥, ＋, *, ✕` |
-| `markerSize` | `1` | size of the marker symbol in em |
-| `lineColor` | `'#2679B2'` | color of marker border |
-| `lineWidth` | `1` | thickness/width of the border in pixels |
-| `faceColor` | `'transparent'` | color of the face of the marker (only for the first five) |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `xValues` |  | array or vector with x-coordinates of the points
+ `yValues` |  | array or vector with y-coordinates of the points
+ `marker` | `1` | value between 1 and 8 defininng markers: `●, ◼, ▲, ▼, ⬥, ＋, *, ✕`
+ `markerSize` | `1` | size of the marker symbol in em
+ `lineColor` | `'#2679B2'` | color of marker border
+ `lineWidth` | `1` | thickness/width of the border in pixels
+ `faceColor` | `'transparent'` | color of the face of the marker (only for the first five)
+ `onclick` | `null` | callback function for on mouse click event
 
 
 Last three markers (`＋, *, ✕`) do not have face, hence `faceColor` has no effect for them.
@@ -291,18 +291,18 @@ Check this example in Svelte REPL: [plots-textlabels](https://svelte.dev/playgro
 
 Here is a full set of properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `xValues` |  | array or vector with x-coordinates of the labels position |
-| `yValues` |  | array or vector with y-coordinates of the labels position |
-| `labels` |  | text labels (either array or single value for all positions)  |
-| `pos` | `0` | positions of labels related to coordinates (see details)  |
-| `lineColor` | `'transparent'` | color of border of the labels' symbols |
-| `lineWidth` | `1` | thickness/width of the border in pixels |
-| `faceColor` | `'#2679B2'` | color of the face of the symbols |
-| `textSize` | `1` | size of the labels' symbols in em |
-| `rotateAngle` | `0` | angle in degrees to rotate the labels |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `xValues` |  | array or vector with x-coordinates of the labels position
+ `yValues` |  | array or vector with y-coordinates of the labels position
+ `labels` |  | text labels (either array or single value for all positions)
+ `pos` | `0` | positions of labels related to coordinates (see details)
+ `lineColor` | `'transparent'` | color of border of the labels' symbols
+ `lineWidth` | `1` | thickness/width of the border in pixels
+ `faceColor` | `'#2679B2'` | color of the face of the symbols
+ `textSize` | `1` | size of the labels' symbols in em
+ `rotateAngle` | `0` | angle in degrees to rotate the labels
+ `onclick` | `null` | callback function for on mouse click event
 
 Both `labels` and `pos` properties can be provided as array or as a single value. The number of elements in array should match the number of coordinates. If single value is provided it will be
 replicated for all coordinates.
@@ -346,16 +346,16 @@ Check this example in Svelte REPL: [plots-segments](https://svelte.dev/playgroun
 
 Here is a full set of properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `xStart` |  | array or vector with x-coordinates of the start points |
-| `yStart` |  | array or vector with y-coordinates of the start points |
-| `xEnd` |  | array or vector with x-coordinates of the end points |
-| `yEnd` |  | array or vector with y-coordinates of the end points |
-| `lineColor` | `'#2679B2'` | color of the lines |
-| `lineWidth` | `1` | thickness/width of the lines in pixels |
-| `lineType` | `1` | line type (`1`- solid, `2` - dashed, `3` - dotted, `4` - dashdot) |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `xStart` |  | array or vector with x-coordinates of the start points
+ `yStart` |  | array or vector with y-coordinates of the start points
+ `xEnd` |  | array or vector with x-coordinates of the end points
+ `yEnd` |  | array or vector with y-coordinates of the end points
+ `lineColor` | `'#2679B2'` | color of the lines
+ `lineWidth` | `1` | thickness/width of the lines in pixels
+ `lineType` | `1` | line type (`1`- solid, `2` - dashed, `3` - dotted, `4` - dashdot)
+ `onclick` | `null` | callback function for on mouse click event
 
 
 
@@ -396,14 +396,14 @@ Check this example in Svelte REPL: [plots-lines](https://svelte.dev/playground/2
 
 Here is a full set of properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `xValues` |  | array or vector with x-coordinates of the points |
-| `yValues` |  | array or vector with y-coordinates of the points |
-| `lineColor` | `'#2679B2'` | color of the lines |
-| `lineWidth` | `1` | thickness/width of the lines in pixels |
-| `lineType` | `1` | line type similar to `Segments` |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `xValues` |  | array or vector with x-coordinates of the points
+ `yValues` |  | array or vector with y-coordinates of the points
+ `lineColor` | `'#2679B2'` | color of the lines
+ `lineWidth` | `1` | thickness/width of the lines in pixels
+ `lineType` | `1` | line type similar to `Segments`
+ `onclick` | `null` | callback function for on mouse click event
 
 
 
@@ -496,16 +496,16 @@ Check more advanced example in Svelte REPL: [plots-rectangles](https://svelte.de
 
 Here is a table with all properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `left` |  | array or vector with coordinates of the left side of the rectangles |
-| `top` |  | array or vector with coordinates of the top side of the rectangles |
-| `height` |  | single value, array or vector with height values of the rectangle |
-| `width` |  | single value, array or vector with width values of the rectangle  |
-| `lineColor` | `'#2679B2'` | color of border line |
-| `lineWidth` | `1` | thickness/width of the border in pixels |
-| `faceColor` | `'transparent'` | color of the face of the marker (only for first five) |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `left` |  | array or vector with coordinates of the left side of the rectangles
+ `top` |  | array or vector with coordinates of the top side of the rectangles
+ `height` |  | single value, array or vector with height values of the rectangle
+ `width` |  | single value, array or vector with width values of the rectangle
+ `lineColor` | `'#2679B2'` | color of border line
+ `lineWidth` | `1` | thickness/width of the border in pixels
+ `faceColor` | `'transparent'` | color of the face of the marker (only for first five)
+ `onclick` | `null` | callback function for on mouse click event
 
 The `left` and `top` properties must be provided as vector or array. But `height` or/and `width` can be provided as single values, in this case all rectangles will have the same height and width.
 
@@ -549,15 +549,15 @@ Check more advanced example in Svelte REPL: [plots-bars](https://svelte.dev/play
 
 Here is a table with all properties:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `xValues` |  | array or vector with coordinates of the middle point of the bars |
-| `yValues` |  | array or vector with coordinates of the top/bottom point of the bars |
-| `lineColor` | `'#2679B2'` | color of border line |
-| `lineWidth` | `1` | thickness/width of the border in pixels |
-| `faceColor` | `'#2679B2'` | color of the face of the marker (only for first five) |
-| `barWidth` | `0.8` | width of each par as per cent of maximum possible width |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `xValues` |  | array or vector with coordinates of the middle point of the bars
+ `yValues` |  | array or vector with coordinates of the top/bottom point of the bars
+ `lineColor` | `'#2679B2'` | color of border line
+ `lineWidth` | `1` | thickness/width of the border in pixels
+ `faceColor` | `'#2679B2'` | color of the face of the marker (only for first five)
+ `barWidth` | `0.8` | width of each par as per cent of maximum possible width
+ `onclick` | `null` | callback function for on mouse click event
 
 
 ### Elements
@@ -603,16 +603,16 @@ Check this example in Svelte REPL: [plots-area](https://svelte.dev/playground/47
 
 Here is a table with parameters:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `xValues` | | array or vector with x-coordinates of points |
-| `yValues` | | array or vector with y-coordinates of points |
-| `lineColor` | `'#2679B2'` | color of line connecting the points |
-| `lineWidth` | `2` | thickness/width of the line in pixels |
-| `lineType` | `1` | number from 1 to 4 defining solid, dashed, dotted and dashdotted line |
-| `faceColor` | `'transparent'` | color of the face inside the polygon |
-| `opacity` | `1` | opacity value for both face and line color |
-| `onclick` | `null` | callback function for on mouse click event |
+ Property name | Default value | Description
+--|--|--
+ `xValues` | | array or vector with x-coordinates of points
+ `yValues` | | array or vector with y-coordinates of points
+ `lineColor` | `'#2679B2'` | color of line connecting the points
+ `lineWidth` | `2` | thickness/width of the line in pixels
+ `lineType` | `1` | number from 1 to 4 defining solid, dashed, dotted and dashdotted line
+ `faceColor` | `'transparent'` | color of the face inside the polygon
+ `opacity` | `1` | opacity value for both face and line color
+ `onclick` | `null` | callback function for on mouse click event
 
 The opacity of separate line or face colors can be defined in the color value, e.g. `#ff000050`.
 
@@ -665,11 +665,11 @@ Check this example in Svelte REPL: [plots-heatmap](https://svelte.dev/playground
 
 Here is a table with parameters:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `values` |  | matrix with values (mandatory) |
-| `breaks` | | optional, list or vector with interval boundaries  |
-| `colmap` | | optional, list of colors for each interval  |
+ Property name | Default value | Description
+--|--|--
+ `values` |  | matrix with values (mandatory)
+ `breaks` | | optional, list or vector with interval boundaries
+ `colmap` | | optional, list of colors for each interval
 
 Naturally, number of breaks is by one larger than the number of intervals and hence number of colors.
 
@@ -780,14 +780,14 @@ The `position` parameter can be one of the follows: `'topleft'`, `'top'`, `'topr
 
 The component has also properties which changes it apearance, here is the full list:
 
-| Property name | Default value | Description | 
-|--|--|--|
-| `items` |  | array with JSON properties of legend items |
-| `position` | `'topleft'` | position of the legend element inside plotting area |
-| `lineColor` | `'#303030'` | color of the legend box line |
-| `lineWidth` | `1` | width (thickness) of the legend box line |
-| `faceColor` | `'#fff'` | background color of the legend box |
-| `fontSize`  | `0.85` | font size for labels in em |
+ Property name | Default value | Description
+--|--|--
+ `items` |  | array with JSON properties of legend items
+ `position` | `'topleft'` | position of the legend element inside plotting area
+ `lineColor` | `'#303030'` | color of the legend box line
+ `lineWidth` | `1` | width (thickness) of the legend box line
+ `faceColor` | `'#fff'` | background color of the legend box
+ `fontSize`  | `0.85` | font size for labels in em
 
 
 ## User tutorial (3D plots)
