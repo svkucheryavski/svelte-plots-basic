@@ -63,7 +63,7 @@
    /* handler for mouse  events */
    function handleMouse(e, f) {
       if (f && e.target.id == "axes-box") {
-         const x = invTransformCoords([e.offsetX], tX)[0];
+         const x = invTransformCoords([e.offsetX - fontSize * 1.5], tX)[0];
          const y = invTransformCoords([e.offsetY], tY)[0];
          f(x, y);
       }
@@ -137,8 +137,9 @@
       height > (pxMargins[0] + pxMargins[2])
    );
 
-
    // transformation matrix for x
+   // fw: a - tA[1]) * tA[0] + tA[2]
+   // in: a - tA[2]) / tA[0] + tA[1]
    const tX = $derived(!isOk ? {'coords': [1, 0, 0], 'objects': [1, 0, 0]} :
       {
          'coords':  [ axisWidth / (limX[1] - limX[0]), limX[0], pxMargins[1]],
