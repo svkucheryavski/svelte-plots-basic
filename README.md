@@ -373,7 +373,7 @@ Lines components is similar to `<Points>` but instead of showing markers, it con
 </script>
 
 <div class="plot-wrapper">
-<Axes limX={[0, 6]} limY={[0, 10]} >
+<Axes limX={[-10, 10]} limY={[-2, 20]} >
 
    <Lines {xValues} {yValues} lineWidth={2} lineColor="#ff4422" />
 
@@ -419,20 +419,20 @@ Here is an example of using the component with all available parameters:
    import { Vector, cbind } from 'mdatools/arrays';
 
    // create x-values
-   const x = Vector.seq(0, 15, 0.1);
+   const xValues = Vector.seq(0, 15, 0.1);
 
    // compute y-values for four lines
-   const y1 = x.apply(v => Math.sin(v));
+   const y1 = xValues.apply(v => Math.sin(v));
    const y2 = y1.add(0.2);
    const y3 = y2.add(0.2);
    const y4 = y3.add(0.2);
 
    // combine y-values so they form columns of matrix Y
-   const Y = cbind(y1, y2, y3, y4);
+   const yValues = cbind(y1, y2, y3, y4);
 </script>
 
 <div class="plot-wrapper">
-<Axes limX={[0, 6]} limY={[0, 10]} >
+<Axes limX={[-1, 16]} limY={[-2,2]} >
 
    <Multilines {xValues} {yValues} lineWidth={2} lineColor="#ff4422" />
 
@@ -465,7 +465,7 @@ Use this component if you want to show a series of rectangles. The component has
    const left = [-3, -2, -1, 0, 1, 2, 3];
    const top = [9, 8, 7, 6, 7, 8, 9];
    const width = [0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75];
-   const height = [8, 6, 7, 5, 6, 7, 8];
+   const height = [8, 6, 4, 2, 4, 6, 8];
 
 </script>
 
