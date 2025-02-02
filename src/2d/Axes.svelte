@@ -33,8 +33,7 @@
    import { downloadSVG, downloadPNG, copyToClipboard, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
             transformCoords, getColormapLegendParams, getColormapLegendCoords, getTickFactorLabel,
             getGroupLegendCoords, text2svg,
-            invTransformCoords,
-            invTransformObjects} from '../methods.js';
+            invTransformCoords } from '../methods.js';
 
    import AxisLines from './AxisLines.svelte';
    import AxisTickLabels from './AxisTickLabels.svelte';
