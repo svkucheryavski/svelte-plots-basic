@@ -356,6 +356,8 @@
          }
 
 
+         .colormap-legend text,
+         .colormap-legend tspan,
          .series-points text,
          .series-points tspan {
             cursor: default;
