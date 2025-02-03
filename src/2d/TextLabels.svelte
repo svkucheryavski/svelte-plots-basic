@@ -10,7 +10,6 @@
    - `lineColor`- border colors of label symbols, default: `'transparent'`.
    - `lineWidth`- border width of label symbols in pixels, default: `0`.
    - `textSize`- size of label symbols in em, default: `1`.
-   - `className`- CSS class name for the labels group, default: `'series-text'`.
    - `rotateAngle`- angle to rotate labels, default: `0`.
    - `onclick` - function (callback) to be called when user clicks on a label.
 
@@ -42,8 +41,8 @@
       labels,                              // array with labels (strings)
       pos = 0,                             // position of labels related to coordinates (middle, bottom, left, top, right)
       faceColor = Colors.PRIMARY_TEXT,     // face color of label symbols
-      lineColor = 'transparent',         // border colors of label symbols
-      lineWidth = 0,                     // border width of label symbols
+      lineColor = 'transparent',           // border colors of label symbols
+      lineWidth = 0,                       // border width of label symbols
       textSize = 1,                        // size of label symbols
       rotateAngle = 0,                     // angle to rotate labels
       onclick,                             // function to be called if onclick event fires
@@ -87,8 +86,8 @@
 
    // define x and y shifts for positioning
    const m = $derived(LABELS_MARGIN[axes.scales().plot]);
-   const dx = $derived([0, 0, m,  0, -m, m]);
-   const dy = $derived([0, m, 0, -m, 0, m]);
+   const dx = $derived([0, 0, -m,  0, m, m]);
+   const dy = $derived([0, m,  0, -m, 0, m]);
 
    // styles for the elements
    const textStyleStr = $derived(`fill:${faceColor};stroke-width:${lineWidth}px;stroke:${lineColor};font-size:${textSize}em;`);
@@ -113,13 +112,17 @@
    {:else if (Array.isArray(pos) || ArrayBuffer.isView(pos))}
 
       {#each x as v, i}
-         <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos[i]]} dy={dy[pos[i]]} text-anchor={textAnchors[pos[i]]}>{@html labels[i]}</text>
+         <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos[i]]} dy={dy[pos[i]]}
+            transform={rotateAngle !== undefined ? `rotate(${rotateAngle}, ${x[i] + dx[pos]}, ${y[i] + dy[pos]})` : ''}
+            text-anchor={textAnchors[pos[i]]}>{@html labels[i]}</text>
       {/each}
 
    {:else}
 
       {#each x as v, i}
-         <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos]} dy={dy[pos]} text-anchor={textAnchors[pos]}>{@html labels[i]}</text>
+         <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos]} dy={dy[pos]}
+            transform={rotateAngle !== undefined ? `rotate(${rotateAngle}, ${x[i] + dx[pos]}, ${y[i] + dy[pos]})` : ''}
+            text-anchor={textAnchors[pos]}>{@html labels[i]}</text>
       {/each}
 
    {/if}
