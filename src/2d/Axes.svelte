@@ -62,8 +62,8 @@
    /* handler for mouse  events */
    function handleMouse(e, f) {
       if (f && e.target.id == "axes-box") {
-         const x = invTransformCoords([e.offsetX - fontSize * 1.5], tX)[0];
-         const y = invTransformCoords([e.offsetY], tY)[0];
+         const x = invTransformCoords([e.offsetX - left], tX)[0];
+         const y = invTransformCoords([e.offsetY - top], tY)[0];
          f(x, y);
       }
    }
@@ -363,8 +363,22 @@
             -webkit-user-select: none;
          }
 
+         .series-points1 text,
+         .series-points1 tspan {
+            dominant-baseline: middle;
+            alignment-baseline: middle;
+         }
+
+         .series-points2 text,
+         .series-points2 tspan {
+            dominant-baseline: central;
+            alignment-baseline: central;
+         }
+
          .series-text text,
          .series-text tspan {
+            dominant-baseline: middle;
+            alignment-baseline: middle;
             text-anchor: middle;
             user-select: none;
             -webkit-user-select: none;
