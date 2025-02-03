@@ -827,7 +827,7 @@ Here is an example of simple 3D scatter plot:
 
 You can also add `Lines`, `Segments` and `Mesh` series to 3D plots.
 
-Check more advanced example in Svelte REPL with mouse and keyboard support, and more: [plots-3d]()
+Check more advanced example in Svelte REPL with mouse and keyboard support, and more: [plots-3d](https://svelte.dev/playground/2294eecba7d7477ab9a09c1734d32ac2)
 
 
 
