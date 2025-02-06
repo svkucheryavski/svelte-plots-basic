@@ -40,6 +40,7 @@
 
    let {
       breaks,                                // vector with breaks for color intervals or vector with their indices
+      show = true,                           // logical, use to hide the element
       colmap,                                // array with colors for each interval
       labels = null,                         // optional vector with labels for interval boundaries or elements
       labelColor = Colors.CLEGEND_LABELS,    // color of labels
@@ -49,7 +50,7 @@
    // get axes context and set the parameters of colormap legend (the rest will be done by Axes component)
    const axes = getContext('axes');
    $effect(() => {
-      axes.setColmapLegend({show: true, breaks, colmap, labels, labelColor, fontSize})
+      axes.setColmapLegend({show, breaks, colmap, labels, labelColor, fontSize})
    });
 </script>
 

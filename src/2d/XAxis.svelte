@@ -26,11 +26,12 @@
 
    let {
       label,             // text label
-      showGrid = false,  // logical, show or not grid lines
       ticks,             // vector with numeric tick positions (by default is computed automatically)
       tickLabels,        // vector with labels for each tick (by default tick position values will be used)
       las = 1,           // orientation of tick labels (1 - horizontal, 2 - vertical)
-      whole = false      // should the tick positions be a whole number or not.
+      whole = false,     // should the tick positions be a whole number or not.
+      show = true,       // logical, use to hide the element
+      showGrid = false,  // logical, show or not grid lines
    } = $props();
 
    // get axes context and send axis parameters to parent
@@ -55,7 +56,7 @@
       }
 
       // activate axis
-      axes.setXAxis({show: true, error: error, label: axisLabel, ticks: ticksProcessed,
+      axes.setXAxis({show, error: error, label: axisLabel, ticks: ticksProcessed,
          labelHeight, showGrid, las, whole, tickLabels});
    });
 </script>

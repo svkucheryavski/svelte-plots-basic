@@ -46,6 +46,7 @@
 
    let {
       items,                     // array with text labels and their visual properties for each legend element.
+      show = true,               // logical, use to hide the element
 	   position = 'topleft',      // position of the legend ("topleft", "top", "topright", "right", "bottomright", etc).
       lineColor = Colors.LEGEND, // color of the legend box line
       lineWidth = 1,             // width (thickness) of the legend box line
@@ -122,7 +123,7 @@
       const newPosition = checkPosition(position);
       axes.setGroupLegend(
          newItems && newPosition ?
-         {show: true, position, items, lineColor, faceColor, lineWidth, fontSize} :
+         {show, position, items, lineColor, faceColor, lineWidth, fontSize} :
          {show: false, position: null, items: null}
       );
    });

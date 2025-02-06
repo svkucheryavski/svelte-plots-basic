@@ -29,9 +29,10 @@
       label,             // text label
       ticks,             // vector with numeric tick positions (by default is computed automatically)
       tickLabels,        // vector with labels for each tick (by default tick values will be used)
-      showGrid = false,  // logical, show or not grid lines
       las = 1,           // orientation of tick labels (1 - horizontal, 2 - vertical)
-      whole = false      // should the ticks be a whole number or not
+      whole = false,     // should the ticks be a whole number or not
+      show = true,       // logical, use to hide the element
+      showGrid = false,  // logical, show or not grid lines
    } = $props();
 
 
@@ -58,7 +59,7 @@
       }
 
       // activate axis
-      axes.setYAxis({show: true, error: error, label: axisLabel, ticks: ticksProcessed,
+      axes.setYAxis({show, error: error, label: axisLabel, ticks: ticksProcessed,
          labelHeight, showGrid, las, whole, tickLabels, pos: 4});
    });
 </script>
