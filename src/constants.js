@@ -90,7 +90,7 @@ export const Colors = {
 
    "AXIS_LINE": "#303030",
    "AXIS_TICK": "#606060",
-   "CLEGEND_LABELS": "#606060"
+   "CLEGEND_LABELS": "#808080"
 }
 
 

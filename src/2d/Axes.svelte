@@ -256,11 +256,11 @@
 
 
    {#if params.labelsFactor !== 0}
-      {@const x = coords.start + (n + 0.85) * coords.width  }
-      <text {x} y={coords.ltop} dx={0} dy={0} dominant-baseline="hanging"
+      {@const x = coords.start + n * coords.width  }
+      <text {x} y={coords.ltop} dx="1.2em" dy="-0.25em" dominant-baseline="hanging"
          fill={params.labelColor}
          font-size="{params.fontSize}em"
-         text-anchor="middle"
+         text-anchor="right"
       >{@html getTickFactorLabel(params.labelsFactor)}</text>
    {/if}
 {/snippet}
