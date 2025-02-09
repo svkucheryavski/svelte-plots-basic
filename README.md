@@ -15,6 +15,11 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 3.1.0
+
+* Added possibility to reverse the axis, just swap the limit values.
+
+
 ### 3.0.0
 
 New major release (v. 3.0.0, released 20/01/2025) introduces many breaking changes as the library has been re-written using Svelte 5. If you use previous versions of `svelte-plots-basic` in your projects, and do not want to change anything, stick to the latest 2.x.x version.
@@ -77,7 +82,7 @@ Properties `limX` and `limY` define limits of the coordinates system in *plot's 
 </style>
 ```
 
-These two properties must always be provided as an array with two values, and the first value must be smaller than the second. Both properties have default value of `[0, 1]`.
+These two properties must always be provided as an array with two values (left and right). If the first value is larger than the second one, the corresponding axis will be reversed. Both properties have default value of `[0, 1]`.
 
 Second important property is `margins`, it defines margins around the plotting area — the one which will be used for positioning of actual plot elements. Margins should be provided as an array with four values: relative margins for bottom, left, top and right parts of the plot.
 

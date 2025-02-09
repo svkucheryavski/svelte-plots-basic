@@ -130,8 +130,6 @@
    const isOk = $derived(
       checkArray(limX, 2) &&
       checkArray(limY, 2) &&
-      limX[0] < limX[1] &&
-      limY[0] < limY[1] &&
       width > (pxMargins[1] + pxMargins[3]) &&
       height > (pxMargins[0] + pxMargins[2])
    );

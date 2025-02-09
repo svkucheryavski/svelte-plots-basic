@@ -284,12 +284,15 @@ export function validateTicks(ticks, lim) {
       return [null, 'ticks values must be unique.'];
    }
 
+   // swap limits if necessary
+   const left = lim[0] < lim[1] ? lim[0] : lim[1];
+   const right = lim[0] < lim[1] ? lim[1] : lim[0];
+
    // check if provided ticks values are outside the axis limit range continue with automatic ticks
-   const newTicks = ticks.filter(x => x >= lim[0] & x <= lim[1]);
+   const newTicks = ticks.filter(x => x >= left & x <= right);
    if (newTicks.length !== ticks.length) {
       return [null, 'some of ticks values are outside axis limits.'];
    }
-
    return [newTicks, ''];
 }
 
@@ -307,7 +310,7 @@ export function validateTicks(ticks, lim) {
  * @returns {Array} an array with computed tick positions.
  *
  */
-export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) {
+export function getAxisTicks(ticks, limIn, maxTickNum, round, whole, deltaFactor) {
 
    if (round === undefined || round === null) {
       round = true;
@@ -320,6 +323,9 @@ export function getAxisTicks(ticks, lim, maxTickNum, round, whole, deltaFactor) 
    if (deltaFactor === undefined) {
       deltaFactor = 0.0001;
    }
+
+   // correct limits internally if they are reverse
+   const lim = limIn[0] < limIn[1] ? limIn : [limIn[1], limIn[0]];
 
    // if ticks are already provided do not recompute them
    // the validation is done in corresponding component, so no need to do it again
