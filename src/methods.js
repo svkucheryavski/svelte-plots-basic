@@ -154,6 +154,7 @@ export function getTickLabels(ticks) {
    if (decNum <= 2) {
       return [0, Array.from(ticks).map(v => v.toFixed(decNum))];
    }
+
    tickFactor = decNum - 2;
    decNum = 2;
 
@@ -941,11 +942,14 @@ export function getXAxisParams(limX, limY, scales, tY, axis) {
    const tfLabel = getTickFactorLabel(tickFactor);
 
    // hide last label if it is too close to tick factor
-   const dtl = Math.abs(limX[1] - ticksX.v[ticksX.length - 1]);
-   const dl = limX[1] - limX[0];
+   const n = tickLabels.length;
+   const dtl = Math.abs(limX[1] > limX[0] ? limX[1] - ticksX.v[n - 1] : limX[1] - ticksX.v[0]);
+   const dl = Math.abs(limX[1] - limX[0]);
    const dt = Math.abs(ticksX.v[1] - ticksX.v[0]);
-   if (tfLabel.length > 0 && dtl < dl * 0.10 && dtl < dt * 0.5) {
-      tickLabels[tickLabels.length - 1] = ' ';
+
+  if (tfLabel.length > 0 && dtl < dl * 0.10 && dtl < dt * 0.5) {
+      const pos = limX[1] > limX[0] ? n - 1 : 0
+      tickLabels[pos] = ' ';
    }
 
    return {grid, axisLine, tickCoords, tfCoords, ticks, tickLabels, tickFactor, tfLabel};
@@ -1020,9 +1024,20 @@ export function getYAxisParams(limX, limY, scales, tX, axis) {
    const tfLabel = getTickFactorLabel(tickFactor);
 
    // hide last label if it is too close to tick factor
-   if (tfLabel.length > 0 && (limY[1] - ticksY.v[ticksY.length - 1]) < ((limY[1] - limY[0]) * 0.05)) {
-      tickLabels[tickLabels.length - 1] = ' ';
+   const n = tickLabels.length;
+   const dtl = Math.abs(limY[1] > limY[0] ? limY[1] - ticksY.v[n - 1] : limY[1] - ticksY.v[0]);
+   const dl = Math.abs(limY[1] - limY[0]);
+   const dt = Math.abs(ticksY.v[1] - ticksY.v[0]);
+
+  if (tfLabel.length > 0 && dtl < dl * 0.10 && dtl < dt * 0.5) {
+      const pos = limY[1] > limY[0] ? n - 1 : 0
+      tickLabels[pos] = ' ';
    }
+
+   // old version of the code above - remove after testing
+   // if (tfLabel.length > 0 && (limY[1] - ticksY.v[ticksY.length - 1]) < ((limY[1] - limY[0]) * 0.05)) {
+   //    tickLabels[tickLabels.length - 1] = ' ';
+   // }
 
    return {grid, axisLine, tickCoords, tfCoords, ticks, tickLabels, tickFactor, tfLabel};
 }
