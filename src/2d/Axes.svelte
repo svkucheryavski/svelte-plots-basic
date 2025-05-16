@@ -69,18 +69,22 @@
    }
 
    function handleDown(e) {
+      e.preventDefault();
       handleMouse(e, onmousedown)
    }
 
    function handleUp(e) {
+      e.preventDefault();
       handleMouse(e, onmouseup)
    }
 
    function handleMove(e) {
+      e.preventDefault();
       handleMouse(e, onmousemove)
    }
 
    function handleClick(e) {
+      e.preventDefault();
       handleMouse(e, onclick)
    }
 
