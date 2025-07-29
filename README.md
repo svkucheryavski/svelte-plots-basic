@@ -15,6 +15,10 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 3.1.1
+
+* Added `markerSize` specification to legend items.
+
 ### 3.1.0
 
 * Added possibility to reverse the axis, just swap the limit values.
