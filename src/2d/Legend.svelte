@@ -110,6 +110,7 @@
             }
             item.point.faceColor =  item.point.faceColor ? item.point.faceColor : 'transparent';
             item.point.lineWidth = item.point.lineWidth ? item.point.lineWidth : 1;
+            item.point.markerSize = item.point.markerSize ? item.point.markerSize : 1;
             item.point.lineColor = item.point.lineColor ? item.point.lineColor : Colors.PRIMARY;
          }
       }
