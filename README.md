@@ -15,9 +15,10 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
-### 3.1.1
+### 3.1.1-3.1.4
 
 * Added `markerSize` specification to legend items.
+* Small improvements and bug fixes.
 
 ### 3.1.0
 
