@@ -303,7 +303,7 @@
             fill={item.point.faceColor}
             stroke-width={item.point.lineWidth}
             stroke={item.point.lineColor}
-            font-size="{item.markerSize}em"
+            font-size="{item.point.markerSize}em"
          >{MARKER_SYMBOLS[item.point.marker - 1]}</text>
          {/if}
 
