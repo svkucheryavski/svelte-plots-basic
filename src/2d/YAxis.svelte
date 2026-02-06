@@ -50,16 +50,17 @@
       // if ticks are provided check if they are valid and preprocess them
       let ticksProcessed, error = '';
       if (ticks) {
-         [ticksProcessed, error] = validateTicks(ticks, axes.limY())
+         [ticksProcessed, error] = validateTicks(ticks, axes.limY());
       }
 
       // if tick labels are provided check if they are valid and preprocess them
+      let tickLabelsProcessed;
       if (!error && tickLabels) {
-         [tickLabels, error] = validateTickLabels(tickLabels, ticksProcessed);
+         [tickLabelsProcessed, error] = validateTickLabels(tickLabels, ticksProcessed);
       }
 
       // activate axis
       axes.setYAxis({show, error: error, label: axisLabel, ticks: ticksProcessed,
-         labelHeight, showGrid, las, whole, tickLabels, pos: 4});
+         labelHeight, showGrid, las, whole, tickLabels: tickLabelsProcessed, pos: 4});
    });
 </script>

@@ -47,16 +47,17 @@
       // if ticks are provided check if they are valid and preprocess them
       let ticksProcessed, error = '';
       if (ticks) {
-         [ticksProcessed, error] = validateTicks(ticks, axes.limX())
+         [ticksProcessed, error] = validateTicks(ticks, axes.limX());
       }
 
       // if tick labels are provided check if they are valid and preprocess them
+      let tickLabelsProcessed;
       if (!error && tickLabels) {
-         [tickLabels, error] = validateTickLabels(tickLabels, ticksProcessed);
+         [tickLabelsProcessed, error] = validateTickLabels(tickLabels, ticksProcessed);
       }
 
       // activate axis
       axes.setXAxis({show, error: error, label: axisLabel, ticks: ticksProcessed,
-         labelHeight, showGrid, las, whole, tickLabels});
+         labelHeight, showGrid, las, whole, tickLabels: tickLabelsProcessed});
    });
 </script>

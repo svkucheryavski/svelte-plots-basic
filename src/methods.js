@@ -885,8 +885,9 @@ export function getcolmap(n, alpha) {
  */
 export function getXAxisParams(limX, limY, scales, tY, axis) {
 
-   let ticks = axis.ticks;
-   let tickLabels = axis.tickLabels;
+
+   let ticks = axis.error ? null : axis.ticks ;
+   let tickLabels = axis.error  ? null : axis.tickLabels;
    let tickFactor = 0;
 
    // compute x-coordinates of the ticks or take the ones manually specified by user
