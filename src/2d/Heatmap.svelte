@@ -38,7 +38,9 @@
       values,                        // Matrix with values to show heatmap for
       breaks,                        // vector with breaks to distribute the values in
       colmap = null,                 // array with colors for each interval
+      onclick = null,                // callback for onclick (returns row and column indices of element)
    } = $props();
+
 
 
    // check that values are provided as a matrix
@@ -110,19 +112,38 @@
    let rw = $derived(transformObjects([1], axes.tX()));
    let rh = $derived(transformObjects([1], axes.tY()));
 
+   // mouse click handler
+   function handleClick(e) {
+      if (!onclick || typeof onclick !== 'function') return;
+
+      const el = e.target;
+      if (el.tagName !== 'rect') return;
+
+      const pel = el.parentNode.parentNode;
+      const pr = pel.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      const x = (r.x - pr.x) + r.width * 0.2;
+      const y = (r.y - pr.y) + r.height * 0.2;
+      onclick(Math.abs(Math.round(y / r.height)), Math.abs(Math.round(x / r.width)))
+      e.stopPropagation();
+   }
+
+
    // check status
    let isOk = $derived(rx && ry && rx.length === ry.length);
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 {#if isOk}
-   <g class="heatmap" style="stroke:0;stroke-width:0px;">
+   <!-- svelte-ignore a11y_click_events_have_key_events -->
+   <g class="heatmap" style="stroke:0;stroke-width:0px;" onclick={handleClick}>
    <!-- loop over colors/intervals -->
    {#each lc as col, i}
       <g title="heatmap-group" style="fill:{col};">
       {#if rx[i].length > 0}
          <!-- loop over elements which fall into the interval -->
          {#each rx[i] as v, j}
-            <rect x={rx[i][j]} y={ry[i][j]} width={rw} height={rh} />
+            <rect x={rx[i][j]} y={ry[i][j]} width={rw} height={rh}/>
          {/each}
       {/if}
       </g>
