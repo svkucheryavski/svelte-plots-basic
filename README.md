@@ -15,6 +15,11 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 3.2.1
+
+* Added mouse click handler option for `Heatmap.svelte` component (returns row and column index of the element).
+
+
 ### 3.1.1-3.1.6
 
 * Fixed bug which sometimes caused an error when manual text tick labels provided.
