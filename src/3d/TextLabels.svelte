@@ -55,6 +55,7 @@
    const U = $derived(ux && uy && uz ? cbind(ux, uy, uz) : null);
 
    const l = $derived.by(() => {
+      if (!ux) return null;
       if(Array.isArray(labels) && labels.length !== ux.length ) {
          console.error('TextLabels: labels provided as an array should have the same number of elements as number of coordinates.');
          return null;
@@ -79,7 +80,7 @@
       <text data-id={i} x={s.x[i]} y={s.y[i]} dx={0} dy={0}>{@html l}</text>
    {/each}
    {:else}
-   {#each x as v, i}
+   {#each s.x as v, i}
       <text data-id={i} x={s.x[i]} y={s.y[i]} dx={0} dy={0}>{@html l[i]}</text>
    {/each}
    {/if}

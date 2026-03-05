@@ -60,8 +60,8 @@
    const uz1 = $derived(uy1 ? checkCoords(zStart, 'Segments (3D)', ux1.length) : null);
 
    const ux2 = $derived(uz1 ? checkCoords(xEnd, 'Segments (3D)', ux1.length) : null);
-   const uy2 = $derived(ux1 ? checkCoords(yEnd, 'Segments (3D)', ux1.length) : null);
-   const uz2 = $derived(uy1 ? checkCoords(zEnd, 'Segments (3D)', ux1.length) : null);
+   const uy2 = $derived(ux2 ? checkCoords(yEnd, 'Segments (3D)', ux1.length) : null);
+   const uz2 = $derived(uy2 ? checkCoords(zEnd, 'Segments (3D)', ux1.length) : null);
 
    // combine world coordinates to matrices
    const uW1 = $derived(ux1 && uy1 && uz1 ? cbind(ux1, uy1, uz1) : null);

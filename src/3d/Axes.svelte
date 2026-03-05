@@ -5,8 +5,8 @@
    - `limX` - array with limits for x-axis (in plot units), default: `[0, 1]`.
    - `limY` - array with limits for y-axis (in plot units), default: `[0, 1]`.
    - `limZ` - array with limits for y-axis (in plot units), default: `[0, 1]`.
-   - `theta` - angle (in degrees) for orientation of projection plane, default: `-10`.
-   - `phi` - angle (in degrees) for orientation of projection plane, default: `-10`.
+   - `theta` - angle (in radians) for orientation of projection plane, default: `-10`.
+   - `phi` - angle (in radians) for orientation of projection plane, default: `-10`.
    - `zoom` - zooming factor, default: `0.5`.
 
    Properties for downloading the plot as PNG or SVG file or copying it to clipboard:
@@ -48,7 +48,7 @@
       theta = -10,
       phi = -10,
       zoom = 0.5,
-      downloadLinks = 'hover',
+      downloadLinks = 'none',
       fileName = 'plot',
       pngWidth = 8,
       pngHeight = 8,
@@ -290,9 +290,9 @@
    </p>
    {:else}
    <div class="download-links">
-      <button onclick={handleClickSVG} onkeydown={handleClickSVG}>⇩ svg</button>
-      <button onclick={handleClickPNG} onkeydown={handleClickPNG}>⇩ png</button>
-      <button onclick={handleClickCopy} onkeydown={handleClickCopy}>⧉ copy</button>
+      <button onclick={handleClickSVG}>⇩ svg</button>
+      <button onclick={handleClickPNG}>⇩ png</button>
+      <button onclick={handleClickCopy}>⧉ copy</button>
    </div>
    {/if}
 </div>
@@ -370,7 +370,6 @@
       transition: bottom 0.35s ease;
       box-shadow: 0 0 0.75em #00000060;
       margin: 0.6em;
-      box-sizing: border-box;
 
       display: flex;
       align-items: center;

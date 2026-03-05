@@ -1462,7 +1462,7 @@ export function getYAxisCoords3D(yaxis, limX, limY, limZ, scale) {
 
 /**
  * Computes coordinates of all elements (lines, labels, etc) for z-axis ticks.
- * @param {Object} yaxis - JSON with z-axis paramaters.
+ * @param {Object} zaxis - JSON with z-axis paramaters.
  * @param {Array} limX - array with x-axis limits.
  * @param {Array} limY - array with y-axis limits.
  * @param {Array} limZ - array with z-axis limits.
@@ -1486,8 +1486,8 @@ export function getZAxisCoords3D(zaxis, limX, limY, limZ, scale) {
 
    // tick labels
    const tickLabels = (!zaxis.ticks || !zaxis.tickLabels) ? ticksZ.v : zaxis.tickLabels;
-   if (tickLabels.length !== ticksX.length) {
-      console.error('XAxis (3D): "tickLabels" must be a array of the same size as ticks.');
+   if (tickLabels.length !== ticksZ.length) {
+      console.error('ZAxis (3D): "tickLabels" must be a array of the same size as ticks.');
    }
 
    // combine all coordinates together

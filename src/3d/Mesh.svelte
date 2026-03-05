@@ -101,14 +101,14 @@
                // x-direction - start
                x1s.v[n1] = ux.v[x];
                z1s.v[n1] = uz.v[z];
-               y1s.v[n1] = Uy.v[z * nz + x];
+               y1s.v[n1] = Uy.v[z * nx + x];
 
                // x-direction - end
                x1e.v[n1] = ux.v[x + 1];
                z1e.v[n1] = uz.v[z];
-               y1e.v[n1] = Uy.v[z * nz + x + 1];
+               y1e.v[n1] = Uy.v[z * nx + x + 1];
 
-               const colInd = Math.round(((Uy.v[z * nz + x] + Uy.v[z * nz + x + 1]) / 2 - left) / span * (nbins - 1));
+               const colInd = Math.round(((Uy.v[z * nx + x] + Uy.v[z * nx + x + 1]) / 2 - left) / span * (nbins - 1));
                color1.v[n1] = colInd;
                n1 = n1 + 1;
             }
@@ -118,14 +118,14 @@
                // z-direction - start
                x2s.v[n2] = ux.v[x];
                z2s.v[n2] = uz.v[z];
-               y2s.v[n2] = Uy.v[z * nz + x];
+               y2s.v[n2] = Uy.v[z * nx + x];
 
                // z-direction - end
                x2e.v[n2] = ux.v[x];
                z2e.v[n2] = uz.v[z + 1];
-               y2e.v[n2] = Uy.v[(z + 1) * nz + x];
+               y2e.v[n2] = Uy.v[(z + 1) * nx + x];
 
-               const colInd = Math.round(((Uy.v[z * nz + x] + Uy.v[(z + 1) * nz + x]) / 2 - left) / span * (nbins - 1));
+               const colInd = Math.round(((Uy.v[z * nx + x] + Uy.v[(z + 1) * nx + x]) / 2 - left) / span * (nbins - 1));
                color2.v[n2] = colInd;
                n2 = n2 + 1;
             }
