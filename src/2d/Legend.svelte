@@ -78,8 +78,9 @@
          return null;
       }
 
+      const result = [];
       for (let i = 0; i < items.length; i++) {
-         const item = items[i];
+         const item = {...items[i]};
 
          // check and transform label
          if (!item.label) {
@@ -88,13 +89,14 @@
          }
 
          const newLabel = text2svg(item.label);
-         const labelHeight = newLabel.length === item.label ? 1 : 1.4;
+         const labelHeight = newLabel.length === item.label.length ? 1 : 1.4;
          item.label = newLabel;
-         item['labelHeight'] = labelHeight;
+         item.labelHeight = labelHeight;
 
          // set default values for lines
          if (item.line) {
-            if (!item.line.lineType) item.line['lineType'] = 1
+            item.line = {...item.line};
+            if (!item.line.lineType) item.line.lineType = 1
             if (!(item.line.lineType > 0 && item.line.lineType <= 4)) {
                console.error('Legend: parameter "lineType" for legend item ' + (i + 1) + ' is incorrect.');
             }
@@ -104,7 +106,8 @@
 
          // set default values for markers
          if (item.point) {
-            if (!item.point.marker) item.point['marker'] = 1
+            item.point = {...item.point};
+            if (!item.point.marker) item.point.marker = 1
             if (!(item.point.marker > 0 && item.point.marker <= MARKER_SYMBOLS.length)) {
                console.error('Legend: parameter "marker" for legend item ' + (i + 1) + ' is incorrect.');
             }
@@ -113,8 +116,10 @@
             item.point.markerSize = item.point.markerSize ? item.point.markerSize : 1;
             item.point.lineColor = item.point.lineColor ? item.point.lineColor : Colors.PRIMARY;
          }
+
+         result.push(item);
       }
-      return items;
+      return result;
    }
 
    // get context and update group legend parameters reactivey
@@ -124,7 +129,7 @@
       const newPosition = checkPosition(position);
       axes.setGroupLegend(
          newItems && newPosition ?
-         {show, position, items, lineColor, faceColor, lineWidth, fontSize} :
+         {show, position, items: newItems, lineColor, faceColor, lineWidth, fontSize} :
          {show: false, position: null, items: null}
       );
    });

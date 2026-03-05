@@ -68,11 +68,10 @@
          console.error('Bars: if only one bar must be shown, value for property "barWidthExact" should be provided.');
          return null;
       } else {
-         w = 0;
-         let lw = 0;
+         w = Infinity;
          for (let i = 1; i < n; i++) {
-            lw = Math.abs(xv.v[i - 1] - xv.v[i]);
-            if (lw > w) w = lw;
+            const lw = Math.abs(xv.v[i - 1] - xv.v[i]);
+            if (lw < w) w = lw;
          }
       }
 

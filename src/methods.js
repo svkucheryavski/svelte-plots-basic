@@ -290,7 +290,7 @@ export function validateTicks(ticks, lim) {
    const right = lim[0] < lim[1] ? lim[1] : lim[0];
 
    // check if provided ticks values are outside the axis limit range continue with automatic ticks
-   const newTicks = ticks.filter(x => x >= left & x <= right);
+   const newTicks = ticks.filter(x => x >= left && x <= right);
    if (newTicks.length !== ticks.length) {
       return [null, 'some of ticks values are outside axis limits.'];
    }
@@ -381,7 +381,7 @@ export function getAxisTicks(ticks, limIn, maxTickNum, round, whole, deltaFactor
    }
 
    // make sure the ticks are not aligned with axes limits
-   return ticks.filter(x => x >= lim[0] & x <= lim[1]);
+   return ticks.filter(x => x >= lim[0] && x <= lim[1]);
 }
 
 
@@ -456,7 +456,7 @@ export function getScale(width, height) {
  * @returns {text} the scale level ("small", "medium" or "large").
  *
  */
-export function getAxisScale(width, size) {
+export function getAxisScale(width) {
    if (width < 400.2) return "small";
    if (width < 700.2) return "medium";
    if (width < 900.2) return "large";
@@ -645,7 +645,9 @@ export function downloadPNG (svg, fileName, width, height, res) {
       canvas.width =  svgWidth * (specialScale < 1 ? specialScale : scaleFactor);
       canvas.height = svgHeight * (specialScale < 1 ? specialScale : scaleFactor);
 
-      // set corresponding attributes for SVG element
+      // save and set corresponding attributes for SVG element
+      const origWidth = svg.getAttribute('width');
+      const origHeight = svg.getAttribute('height');
       svg.setAttribute('width', svgWidth * scaleFactor);
       svg.setAttribute('height', svgHeight * scaleFactor);
 
@@ -659,12 +661,16 @@ export function downloadPNG (svg, fileName, width, height, res) {
       const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
 
+      // restore original attributes
+      origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
+      origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
+
       const img = new Image();
 
       img.onload = function () {
 
          // downscale image if it must be smaller than the current SVG element
-         if (specialScale < 0) {
+         if (specialScale < 1) {
             img.width = img.width * specialScale;
             img.height = img.height * specialScale;
          }
@@ -708,6 +714,12 @@ export function downloadSVG(svg, fileName) {
 
    const svgHeight = svg.clientHeight;
    const svgWidth = svg.clientWidth;
+
+   // save original attributes
+   const origWidth = svg.getAttribute('width');
+   const origHeight = svg.getAttribute('height');
+   const origViewBox = svg.getAttribute('viewBox');
+
    svg.setAttribute('width', svgWidth + 'px');
    svg.setAttribute('height', svgHeight + 'px');
    svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
@@ -718,6 +730,11 @@ export function downloadSVG(svg, fileName) {
    a.setAttribute('href', url)
    a.setAttribute('download', `${fileName}.svg`);
    a.click()
+
+   // restore original attributes
+   origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
+   origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
+   origViewBox ? svg.setAttribute('viewBox', origViewBox) : svg.removeAttribute('viewBox');
 }
 
 /**
@@ -793,15 +810,21 @@ export async function createPngBlob(svg, width, height) {
    // scale the context
    context.scale(scaleFactor, scaleFactor)
 
-   // set corresponding attributes for SVG element
+   // save and set corresponding attributes for SVG element
+   const origWidth = svg.getAttribute('width');
+   const origHeight = svg.getAttribute('height');
    svg.setAttribute('width', canvas.width);
    svg.setAttribute('height', canvas.height);
+
+   // serialize SVG with export dimensions, then restore original attributes
+   const svgData = new XMLSerializer().serializeToString(svg);
+   origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
+   origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
 
    // create promise
    const promise = new Promise((resolve, reject) => {
 
-      // serialzie SVG, create blob and URL for it
-      const svgData = new XMLSerializer().serializeToString(svg);
+      // create blob and URL for serialized SVG
       const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
       const DOMURL = window.URL || window.webkitURL || window;
       const url = DOMURL.createObjectURL(svgBlob);
@@ -1035,10 +1058,6 @@ export function getYAxisParams(limX, limY, scales, tX, axis) {
       tickLabels[pos] = ' ';
    }
 
-   // old version of the code above - remove after testing
-   // if (tfLabel.length > 0 && (limY[1] - ticksY.v[ticksY.length - 1]) < ((limY[1] - limY[0]) * 0.05)) {
-   //    tickLabels[tickLabels.length - 1] = ' ';
-   // }
 
    return {grid, axisLine, tickCoords, tfCoords, ticks, tickLabels, tickFactor, tfLabel};
 }
@@ -1248,8 +1267,6 @@ export function text2svg(text) {
    }
 
    let i = 0;
-   const dy = 0.5;
-   const fs = 0.8;
    let svgText = '';
    while (i < text.length) {
 

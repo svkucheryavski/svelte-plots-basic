@@ -83,6 +83,8 @@
       const nb = lb.length;    // number of breaks
       const rl = Array(nb).fill().map(() => []);     // coordinates of left for every break
       const rt = Array(nb).fill().map(() => []);     // coordinates of top for every break
+      const rr = Array(nb).fill().map(() => []);     // row indices for every break
+      const rc = Array(nb).fill().map(() => []);     // column indices for every break
 
       // adjust left side for the first break and right side for the last
       const llb = lb.slice();
@@ -97,11 +99,13 @@
             if (vj > llb[i] && vj <= llb[i + 1]) {
                rl[i].push(left.v[j] - 0.5);
                rt[i].push(v.nrows - top.v[j] + 1.5);
+               rr[i].push(top.v[j]);
+               rc[i].push(left.v[j]);
                break;
             }
          }
       };
-      return {rl, rt};
+      return {rl, rt, rr, rc};
    });
 
 
@@ -119,13 +123,12 @@
       const el = e.target;
       if (el.tagName !== 'rect') return;
 
-      const pel = el.parentNode.parentNode;
-      const pr = pel.getBoundingClientRect();
-      const r = el.getBoundingClientRect();
-      const x = (r.x - pr.x) + r.width * 0.2;
-      const y = (r.y - pr.y) + r.height * 0.2;
-      onclick(Math.abs(Math.round(y / r.height)), Math.abs(Math.round(x / r.width)))
-      e.stopPropagation();
+      const row = parseInt(el.getAttribute('data-row'));
+      const col = parseInt(el.getAttribute('data-col'));
+      if (!isNaN(row) && !isNaN(col)) {
+         onclick(row, col);
+         e.stopPropagation();
+      }
    }
 
 
@@ -143,7 +146,7 @@
       {#if rx[i].length > 0}
          <!-- loop over elements which fall into the interval -->
          {#each rx[i] as v, j}
-            <rect x={rx[i][j]} y={ry[i][j]} width={rw} height={rh}/>
+            <rect x={rx[i][j]} y={ry[i][j]} width={rw} height={rh} data-row={wc.rr[i][j]} data-col={wc.rc[i][j]}/>
          {/each}
       {/if}
       </g>

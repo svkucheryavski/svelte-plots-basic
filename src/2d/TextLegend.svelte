@@ -1,6 +1,7 @@
 <script>
    import { getContext } from 'svelte';
    import { Colors } from '../constants';
+   import { transformCoords } from '../methods';
 
    let {
       left,                                // vector/array with coordinates of lef side of each text box

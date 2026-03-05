@@ -105,7 +105,7 @@
 
 
    // unique ID for clip path
-   const clipPathID = 'plottingArea' + Math.round(Math.random() * 10000);
+   const clipPathID = 'plottingArea' + Math.random().toString(36).slice(2);
 
    // pointers to plot DOM element and its width and height
    let plotElement = $state(0);
@@ -166,7 +166,7 @@
 
    // parameters of plot title
    const plotTitle = $derived(text2svg(title));
-   const titleHeight = $derived(plotTitle ? (plotTitle.length === title.left ? 1.0 : 1.4) : 0);
+   const titleHeight = $derived(plotTitle ? (plotTitle.length === title.length ? 1.0 : 1.4) : 0);
 
    // default parameters of box, axis elements, colomap legend and group legend
    let box = $state({show: false});
@@ -220,7 +220,7 @@
 
       {#if coords.tickCoords.length === 2 && coords.tickLabels.length === coords.tickCoords[1][0].length}
       <AxisTickLabels las={params.las} pos={params.pos} tickCoords={coords.tickCoords}
-         tickLabels={coords.tickLabels} tickColor={Colors.DARKGRAY} hideLast={params.hideLast}/>
+         tickLabels={coords.tickLabels} textColor={Colors.DARKGRAY} />
       {/if}
 
       <!-- tick factor -->
@@ -262,7 +262,7 @@
       <text {x} y={coords.ltop} dx="1.2em" dy="-0.25em" dominant-baseline="hanging"
          fill={params.labelColor}
          font-size="{params.fontSize}em"
-         text-anchor="right"
+         text-anchor="end"
       >{@html getTickFactorLabel(params.labelsFactor)}</text>
    {/if}
 {/snippet}
@@ -338,11 +338,6 @@
             font-weight:bold;
             text-anchor:middle;
             user-select: none;
-         }
-
-         .series-points text {
-            /* dominant-baseline: central;
-            alignment-baseline: central */
          }
 
          .tick-labels text,
@@ -444,27 +439,16 @@
 
             <!-- box -->
             <g class="axes-box">
-            {#if box.show}
-            <rect stroke={box.lineColor} stroke-width="{box.lineWidth}px" fill="transparent"
+            <rect stroke={box.show ? box.lineColor : 'transparent'}
+               stroke-width={box.show ? box.lineWidth + 'px' : '0'}
+               fill="transparent"
                x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]}
                id="axes-box"
-               onkeydown={handleClick}
                onclick={handleClick}
                onmousemove={handleMove}
                onmousedown={handleDown}
                onmouseup={handleUp}
             />
-            {:else}
-            <rect stroke="transparent" fill="transparent"
-               x={cpx[0]} y={cpy[1]} width={cpx[1] - cpx[0]} height={cpy[0] - cpy[1]}
-               id="axes-box"
-               onkeydown={handleClick}
-               onclick={handleClick}
-               onmousemove={handleMove}
-               onmousedown={handleDown}
-               onmouseup={handleUp}
-            />
-            {/if}
             </g>
 
 
@@ -501,9 +485,9 @@
    </p>
    {:else}
    <div class="download-links">
-      <button onclick={handleClickSVG} onkeydown={handleClickSVG}>⇩ svg</button>
-      <button onclick={handleClickPNG} onkeydown={handleClickPNG}>⇩ png</button>
-      <button onclick={handleClickCopy} onkeydown={handleClickCopy}>⧉ copy</button>
+      <button onclick={handleClickSVG}>⇩ svg</button>
+      <button onclick={handleClickPNG}>⇩ png</button>
+      <button onclick={handleClickCopy}>⧉ copy</button>
    </div>
    {/if}
 </div>
@@ -534,7 +518,6 @@
       transition: bottom 0.35s ease;
       box-shadow: 0 0 0.75em #00000060;
       margin: 0.6em;
-      box-sizing: border-box;
 
       display: flex;
       align-items: center;
