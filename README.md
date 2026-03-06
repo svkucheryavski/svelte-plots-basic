@@ -15,6 +15,12 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 3.3.0
+
+* Added advanced "save as PNG" option where user can select size and resolution of the image as well as change the filename.
+* several small improvements and bug fixes.
+
+
 ### 3.2.1
 
 * Added mouse click handler option for `Heatmap.svelte` component (returns row and column index of the element).
