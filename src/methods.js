@@ -588,7 +588,7 @@ function changeDPI(base64Image, dpi) {
  * @param {number} res - resolution (pixels per inch)
  *
  */
-export function downloadPNG (svg, fileName, width, height, res) {
+export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
 
    if (!width) width = 10;
    if (!height) height = 10;
@@ -664,6 +664,9 @@ export function downloadPNG (svg, fileName, width, height, res) {
       // restore original attributes
       origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
       origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
+
+      // notify caller that serialization is done (used by ExportDialog to restore container)
+      if (onSerialize) onSerialize();
 
       const img = new Image();
 

@@ -37,6 +37,7 @@
 
    import AxisLines from './AxisLines.svelte';
    import AxisTickLabels from './AxisTickLabels.svelte';
+   import ExportDialog from '../ExportDialog.svelte';
 
 
    let {
@@ -102,6 +103,11 @@
    function handleClickPNG() {
       downloadPNG(plotElement, fileName, pngWidth, pngHeight, pngRes);
    }
+
+   /* Open advanced PNG export dialog. */
+   let showExportDialog = $state(false);
+   function handleClickPNGAdvanced() { showExportDialog = true; }
+   function handleCloseExportDialog() { showExportDialog = false; }
 
 
    // unique ID for clip path
@@ -487,8 +493,15 @@
    <div class="download-links">
       <button onclick={handleClickSVG}>⇩ svg</button>
       <button onclick={handleClickPNG}>⇩ png</button>
+      <button onclick={handleClickPNGAdvanced}>⇩ png+</button>
       <button onclick={handleClickCopy}>⧉ copy</button>
    </div>
+   {/if}
+
+   {#if showExportDialog}
+      <ExportDialog {plotElement} {fileName}
+         initialWidth={pngWidth} initialRes={pngRes}
+         onclose={handleCloseExportDialog} />
    {/if}
 </div>
 
