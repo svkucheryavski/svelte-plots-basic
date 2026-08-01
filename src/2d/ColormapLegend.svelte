@@ -34,7 +34,7 @@
    ```
 -->
 <script>
-   import { getContext } from 'svelte';
+   import { getContext, onDestroy } from 'svelte';
    import { Colors } from '../constants';
 
 
@@ -52,7 +52,10 @@
    $effect(() => {
       axes.setColmapLegend({show, breaks, colmap, labels, labelColor, fontSize})
    });
-</script>
 
+   onDestroy(() => {
+      axes.setColmapLegend({show: false});
+   });
+</script>
 
 

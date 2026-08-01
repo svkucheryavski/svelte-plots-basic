@@ -16,8 +16,16 @@
    } = $props()
 
    const axes = getContext('axes');
-   const x = $derived(left ? transformCoords([left], axes.tX()) : null);
-   const y = $derived(top ? transformCoords([top], axes.tY()) : null );
+   const x = $derived(
+      left !== undefined && left !== null
+         ? transformCoords([left], axes.tX())
+         : null
+   );
+   const y = $derived(
+      top !== undefined && top !== null
+         ? transformCoords([top], axes.tY())
+         : null
+   );
 
    // styles for bars and labels
    const textStyleStr = $derived(`fill:${faceColor};stroke-width:${lineWidth}px;stroke:${lineColor};font-size:${textSize}em;`);

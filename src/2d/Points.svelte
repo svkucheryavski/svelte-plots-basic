@@ -31,7 +31,6 @@
    import { Colors, MARKER_SYMBOLS } from '../constants';
    import { checkCoords, transformCoords, handleClick } from '../methods';
 
-   /** @type {Props} */
    let {
 	   xValues,                          // array of vector with x-coordinates of points
       yValues,                          // array of vector with y-coordinates of points

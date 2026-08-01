@@ -30,7 +30,6 @@
    import { val2p, checkCoords, handleClick } from '../methods';
    import { LINE_STYLES } from '../constants';
 
-   /** @type {Props} */
    let {
 	   xValues,                       // vector or array with x-coordinates of the points
       yValues,                       // vector or array with y-coordinates of the points
@@ -60,4 +59,3 @@
    <polyline class="line" points={p}/>
 </g>
 {/if}
-

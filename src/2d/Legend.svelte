@@ -40,7 +40,7 @@
    </Axes>
 -->
 <script>
-   import { getContext } from 'svelte';
+   import { getContext, onDestroy } from 'svelte';
    import { Colors, MARKER_SYMBOLS } from '../constants';
    import { text2svg } from '../methods';
 
@@ -132,5 +132,13 @@
          {show, position, items: newItems, lineColor, faceColor, lineWidth, fontSize} :
          {show: false, position: null, items: null}
       );
+   });
+
+   onDestroy(() => {
+      axes.setGroupLegend({
+         show: false,
+         position: null,
+         items: null
+      });
    });
 </script>

@@ -21,7 +21,7 @@
 -->
 <script>
 
-   import { getContext } from 'svelte';
+   import { getContext, onDestroy } from 'svelte';
    import { text2svg, validateTicks, validateTickLabels } from '../methods';
 
    let {
@@ -59,5 +59,9 @@
       // activate axis
       axes.setXAxis({show, error: error, label: axisLabel, ticks: ticksProcessed,
          labelHeight, showGrid, las, whole, tickLabels: tickLabelsProcessed});
+   });
+
+   onDestroy(() => {
+      axes.setXAxis({show: false, error: ''});
    });
 </script>

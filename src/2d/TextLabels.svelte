@@ -71,8 +71,22 @@
    const p = $derived.by(() => {
       if (!l) return null;
 
-      if (typeof labels === 'string' && typeof pos !== 'number' ) {
-         console.error('TextLabels: parameter "labels" is provided as single string, so "pos" must be a single number.');
+      const hasIndividualPositions =
+         Array.isArray(pos) || ArrayBuffer.isView(pos);
+
+      if (typeof labels === 'string' && hasIndividualPositions) {
+         console.error('TextLabels: when "labels" is a single string, "pos" must be a single number.');
+         return null;
+      }
+
+      if (hasIndividualPositions && pos.length !== yv.length) {
+         console.error('TextLabels: the number of values in "pos" must match the number of coordinates.');
+         return null;
+      }
+
+      const positions = hasIndividualPositions ? Array.from(pos) : [pos];
+      if (positions.some(v => !Number.isInteger(v) || v < 0 || v > 4)) {
+         console.error('TextLabels: values in "pos" must be whole numbers from 0 to 4.');
          return null;
       }
 
@@ -106,14 +120,14 @@
       {#each x as v, i}
          <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos]} dy={dy[pos]}
             transform={rotateAngle !== undefined ? `rotate(${rotateAngle}, ${x[i] + dx[pos]}, ${y[i] + dy[pos]})` : ''}
-            text-anchor={textAnchors[pos[i]]}>{@html labels}</text>
+            text-anchor={textAnchors[pos]}>{@html labels}</text>
       {/each}
 
    {:else if (Array.isArray(pos) || ArrayBuffer.isView(pos))}
 
       {#each x as v, i}
          <text data-id={i} x={x[i]} y={y[i]} dx={dx[pos[i]]} dy={dy[pos[i]]}
-            transform={rotateAngle !== undefined ? `rotate(${rotateAngle}, ${x[i] + dx[pos]}, ${y[i] + dy[pos]})` : ''}
+            transform={rotateAngle !== undefined ? `rotate(${rotateAngle}, ${x[i] + dx[pos[i]]}, ${y[i] + dy[pos[i]]})` : ''}
             text-anchor={textAnchors[pos[i]]}>{@html labels[i]}</text>
       {/each}
 

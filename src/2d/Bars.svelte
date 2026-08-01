@@ -34,7 +34,6 @@
    import Rectangles from './Rectangles.svelte';
 
 
-   /** @type {Props} */
    let {
 	   xValues,                       // vector with x-coordinates of middle points of the bars.
       yValues,                       // vector with y-coordinates of top points of the bars.

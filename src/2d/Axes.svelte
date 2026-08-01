@@ -30,7 +30,7 @@
 <script>
    import { setContext } from 'svelte';
    import { Colors, PLOT_FONT_SIZE, AXES_MARGIN_FACTORS, TICK_SIZE, LINE_STYLES, MARKER_SYMBOLS } from '../constants.js';
-   import { downloadSVG, downloadPNG, copyToClipboard, checkArray, getScale, getAxisScale, getXAxisParams, getYAxisParams,
+   import { downloadSVG, downloadPNG, copyToClipboard, getScale, getAxisScale, getXAxisParams, getYAxisParams,
             transformCoords, getColormapLegendParams, getColormapLegendCoords, getTickFactorLabel,
             getGroupLegendCoords, text2svg,
             invTransformCoords } from '../methods.js';
@@ -46,6 +46,7 @@
       limY = [0, 1],
       margins = [1.0, 1.1, 0.55, 0.60],
       downloadLinks = 'none',
+      plotActions = [],
       fileName = 'plot',
       pngWidth = 8,
       pngHeight = 8,
@@ -58,6 +59,44 @@
       onmouseup = null,
       children
    } = $props();
+
+
+   const actions = $derived.by(() => {
+      if (plotActions == null) return [];
+
+      if (!Array.isArray(plotActions)) {
+         console.error('Axes: "plotActions" must be an array.');
+         return [];
+      }
+
+      return plotActions.filter((action, index) => {
+         const isValid =
+            action &&
+            typeof action.text === 'string' &&
+            typeof action.callback === 'function';
+
+         if (!isValid) {
+            console.error(
+               `Axes: plot action ${index + 1} must contain a text string and callback function.`
+            );
+         }
+
+         return isValid;
+      });
+   });
+
+
+   // Check that axis limits contain a finite, meaningful numeric range.
+   function hasUsableRange(lim) {
+      if (!Array.isArray(lim) || lim.length !== 2) return false;
+      if (!lim.every(v => typeof v === 'number' && Number.isFinite(v))) return false;
+
+      const span = Math.abs(lim[1] - lim[0]);
+      const scale = Math.max(Math.abs(lim[0]), Math.abs(lim[1]));
+
+      return Number.isFinite(1 / span) &&
+         span > Number.EPSILON * scale * 16;
+   }
 
 
    /* handler for mouse  events */
@@ -138,8 +177,8 @@
 
    // plot status
    const isOk = $derived(
-      checkArray(limX, 2) &&
-      checkArray(limY, 2) &&
+      hasUsableRange(limX) &&
+      hasUsableRange(limY) &&
       width > (pxMargins[1] + pxMargins[3]) &&
       height > (pxMargins[0] + pxMargins[2])
    );
@@ -175,11 +214,11 @@
    const titleHeight = $derived(plotTitle ? (plotTitle.length === title.length ? 1.0 : 1.4) : 0);
 
    // default parameters of box, axis elements, colomap legend and group legend
-   let box = $state({show: false});
-   let xaxis = $state({show: false, error: ''});
-   let yaxis = $state({show: false, error: ''});
-   let clg = $state({show: false, colmap: null, breaks: null});
-   let glg = $state({show: false, items: null, position: null});
+   let box = $state.raw({show: false});
+   let xaxis = $state.raw({show: false, error: ''});
+   let yaxis = $state.raw({show: false, error: ''});
+   let clg = $state.raw({show: false, colmap: null, breaks: null});
+   let glg = $state.raw({show: false, items: null, position: null});
 
    // set colormap legend parameters if requested
    const clgParams = $derived(isOk && clg && clg.show ? getColormapLegendParams(clg) : null);
@@ -445,6 +484,8 @@
 
             <!-- box -->
             <g class="axes-box">
+            <!-- The plot callback requires real pointer coordinates; a keyboard-generated coordinate would be arbitrary. -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
             <rect stroke={box.show ? box.lineColor : 'transparent'}
                stroke-width={box.show ? box.lineWidth + 'px' : '0'}
                fill="transparent"
@@ -491,10 +532,16 @@
    </p>
    {:else}
    <div class="download-links">
-      <button onclick={handleClickSVG}>⇩ svg</button>
-      <button onclick={handleClickPNG}>⇩ png</button>
-      <button onclick={handleClickPNGAdvanced}>⇩ png+</button>
-      <button onclick={handleClickCopy}>⧉ copy</button>
+      <button type="button" onclick={handleClickSVG}>↓   svg</button>
+      <button type="button" onclick={handleClickPNG}>↓ png</button>
+      <button type="button" onclick={handleClickPNGAdvanced}>↓ png+</button>
+      <button type="button" onclick={handleClickCopy}>⧉ copy</button>
+      {#if actions.length > 0}
+      <span class="divider">⋮</span>
+      {#each actions as ac}
+      <button type="button" onclick={ac.callback}>{ac.text}</button>
+      {/each}
+      {/if}
    </div>
    {/if}
 
@@ -545,6 +592,9 @@
       background: #fafafa;
       border-radius: 0.35em;
       padding: 0.25em 0.5em;
+      margin: 0 1px;
+
+      line-height: 1.25;
    }
 
    .download-links > button:hover{
@@ -560,6 +610,12 @@
       background: #4488ee;
    }
 
+   .download-links > .divider {
+      display: inline-block;
+      width: 1em;
+      text-align: center;
+      color: #909090;
+   }
 
    /* Plot container */
    .plot-container {

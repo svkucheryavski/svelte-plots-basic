@@ -15,6 +15,24 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 3.4.0
+
+* Added the `plotActions` property to `Axes` for adding custom buttons to the download panel.
+* Added advanced validation for axis limits, text-label positions, heatmap breaks, and custom plot actions.
+* Fixed text-label positioning and rotation when individual positions are provided.
+* Fixed heatmaps with automatic, custom, or constant-value breaks.
+* Added support for rectangular and constant-height 3D meshes.
+* Improved PNG, SVG, and clipboard export by serializing a clone instead of modifying the visible plot.
+* Fixed the advanced PNG export dialog so a default resolution is always selected, falling back to 300 dpi when necessary.
+* Prevented plot controls from submitting an enclosing HTML form.
+* Added package validation before publishing and synchronized Svelte 5 peer-dependency metadata.
+* Fixed conditionally rendered axes, boxes, and legends so their parent state is cleared when they are removed.
+* Improved heatmap interval processing and added automatically generated colormaps with more than 16 colors.
+* Fixed `TextLegend` positioning at zero and strengthened finite-range validation for 3D axes.
+* Reduced reactive and repeated allocation overhead for axis configuration, text measurement, PNG export, and colormap generation.
+* Added dependency-free regression tests and made them run automatically before packaging.
+* Documented the trust requirements for labels rendered as SVG/HTML markup.
+
 ### 3.3.0
 
 * Added advanced "save as PNG" option where user can select size and resolution of the image as well as change the filename.
@@ -56,6 +74,13 @@ In addition to Svelte 5 syntax and functionality, this release also introduces a
 * **Doc strings** — every component has a corresponding doc string with description of its properties and a simple code example. It should be available when you move your mouse over the component tag in your editor/IDE if it supports this option (works in VSCode).
 
 * **Properites** — from 3.x.x the naming of the properties is more consistent. For example, before the library used properties `borderColor` and `borderWidth` for areas, rectangels, bars and markers, while for lines, segments and multilines the similar properties were named as `lineColor` and `lineWidth`. Now they all have prefix `line*` if it is something about lines or segments and `face*` if it is somthing inside a closed contour. So no more `border*` properties.
+
+
+## Security and label markup
+
+Several title and label properties support SVG/HTML markup and are rendered as raw markup using Svelte's `{@html}` mechanism. This enables formatted labels, HTML entities, subscripts, and superscripts.
+
+Only pass trusted content to these properties. Do not pass unsanitized user input or external data directly as a plot title, axis label, tick label, legend label, or text-label value. Escape untrusted text, or sanitize it with an allow-list appropriate for SVG markup, before passing it to a component.
 
 ## Installation
 
@@ -140,6 +165,7 @@ Here is a table with properties of the component related to saving plot to a fil
  `pngRes` | `300` | resolution of PNG image (pixels per inch)
  `clipboardWidth` | `1200` | width of image in clipboard in pixels
  `clipboardHeight` | `800` | height of image in clipboard in pixels
+ `plotActions` | `[]` | array of `{ text, callback }` objects for adding custom buttons to the download panel.
 
 Please pay attention that most of the browsers enable clipboard functionality only if website is available via HTTPS.
 
@@ -841,15 +867,12 @@ Here is an example of simple 3D scatter plot:
 <Axes limX={[-10, 10]} limY={[-10, 10]} limZ={[-10, 10]} {zoom} {phi} {theta}>
 	<Points {xValues} {yValues} {zValues} />
 
-	<XAxis showGrid={true} title="X" />
-	<YAxis showGrid={true} title="Y" />
-	<ZAxis showGrid={true} title="Z" />
+	<XAxis showGrid={true} label="X" />
+	<YAxis showGrid={true} label="Y" />
+	<ZAxis showGrid={true} label="Z" />
 </Axes>
 ```
 
 You can also add `Lines`, `Segments` and `Mesh` series to 3D plots.
 
 Check more advanced example in Svelte REPL with mouse and keyboard support, and more: [plots-3d](https://svelte.dev/playground/2294eecba7d7477ab9a09c1734d32ac2)
-
-
-

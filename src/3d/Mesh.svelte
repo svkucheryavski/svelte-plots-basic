@@ -45,25 +45,50 @@
 
    // check user defined coordinates
    const ux = $derived(checkCoords(xValues, 'Mesh (3D)'));
-   const uz = $derived(ux ? checkCoords(zValues, 'Mesh (3D)', ux.length) : null);
+   const uz = $derived(ux ? checkCoords(zValues, 'Mesh (3D)') : null);
    const Uy = $derived.by(() => {
       if (!ux || !uz) return null;
       if (!ismatrix(yValues)) {
          console.error('Mesh: parameter "yValues" must be a matrix with height values of mesh points.');
          return null;
       }
+      if (yValues.nrows !== ux.length || yValues.ncols !== uz.length) {
+         console.error('Mesh: dimensions of "yValues" must match the lengths of "xValues" and "zValues".');
+         return null;
+      }
       return yValues;
+   });
+
+
+   const colors = $derived.by(() => {
+      const isValid =
+         Array.isArray(colmap) &&
+         colmap.length > 0 &&
+         colmap.every(color =>
+            typeof color === 'string' && color.length > 0
+         );
+
+      if (!isValid) {
+         console.error(
+            'Mesh: parameter "colmap" must be a non-empty array of color strings.'
+         );
+         return null;
+      }
+
+      return colmap;
    });
 
 
    // compute coordinates of mesh elements
    const mesh = $derived.by(() => {
 
-      if (!Uy) return null;
+      if (!Uy || !colors) return null;
 
-      const nbins = colmap.length;
+      const nbins = colors.length;
       const nx = Uy.nrows;
       const nz = Uy.ncols;
+      const nsegmentsX = (nx - 1) * nz;
+      const nsegmentsZ = nx * (nz - 1);
 
       const nr = range(Uy.v);
       const dnr = (nr[1] - nr[0]) / 100;
@@ -71,26 +96,36 @@
       const right = nr[1] + dnr;
       const span = right - left;
 
+      function getColorIndex(value) {
+         if (!(span > 0)) return Math.floor(nbins / 2);
+
+         const index = Math.round(
+            (value - left) / span * (nbins - 1)
+         );
+
+         return Math.max(0, Math.min(nbins - 1, index));
+      }
+
       // compute coordinates for mesh segments lines
-      const x1s = Vector.zeros((nx - 1) * nz);
-      const z1s = Vector.zeros((nx - 1) * nz);
-      const y1s = Vector.zeros((nx - 1) * nz);
+      const x1s = Vector.zeros(nsegmentsX);
+      const z1s = Vector.zeros(nsegmentsX);
+      const y1s = Vector.zeros(nsegmentsX);
 
-      const x2s = Vector.zeros((nx - 1) * nz);
-      const z2s = Vector.zeros((nx - 1) * nz);
-      const y2s = Vector.zeros((nx - 1) * nz);
+      const x2s = Vector.zeros(nsegmentsZ);
+      const z2s = Vector.zeros(nsegmentsZ);
+      const y2s = Vector.zeros(nsegmentsZ);
 
-      const color1 = Vector.zeros((nx - 1) * nz);
+      const color1 = Vector.zeros(nsegmentsX);
 
-      const x1e = Vector.zeros((nx - 1) * nz);
-      const z1e = Vector.zeros((nx - 1) * nz);
-      const y1e = Vector.zeros((nx - 1) * nz);
+      const x1e = Vector.zeros(nsegmentsX);
+      const z1e = Vector.zeros(nsegmentsX);
+      const y1e = Vector.zeros(nsegmentsX);
 
-      const x2e = Vector.zeros((nx - 1) * nz);
-      const z2e = Vector.zeros((nx - 1) * nz);
-      const y2e = Vector.zeros((nx - 1) * nz);
+      const x2e = Vector.zeros(nsegmentsZ);
+      const z2e = Vector.zeros(nsegmentsZ);
+      const y2e = Vector.zeros(nsegmentsZ);
 
-      const color2 = Vector.zeros((nx - 1) * nz);
+      const color2 = Vector.zeros(nsegmentsZ);
 
       let n1 = 0, n2 = 0;
       for (let z = 0; z < nz; z++) {
@@ -108,7 +143,8 @@
                z1e.v[n1] = uz.v[z];
                y1e.v[n1] = Uy.v[z * nx + x + 1];
 
-               const colInd = Math.round(((Uy.v[z * nx + x] + Uy.v[z * nx + x + 1]) / 2 - left) / span * (nbins - 1));
+               const meanHeight = (Uy.v[z * nx + x] + Uy.v[z * nx + x + 1]) / 2;
+               const colInd = getColorIndex(meanHeight);
                color1.v[n1] = colInd;
                n1 = n1 + 1;
             }
@@ -125,7 +161,8 @@
                z2e.v[n2] = uz.v[z + 1];
                y2e.v[n2] = Uy.v[(z + 1) * nx + x];
 
-               const colInd = Math.round(((Uy.v[z * nx + x] + Uy.v[(z + 1) * nx + x]) / 2 - left) / span * (nbins - 1));
+               const meanHeight = (Uy.v[z * nx + x] + Uy.v[(z + 1) * nx + x]) / 2;
+               const colInd = getColorIndex(meanHeight);
                color2.v[n2] = colInd;
                n2 = n2 + 1;
             }
@@ -153,11 +190,10 @@
 <g class="series series_mesh" style={lineStyleStr} data-title={title}>
 {#if s1s && s1e && s2s && s2e }
    {#each s1s.x as v, i}
-   <line x1={s1s.x[i]} x2={s1e.x[i]} y1={s1s.y[i]} y2={s1e.y[i]} style={`stroke:${colmap[mesh.color1.v[i]]};`} />
+   <line x1={s1s.x[i]} x2={s1e.x[i]} y1={s1s.y[i]} y2={s1e.y[i]} style={`stroke:${colors[mesh.color1.v[i]]};`} />
    {/each}
    {#each s2s.x as v, i}
-   <line x1={s2s.x[i]} x2={s2e.x[i]} y1={s2s.y[i]} y2={s2e.y[i]} style={`stroke:${colmap[mesh.color2.v[i]]};`} />
+   <line x1={s2s.x[i]} x2={s2e.x[i]} y1={s2s.y[i]} y2={s2e.y[i]} style={`stroke:${colors[mesh.color2.v[i]]};`} />
    {/each}
 {/if}
 </g>
-

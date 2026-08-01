@@ -16,7 +16,7 @@
    ```
 -->
 <script>
-   import { getContext } from 'svelte';
+   import { getContext, onDestroy } from 'svelte';
 
    let {lineWidth = 1, lineColor = '#606060'} = $props();
    const axes = getContext('axes');
@@ -24,5 +24,8 @@
    $effect(() => {
       axes.setBox({show:true, lineWidth, lineColor});
    });
-</script>
 
+   onDestroy(() => {
+      axes.setBox({show: false});
+   });
+</script>

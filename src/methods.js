@@ -1,6 +1,6 @@
 import { cbind, vector, isvector, Vector, matrix } from 'mdatools/arrays';
 import { min, max, diff } from 'mdatools/stat';
-import { TICK_NUM, XTICK_NUM, YTICK_NUM, TICK_SIZE, COLMAP_WIDTH_RATIO, COLMAP_EL_HEIGHTS_PX, COLMAP_TOP_MARGIN } from './constants';
+import { TICK_NUM, XTICK_NUM, YTICK_NUM, TICK_SIZE, COLMAP_WIDTH_RATIO, COLMAP_EL_HEIGHTS_PX, COLMAP_TOP_MARGIN } from './constants.js';
 
 
 /**
@@ -486,13 +486,20 @@ function createPngDataTable() {
 }
 
 
+let pngDataTable = null;
+
+
 /**
  * Calculate CRC for PNG image
  * @param buf image data
  */
 function calcCrc(buf) {
    let c = -1;
-   let pngDataTable = createPngDataTable();
+
+   if (!pngDataTable) {
+      pngDataTable = createPngDataTable();
+   }
+
    for (let n = 0; n < buf.length; n++) {
       c = pngDataTable[(c ^ buf[n]) & 0xFF] ^ (c >>> 8);
    }
@@ -645,11 +652,10 @@ export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
       canvas.width =  svgWidth * (specialScale < 1 ? specialScale : scaleFactor);
       canvas.height = svgHeight * (specialScale < 1 ? specialScale : scaleFactor);
 
-      // save and set corresponding attributes for SVG element
-      const origWidth = svg.getAttribute('width');
-      const origHeight = svg.getAttribute('height');
-      svg.setAttribute('width', svgWidth * scaleFactor);
-      svg.setAttribute('height', svgHeight * scaleFactor);
+      // clone the SVG and set export dimensions without changing the live plot
+      const exportSvg = svg.cloneNode(true);
+      exportSvg.setAttribute('width', svgWidth * scaleFactor);
+      exportSvg.setAttribute('height', svgHeight * scaleFactor);
 
       // draw a white background
       context.fillStyle = 'white';
@@ -657,13 +663,9 @@ export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
       context.scale(scaleFactor, scaleFactor)
 
       // draw the SVG onto the canvas
-      const svgXml = new XMLSerializer().serializeToString(svg);
+      const svgXml = new XMLSerializer().serializeToString(exportSvg);
       const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-
-      // restore original attributes
-      origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
-      origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
 
       // notify caller that serialization is done (used by ExportDialog to restore container)
       if (onSerialize) onSerialize();
@@ -671,24 +673,33 @@ export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
       const img = new Image();
 
       img.onload = function () {
+         try {
 
-         // downscale image if it must be smaller than the current SVG element
-         if (specialScale < 1) {
-            img.width = img.width * specialScale;
-            img.height = img.height * specialScale;
+            // downscale image if it must be smaller than the current SVG element
+            if (specialScale < 1) {
+               img.width = img.width * specialScale;
+               img.height = img.height * specialScale;
+            }
+
+            context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // create a data URL for the canvas and adjust its DPI
+            const dataURL = canvas.toDataURL('image/png');
+            const dataURL2 = changeDPI(dataURL, res);
+
+            // create a temporary link and trigger the download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = dataURL2;
+            downloadLink.download = `${fileName}.png`;
+            downloadLink.click();
+         } finally {
+            URL.revokeObjectURL(url);
          }
+      };
 
-         context.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-         // create a data URL for the canvas and adjust its DPI
-         const dataURL = canvas.toDataURL('image/png');
-         const dataURL2 = changeDPI(dataURL, res);
-
-         // create a temporary link and trigger the download
-         const downloadLink = document.createElement('a');
-         downloadLink.href = dataURL2;
-         downloadLink.download = `${fileName}.png`;
-         downloadLink.click();
+      img.onerror = function (error) {
+         URL.revokeObjectURL(url);
+         console.error('Failed to load the SVG for PNG export.', error);
       };
 
       // set the image source
@@ -718,26 +729,19 @@ export function downloadSVG(svg, fileName) {
    const svgHeight = svg.clientHeight;
    const svgWidth = svg.clientWidth;
 
-   // save original attributes
-   const origWidth = svg.getAttribute('width');
-   const origHeight = svg.getAttribute('height');
-   const origViewBox = svg.getAttribute('viewBox');
+   // clone the SVG and set export dimensions without changing the live plot
+   const exportSvg = svg.cloneNode(true);
+   exportSvg.setAttribute('width', svgWidth + 'px');
+   exportSvg.setAttribute('height', svgHeight + 'px');
+   exportSvg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
 
-   svg.setAttribute('width', svgWidth + 'px');
-   svg.setAttribute('height', svgHeight + 'px');
-   svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
-
-   const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+   const blob = new Blob([exportSvg.outerHTML], { type: 'image/svg+xml' });
    const url = window.URL.createObjectURL(blob)
    const a = document.createElement('a')
    a.setAttribute('href', url)
    a.setAttribute('download', `${fileName}.svg`);
    a.click()
-
-   // restore original attributes
-   origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
-   origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
-   origViewBox ? svg.setAttribute('viewBox', origViewBox) : svg.removeAttribute('viewBox');
+   setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }
 
 /**
@@ -813,16 +817,11 @@ export async function createPngBlob(svg, width, height) {
    // scale the context
    context.scale(scaleFactor, scaleFactor)
 
-   // save and set corresponding attributes for SVG element
-   const origWidth = svg.getAttribute('width');
-   const origHeight = svg.getAttribute('height');
-   svg.setAttribute('width', canvas.width);
-   svg.setAttribute('height', canvas.height);
-
-   // serialize SVG with export dimensions, then restore original attributes
-   const svgData = new XMLSerializer().serializeToString(svg);
-   origWidth ? svg.setAttribute('width', origWidth) : svg.removeAttribute('width');
-   origHeight ? svg.setAttribute('height', origHeight) : svg.removeAttribute('height');
+   // clone and serialize the SVG with export dimensions without changing the live plot
+   const exportSvg = svg.cloneNode(true);
+   exportSvg.setAttribute('width', canvas.width);
+   exportSvg.setAttribute('height', canvas.height);
+   const svgData = new XMLSerializer().serializeToString(exportSvg);
 
    // create promise
    const promise = new Promise((resolve, reject) => {
@@ -852,6 +851,7 @@ export async function createPngBlob(svg, width, height) {
 
       // add error callback
       img.onerror = function (err) {
+         DOMURL.revokeObjectURL(url);
          reject(err);
       };
 
@@ -861,6 +861,66 @@ export async function createPngBlob(svg, width, height) {
 
    // resolve promise and return the result
    return (await promise);
+}
+
+
+let colmaps = null;
+
+
+function getColmaps() {
+   if (!colmaps) {
+      colmaps = [
+         ["#2679B2"],
+         ["#2679B2", "#D22C2F"],
+         ["#2679B2", "#92B42A", "#D22C2F"],
+         ["#2679B2", "#2E9658", "#F2B825", "#D22C2F"],
+         ["#2679B2", "#22988A", "#92B42A", "#F79426", "#D22C2F"],
+         ["#2679B2", "#1C9AA8", "#379531", "#EED524", "#FB7F28", "#D22C2F"],
+         ["#2679B2", "#1D94A9", "#2E9658", "#92B42A", "#F2B825", "#F47129", "#D22C2F"],
+         ["#2679B2", "#1E90AA", "#279775", "#519E2F", "#D3CB25", "#F5A326", "#EF672A", "#D22C2F"],
+         ["#2679B2", "#1F8DAB", "#22988A", "#33953F", "#92B42A", "#EFCA24", "#F79426", "#EB5F2A", "#D22C2F"],
+         ["#2679B2", "#208BAC", "#1E999A", "#2E9658", "#5FA32E", "#C5C626", "#F2B825", "#F98827", "#E85A2B", "#D22C2F"],
+         ["#2679B2", "#2089AD", "#1C9AA8", "#29976C", "#379531", "#92B42A", "#EED524", "#F4AA26", "#FB7F28", "#E6552B", "#D22C2F"],
+         ["#2679B2", "#2188AD", "#1C97A8", "#25987C", "#329546", "#68A62D", "#BCC327", "#F0C524", "#F69E26", "#F77728", "#E4512B", "#D22C2F"],
+         ["#2679B2", "#2186AD", "#1D94A9", "#22988A", "#2E9658", "#469A2F", "#92B42A", "#DECF25", "#F2B825", "#F79426", "#F47129", "#E34E2C", "#D22C2F"],
+         ["#2679B2", "#2285AE", "#1E92AA", "#209995", "#2A9767", "#34953A", "#6FA82D", "#B5C128", "#EFCE24", "#F3AD25", "#F98C27", "#F16B29", "#E14B2C", "#D22C2F"],
+         ["#2679B2", "#2284AE", "#1E90AA", "#1D999F", "#279775", "#31964A", "#519E2F", "#92B42A", "#D3CB25", "#F0C224", "#F5A326", "#FA8527", "#EF672A", "#E0492C", "#D22C2F"],
+         ["#2679B2", "#2283AE", "#1F8FAB", "#1C9AA8", "#249880", "#2E9658", "#379531", "#73AA2C", "#B0BF28", "#EDD424", "#F2B825", "#F69B26", "#FB7F28", "#ED632A", "#DF472C", "#D22C2F"]
+      ];
+   }
+
+   return colmaps;
+}
+
+
+function interpolateColor(start, end, amount) {
+   const channels = [1, 3, 5].map(offset => {
+      const from = parseInt(start.slice(offset, offset + 2), 16);
+      const to = parseInt(end.slice(offset, offset + 2), 16);
+
+      return Math.round(from + (to - from) * amount)
+         .toString(16)
+         .padStart(2, '0');
+   });
+
+   return `#${channels.join('')}`.toUpperCase();
+}
+
+
+function expandColmap(colors, length) {
+   const last = colors.length - 1;
+
+   return Array.from({length}, (_, index) => {
+      const position = index * last / (length - 1);
+      const start = Math.floor(position);
+      const end = Math.min(start + 1, last);
+
+      return interpolateColor(
+         colors[start],
+         colors[end],
+         position - start
+      );
+   });
 }
 
 
@@ -874,27 +934,14 @@ export async function createPngBlob(svg, width, height) {
  *
  */
 export function getcolmap(n, alpha) {
-   if (n > 16) n = 16;
-   const colmap = [
-      ["#2679B2"],
-      ["#2679B2", "#D22C2F"],
-      ["#2679B2", "#92B42A", "#D22C2F"],
-      ["#2679B2", "#2E9658", "#F2B825", "#D22C2F"],
-      ["#2679B2", "#22988A", "#92B42A", "#F79426", "#D22C2F"],
-      ["#2679B2", "#1C9AA8", "#379531", "#EED524", "#FB7F28", "#D22C2F"],
-      ["#2679B2", "#1D94A9", "#2E9658", "#92B42A", "#F2B825", "#F47129", "#D22C2F"],
-      ["#2679B2", "#1E90AA", "#279775", "#519E2F", "#D3CB25", "#F5A326", "#EF672A", "#D22C2F"],
-      ["#2679B2", "#1F8DAB", "#22988A", "#33953F", "#92B42A", "#EFCA24", "#F79426", "#EB5F2A", "#D22C2F"],
-      ["#2679B2", "#208BAC", "#1E999A", "#2E9658", "#5FA32E", "#C5C626", "#F2B825", "#F98827", "#E85A2B", "#D22C2F"],
-      ["#2679B2", "#2089AD", "#1C9AA8", "#29976C", "#379531", "#92B42A", "#EED524", "#F4AA26", "#FB7F28", "#E6552B", "#D22C2F"],
-      ["#2679B2", "#2188AD", "#1C97A8", "#25987C", "#329546", "#68A62D", "#BCC327", "#F0C524", "#F69E26", "#F77728", "#E4512B", "#D22C2F"],
-      ["#2679B2", "#2186AD", "#1D94A9", "#22988A", "#2E9658", "#469A2F", "#92B42A", "#DECF25", "#F2B825", "#F79426", "#F47129", "#E34E2C", "#D22C2F"],
-      ["#2679B2", "#2285AE", "#1E92AA", "#209995", "#2A9767", "#34953A", "#6FA82D", "#B5C128", "#EFCE24", "#F3AD25", "#F98C27", "#F16B29", "#E14B2C", "#D22C2F"],
-      ["#2679B2", "#2284AE", "#1E90AA", "#1D999F", "#279775", "#31964A", "#519E2F", "#92B42A", "#D3CB25", "#F0C224", "#F5A326", "#FA8527", "#EF672A", "#E0492C", "#D22C2F"],
-      ["#2679B2", "#2283AE", "#1F8FAB", "#1C9AA8", "#249880", "#2E9658", "#379531", "#73AA2C", "#B0BF28", "#EDD424", "#F2B825", "#F69B26", "#FB7F28", "#ED632A", "#DF472C", "#D22C2F"]
-   ]
+   const palettes = getColmaps();
+   const colors = n <= 16
+      ? palettes[n - 1]?.slice()
+      : expandColmap(palettes[15], n);
 
-   return alpha ? colmap[n - 1].map(v => v + alpha) : colmap[n - 1];
+   if (!colors) return colors;
+
+   return alpha ? colors.map(v => v + alpha) : colors;
 }
 
 
@@ -1175,11 +1222,16 @@ export function handleClick(e, tagName, onclickCallback) {
  *
  * @return {number} size of element in pixels
  */
+let textMeasureContext = null;
+
 export function getTextWidth(text, font) {
-   const element = document.createElement('canvas');
-   const context = element.getContext('2d');
-   context.font = font;
-   return context.measureText(text.replace(/<(.|\n)*?>/g, '')).width;
+   if (!textMeasureContext) {
+      const canvas = document.createElement('canvas');
+      textMeasureContext = canvas.getContext('2d');
+   }
+
+   textMeasureContext.font = font;
+   return textMeasureContext.measureText(text.replace(/<(.|\n)*?>/g, '')).width;
 }
 
 

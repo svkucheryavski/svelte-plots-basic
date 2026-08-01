@@ -33,14 +33,13 @@
    import { matrix, Matrix } from 'mdatools/arrays';
    import { setContext } from 'svelte';
    import { PLOT_FONT_SIZE } from '../constants.js';
-   import { checkArray, getScale, getXAxisCoords3D, getYAxisCoords3D, getZAxisCoords3D,
+   import { getScale, getXAxisCoords3D, getYAxisCoords3D, getZAxisCoords3D,
             downloadPNG, downloadSVG, copyToClipboard} from '../methods.js';
 
    import AxisLines from './AxisLines.svelte';
    import AxisTickLabels from './AxisTickLabels.svelte';
    import TextLabels from './TextLabels.svelte';
 
-   /** @type {Props} */
    let {
       limX = [0, 1],
       limY = [0, 1],
@@ -57,6 +56,21 @@
       clipboardHeight = 800,
       children
    } = $props();
+
+
+   function hasUsableRange(lim) {
+      if (!Array.isArray(lim) || lim.length !== 2) return false;
+      if (!lim.every(value =>
+         typeof value === 'number' && Number.isFinite(value)
+      )) return false;
+
+      const span = lim[1] - lim[0];
+      const scale = Math.max(Math.abs(lim[0]), Math.abs(lim[1]));
+
+      return span > 0 &&
+         Number.isFinite(1 / span) &&
+         span > Number.EPSILON * scale * 16;
+   }
 
 
 
@@ -105,12 +119,9 @@
 
    // check main plot parameters and set status
    const isOk = $derived(
-      checkArray(limX, 2) &&
-      checkArray(limY, 2) &&
-      checkArray(limZ, 2) &&
-      limX[0] < limX[1] &&
-      limY[0] < limY[1] &&
-      limZ[0] < limZ[1] &&
+      hasUsableRange(limX) &&
+      hasUsableRange(limY) &&
+      hasUsableRange(limZ) &&
       width > 50 &&
       height > 50
    );
@@ -174,9 +185,9 @@
    );
 
    // containers for axis properties
-   let xaxis = $state({show: false, label: ""});
-   let yaxis = $state({show: false, label: ""});
-   let zaxis = $state({show: false, label: ""});
+   let xaxis = $state.raw({show: false, label: ""});
+   let yaxis = $state.raw({show: false, label: ""});
+   let zaxis = $state.raw({show: false, label: ""});
 
    // axes context to share with children
    setContext('axes', {
@@ -290,9 +301,9 @@
    </p>
    {:else}
    <div class="download-links">
-      <button onclick={handleClickSVG}>⇩ svg</button>
-      <button onclick={handleClickPNG}>⇩ png</button>
-      <button onclick={handleClickCopy}>⧉ copy</button>
+      <button type="button" onclick={handleClickSVG}>⇩ svg</button>
+      <button type="button" onclick={handleClickPNG}>⇩ png</button>
+      <button type="button" onclick={handleClickCopy}>⧉ copy</button>
    </div>
    {/if}
 </div>

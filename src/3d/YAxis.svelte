@@ -22,7 +22,7 @@
    ```
 -->
 <script>
-   import { getContext } from 'svelte';
+   import { getContext, onDestroy } from 'svelte';
    import { Colors } from '../constants';
 
    let {
@@ -41,6 +41,9 @@
    $effect(() => {
       axes.setYAxis({show: true, ticks, tickLabels, showGrid, label, lineColor, gridColor, textColor});
    });
-</script>
 
+   onDestroy(() => {
+      axes.setYAxis({show: false});
+   });
+</script>
 

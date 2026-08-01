@@ -36,7 +36,6 @@
    import { Colors } from '../constants';
    import { checkCoords, transformCoords, transformObjects, handleClick } from '../methods';
 
-   /** @type {Props} */
    let {
 	   left,                          // array of vector with coordinates of left sides of the bars
       top,                           // array of vector with coordinates of top sides of the bars
@@ -79,5 +78,4 @@
    {/each}
    </g>
 {/if}
-
 

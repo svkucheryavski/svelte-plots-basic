@@ -38,7 +38,6 @@
    import { val2p, checkCoords, handleClick } from '../methods';
    import { LINE_STYLES } from '../constants';
 
-   /** @type {Props} */
    let {
 	   xValues,                       // vector or array with x-coordinates of the points
       yValues,                       // vector or array with y-coordinates of the points
@@ -61,6 +60,7 @@
 
       if (xv.length !== yValues.nrows) {
          console.error('Multilines: parameter "xValues" must have the same number of values as number of rows in "yValues".');
+         return null;
       }
 
       return yValues;
@@ -91,4 +91,3 @@
    {/each}
 </g>
 {/if}
-

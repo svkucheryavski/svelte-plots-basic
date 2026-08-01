@@ -32,7 +32,6 @@
    import { val2p, checkCoords, handleClick, transformCoords } from '../methods';
    import { LINE_STYLES } from '../constants';
 
-   /** @type {Props} */
    let {
 	   xValues,                       // vector or array with x-coordinates of the points
       yValues,                       // vector or array with y-coordinates of the points
@@ -66,4 +65,3 @@
    <polygon points={pa}/>
 </g>
 {/if}
-

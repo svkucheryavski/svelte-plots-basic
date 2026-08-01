@@ -25,9 +25,13 @@
    const aspectRatio = svgWidth / svgHeight;
 
    // editable state — height always derived from width to preserve aspect ratio
+   const resOptions = [100, 150, 300, 600];
+   const parsedInitialRes = Number(initialRes);
+   const defaultRes = resOptions.includes(parsedInitialRes) ? parsedInitialRes : 300;
+
    let width = $state(initialWidth);
    const height = $derived(Math.max(4, Math.min(20, Math.round(width / aspectRatio * 10) / 10)));
-   let res = $state(initialRes);
+   let res = $state(defaultRes);
    let name = $state(fileName);
    const nameValid = $derived(name.trim().length > 0);
 
@@ -73,7 +77,6 @@
       width = parseFloat(e.target.value);
    }
 
-   const resOptions = [100, 150, 300, 600];
    let saving = $state(false);
 
    function handleSave() {
@@ -168,8 +171,7 @@
                <div class="export-dialog-res-options">
                   {#each resOptions as opt}
                      <label class="export-dialog-res-btn" class:selected={res === opt}>
-                        <input type="radio" name="export-res" value={opt} checked={res === opt}
-                           onchange={() => res = opt} />
+                        <input type="radio" name="export-res" value={opt} bind:group={res} />
                         {opt}
                      </label>
                   {/each}
@@ -179,8 +181,8 @@
       </div>
 
       <div class="export-dialog-actions">
-         <button class="export-dialog-cancel" onclick={onclose} disabled={saving}>Cancel</button>
-         <button class="export-dialog-save" onclick={handleSave} disabled={!nameValid}>Save</button>
+         <button type="button" class="export-dialog-cancel" onclick={onclose} disabled={saving}>Cancel</button>
+         <button type="button" class="export-dialog-save" onclick={handleSave} disabled={!nameValid}>Save</button>
       </div>
    </div>
 </div>
