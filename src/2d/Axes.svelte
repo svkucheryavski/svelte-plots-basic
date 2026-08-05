@@ -307,7 +307,7 @@
       <text {x} y={coords.ltop} dx="1.2em" dy="-0.25em" dominant-baseline="hanging"
          fill={params.labelColor}
          font-size="{params.fontSize}em"
-         text-anchor="end"
+         text-anchor="start"
       >{@html getTickFactorLabel(params.labelsFactor)}</text>
    {/if}
 {/snippet}
