@@ -29,7 +29,7 @@
    import { cbind } from 'mdatools/arrays';
    import { getContext } from 'svelte';
    import { Colors, LINE_STYLES } from '../constants';
-   import { checkCoords, transform3D } from '../methods';
+   import { checkCoords, transform3D, normalizeLineType } from '../methods';
 
    let {
 	   xValues,
@@ -55,6 +55,7 @@
    const ux = $derived(checkCoords(xValues, 'Lines (3D)'));
    const uy = $derived(ux ? checkCoords(yValues, 'Lines (3D)', ux.length) : null);
    const uz = $derived(uy ? checkCoords(zValues, 'Lines (3D)', ux.length) : null);
+   const validLineType = $derived(normalizeLineType(lineType, 'Lines (3D)'));
 
    // combine world coordinates to matrices
    const uW = $derived(ux && uy && uz ? cbind(ux, uy, uz) : null);
@@ -65,7 +66,7 @@
    const p = $derived(s ? coords2points(s) : null);
 
    // reactive variables for coordinates of data points in pixels
-   const lineStyleStr = $derived(`fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px; stroke-dasharray:${LINE_STYLES[axes.scale()][lineType-1]}`);
+   const lineStyleStr = $derived(`fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px; stroke-dasharray:${LINE_STYLES[axes.scale()][validLineType - 1]}`);
 </script>
 
 {#if p}
@@ -73,4 +74,3 @@
       <polyline class="line" points={p}/>
    </g>
 {/if}
-

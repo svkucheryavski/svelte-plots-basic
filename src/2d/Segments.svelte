@@ -31,7 +31,7 @@
 <script>
    import { getContext } from 'svelte';
    import { Colors } from '../constants';
-   import { checkCoords, transformCoords, handleClick } from '../methods';
+   import { checkCoords, transformCoords, handleClick, normalizeLineType } from '../methods';
    import { LINE_STYLES } from '../constants';
 
    let {
@@ -51,6 +51,7 @@
    const sy = $derived(sx ? checkCoords(yStart, 'Segments', sx.length) : null);
    const ex = $derived(sy ? checkCoords(xEnd, 'Segments', sx.length) : null);
    const ey = $derived(ex ? checkCoords(yEnd, 'Segments', sx.length) : null);
+   const validLineType = $derived(normalizeLineType(lineType, 'Segments'));
 
    // get axes context and reactive variables needed to compute coordinates
    const axes = getContext('axes');
@@ -60,7 +61,7 @@
    const y2 = $derived(ey ? transformCoords(ey, axes.tY()) : null);
 
    // reactive variables for coordinates of data points in pixels (and line style)
-   const lineStyleStr = $derived(`stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType-1]}`);
+   const lineStyleStr = $derived(`stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][validLineType - 1]}`);
 
    // local status
    const isOk = $derived(x1 && x2 && y1 && y2);
@@ -75,4 +76,3 @@
    {/each}
    </g>
 {/if}
-

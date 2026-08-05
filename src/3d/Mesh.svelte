@@ -31,7 +31,7 @@
    import { range } from 'mdatools/stat';
    import { getContext } from 'svelte';
    import { Colors, LINE_STYLES } from '../constants';
-   import { checkCoords, transform3D } from '../methods';
+   import { checkCoords, transform3D, normalizeLineType } from '../methods';
 
    let {
       title = '',
@@ -46,6 +46,7 @@
    // check user defined coordinates
    const ux = $derived(checkCoords(xValues, 'Mesh (3D)'));
    const uz = $derived(ux ? checkCoords(zValues, 'Mesh (3D)') : null);
+   const validLineType = $derived(normalizeLineType(lineType, 'Mesh (3D)'));
    const Uy = $derived.by(() => {
       if (!ux || !uz) return null;
       if (!ismatrix(yValues)) {
@@ -184,16 +185,16 @@
    const s2s = $derived(mesh ? transform3D(mesh.M2s, axes.tM()) : null);
    const s2e = $derived(mesh ? transform3D(mesh.M2e, axes.tM()) : null);
 
-   const lineStyleStr = $derived(`stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scale()][lineType-1]};`);
+   const lineStyleStr = $derived(`stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scale()][validLineType - 1]};`);
 </script>
 
-<g class="series series_mesh" style={lineStyleStr} data-title={title}>
 {#if s1s && s1e && s2s && s2e }
+<g class="series series_mesh" style={lineStyleStr} data-title={title}>
    {#each s1s.x as v, i}
    <line x1={s1s.x[i]} x2={s1e.x[i]} y1={s1s.y[i]} y2={s1e.y[i]} style={`stroke:${colors[mesh.color1.v[i]]};`} />
    {/each}
    {#each s2s.x as v, i}
    <line x1={s2s.x[i]} x2={s2e.x[i]} y1={s2s.y[i]} y2={s2e.y[i]} style={`stroke:${colors[mesh.color2.v[i]]};`} />
    {/each}
-{/if}
 </g>
+{/if}

@@ -32,7 +32,7 @@
 -->
 <script>
    import { getContext } from 'svelte';
-   import { Vector } from 'mdatools/arrays';
+   import { Vector, isvector } from 'mdatools/arrays';
    import { Colors } from '../constants';
    import { checkCoords, transformCoords, transformObjects, handleClick } from '../methods';
 
@@ -48,11 +48,42 @@
       onclick,                       // function to be called if onclick event fires
    } = $props();
 
+   function checkDimensions(value, name, len) {
+      const canConvert =
+         typeof value === 'number' ||
+         (typeof value === 'string' && value.trim() !== '');
+      let dimensions;
+
+      if (canConvert) {
+         const scalar = Number(value);
+         if (!Number.isFinite(scalar) || scalar < 0) {
+            console.error(`Rectangles: parameter "${name}" must contain only finite non-negative values.`);
+            return null;
+         }
+         dimensions = Vector.fill(scalar, len);
+      } else if (Array.isArray(value) || isvector(value)) {
+         dimensions = checkCoords(value, `Rectangles (${name})`, len);
+         if (!dimensions) return null;
+      } else {
+         console.error(`Rectangles: parameter "${name}" must be a number, array, or Vector.`);
+         return null;
+      }
+
+      for (let i = 0; i < dimensions.length; i++) {
+         if (dimensions.v[i] < 0) {
+            console.error(`Rectangles: parameter "${name}" must contain only finite non-negative values.`);
+            return null;
+         }
+      }
+
+      return dimensions;
+   }
+
    // process provided values and compute world coordinates of rectangles
    const l = $derived(checkCoords(left, 'Rectangles (left)'));
    const t = $derived(l ? checkCoords(top, 'Rectangles (top)', l.length) : null);
-   const w = $derived(t ? (typeof width !== 'object' ? Vector.fill(width, l.length) : width) : null);
-   const h = $derived(t ? (typeof height !== 'object' ? Vector.fill(height, l.length) : height) : null);
+   const w = $derived(t ? checkDimensions(width, 'width', l.length) : null);
+   const h = $derived(t ? checkDimensions(height, 'height', l.length) : null);
 
    // get axes context and compute screen coordinates
    const axes = getContext('axes');
@@ -66,7 +97,7 @@
    const barsStyleStr = $derived(`fill:${faceColor};stroke:${lineColor};stroke-width:${lineWidth}px;`);
 
    // check if all coordinates are correct
-   const isOk = $derived(rx && ry && rw && rh && (rw.length === rx.length) && (rh.length === rx.length));
+   const isOk = $derived(rx && ry && rw && rh);
 </script>
 
 {#if isOk}
@@ -78,4 +109,3 @@
    {/each}
    </g>
 {/if}
-

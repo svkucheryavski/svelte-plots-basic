@@ -35,7 +35,7 @@
    import { getContext } from 'svelte';
    import { ismatrix } from 'mdatools/arrays';
    import { Colors } from '../constants';
-   import { val2p, checkCoords, handleClick } from '../methods';
+   import { val2p, checkCoords, handleClick, normalizeLineType } from '../methods';
    import { LINE_STYLES } from '../constants';
 
    let {
@@ -49,6 +49,7 @@
 
    // check user provided coordinates
    const xv = $derived(checkCoords(xValues, 'Multilines'));
+   const validLineType = $derived(normalizeLineType(lineType, 'Multilines'));
    const yv = $derived.by(() => {
 
       if (!xv) return null;
@@ -79,7 +80,7 @@
    });
 
    // reactive variables for coordinates of data points in pixels
-   const lineStyleStr = $derived(`fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px; stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType-1]}`);
+   const lineStyleStr = $derived(`fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px; stroke-dasharray:${LINE_STYLES[axes.scales().plot][validLineType - 1]}`);
 </script>
 
 {#if pp && pp.length > 0}

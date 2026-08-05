@@ -1,7 +1,7 @@
 <script>
    import { getContext } from 'svelte';
    import { Colors } from '../constants';
-   import { transformCoords } from '../methods';
+   import { checkCoords, transformCoords } from '../methods';
 
    let {
       left,                                // vector/array with coordinates of lef side of each text box
@@ -16,24 +16,31 @@
    } = $props()
 
    const axes = getContext('axes');
-   const x = $derived(
-      left !== undefined && left !== null
-         ? transformCoords([left], axes.tX())
-         : null
+   const lx = $derived(
+      left !== undefined && left !== null ? checkCoords([left], 'TextLegend (left)') : null
    );
-   const y = $derived(
-      top !== undefined && top !== null
-         ? transformCoords([top], axes.tY())
-         : null
+   const ty = $derived(
+      top !== undefined && top !== null ? checkCoords([top], 'TextLegend (top)') : null
    );
+   const x = $derived(lx ? transformCoords(lx, axes.tX()) : null);
+   const y = $derived(ty ? transformCoords(ty, axes.tY()) : null);
+
+   const validElements = $derived.by(() => {
+      if (!Array.isArray(elements) || elements.length < 1) {
+         console.error('TextLegend: parameter "elements" must be a non-empty array.');
+         return null;
+      }
+
+      return elements;
+   });
 
    // styles for bars and labels
    const textStyleStr = $derived(`fill:${faceColor};stroke-width:${lineWidth}px;stroke:${lineColor};font-size:${textSize}em;`);
 </script>
 
-{#if x && y && elements.length > 0}
+{#if x && y && validElements}
    <text style={textStyleStr} x={x} y={y} dx={dx} dy={dy} dominant-baseline="middle" text-anchor="start">
-      {#each elements as el, i}
+      {#each validElements as el, i}
          <tspan {x} {dx} dy={i === 0 ? 0 : dy}>{@html el}</tspan>
       {/each}
    </text>

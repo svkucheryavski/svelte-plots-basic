@@ -56,10 +56,19 @@
 
    const l = $derived.by(() => {
       if (!ux) return null;
-      if(Array.isArray(labels) && labels.length !== ux.length ) {
-         console.error('TextLabels: labels provided as an array should have the same number of elements as number of coordinates.');
+
+      if (typeof labels === 'string') return labels;
+
+      if (!Array.isArray(labels)) {
+         console.error('TextLabels (3D): parameter "labels" must be a string or an array.');
          return null;
       }
+
+      if (labels.length !== ux.length) {
+         console.error('TextLabels (3D): labels provided as an array must have the same number of elements as coordinates.');
+         return null;
+      }
+
       return labels;
    });
 
@@ -75,7 +84,7 @@
 {#if s}
 <g class="series {className}" title={title} style={textStyleStr} >
 
-   {#if typeof labels === 'string'}
+   {#if typeof l === 'string'}
    {#each s.x as v, i}
       <text data-id={i} x={s.x[i]} y={s.y[i]} dx={0} dy={0}>{@html l}</text>
    {/each}

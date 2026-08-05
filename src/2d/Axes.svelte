@@ -532,7 +532,7 @@
    </p>
    {:else}
    <div class="download-links">
-      <button type="button" onclick={handleClickSVG}>↓   svg</button>
+      <button type="button" onclick={handleClickSVG}>↓ svg</button>
       <button type="button" onclick={handleClickPNG}>↓ png</button>
       <button type="button" onclick={handleClickPNGAdvanced}>↓ png+</button>
       <button type="button" onclick={handleClickCopy}>⧉ copy</button>

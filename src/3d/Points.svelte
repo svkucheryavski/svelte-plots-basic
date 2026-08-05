@@ -46,8 +46,8 @@
 
    // reactive variables for coordinates of data points in pixels (and line style)
    const markerSymbol = $derived.by(() => {
-      if (typeof(marker) !== "number" || marker < 1 || marker > MARKER_SYMBOLS.length) {
-         console.error(`Points (3D): parameter 'marker' must be a number from 1 to ${MARKER_SYMBOLS.length}."`);
+      if (!Number.isInteger(marker) || marker < 1 || marker > MARKER_SYMBOLS.length) {
+         console.error(`Points (3D): parameter "marker" must be a whole number from 1 to ${MARKER_SYMBOLS.length}.`);
          return null;
       }
 

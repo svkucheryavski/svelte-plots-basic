@@ -91,7 +91,14 @@
 
 
    // check that values are provided as a matrix
-   let v = $derived(ismatrix(values) && values.nrows > 0 && values.ncols > 0 ? values : null);
+   const v = $derived.by(() => {
+      if (!ismatrix(values) || values.nrows < 1 || values.ncols < 1) {
+         console.error('Heatmap: parameter "values" must be a non-empty Matrix.');
+         return null;
+      }
+
+      return values;
+   });
 
    // check and process left values for breaks
    let lb = $derived.by(() => {
@@ -121,9 +128,11 @@
    let lc = $derived.by(() => {
       if (!lb) return null;
 
-      if (colmap) {
-         if (!Array.isArray(colmap)) {
-            console.error('Heatmap: parameter "colmap" must be array with colors.');
+      if (colmap !== null && colmap !== undefined) {
+         if (!Array.isArray(colmap) || colmap.some(color =>
+            typeof color !== 'string' || color.trim() === ''
+         )) {
+            console.error('Heatmap: parameter "colmap" must be an array of non-empty color strings.');
             return null;
          }
          if (colmap.length !== lb.length - 1) {

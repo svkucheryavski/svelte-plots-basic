@@ -42,7 +42,7 @@
 <script>
    import { getContext, onDestroy } from 'svelte';
    import { Colors, MARKER_SYMBOLS } from '../constants';
-   import { text2svg } from '../methods';
+   import { text2svg, normalizeLineType } from '../methods';
 
    let {
       items,                     // array with text labels and their visual properties for each legend element.
@@ -96,25 +96,35 @@
          // set default values for lines
          if (item.line) {
             item.line = {...item.line};
-            if (!item.line.lineType) item.line.lineType = 1
-            if (!(item.line.lineType > 0 && item.line.lineType <= 4)) {
-               console.error('Legend: parameter "lineType" for legend item ' + (i + 1) + ' is incorrect.');
-            }
+            item.line.lineType = normalizeLineType(
+               item.line.lineType ?? 1,
+               `Legend item ${i + 1}`
+            );
             item.line.lineColor = item.line.lineColor ? item.line.lineColor : Colors.PRIMARY;
-            item.line.lineWidth = item.line.lineWidth ? item.line.lineWidth : 1;
+            item.line.lineWidth = item.line.lineWidth ?? 1;
          }
 
          // set default values for markers
          if (item.point) {
             item.point = {...item.point};
-            if (!item.point.marker) item.point.marker = 1
-            if (!(item.point.marker > 0 && item.point.marker <= MARKER_SYMBOLS.length)) {
-               console.error('Legend: parameter "marker" for legend item ' + (i + 1) + ' is incorrect.');
+            const canConvertMarker =
+               typeof item.point.marker === 'number' ||
+               (typeof item.point.marker === 'string' && item.point.marker.trim() !== '');
+            const marker = item.point.marker == null ? 1 :
+               canConvertMarker ? Number(item.point.marker) : NaN;
+
+            if (!Number.isInteger(marker) || marker < 1 || marker > MARKER_SYMBOLS.length) {
+               console.error(
+                  `Legend item ${i + 1}: parameter "marker" must be a whole number from 1 to ${MARKER_SYMBOLS.length}.`
+               );
+               item.point = null;
+            } else {
+               item.point.marker = marker;
+               item.point.faceColor = item.point.faceColor ? item.point.faceColor : 'transparent';
+               item.point.lineWidth = item.point.lineWidth ?? 1;
+               item.point.markerSize = item.point.markerSize ?? 1;
+               item.point.lineColor = item.point.lineColor ? item.point.lineColor : Colors.PRIMARY;
             }
-            item.point.faceColor =  item.point.faceColor ? item.point.faceColor : 'transparent';
-            item.point.lineWidth = item.point.lineWidth ? item.point.lineWidth : 1;
-            item.point.markerSize = item.point.markerSize ? item.point.markerSize : 1;
-            item.point.lineColor = item.point.lineColor ? item.point.lineColor : Colors.PRIMARY;
          }
 
          result.push(item);
@@ -122,14 +132,16 @@
       return result;
    }
 
-   // get context and update group legend parameters reactivey
+   // Validate and transform only when the corresponding input changes.
+   const processedItems = $derived(processItems(items));
+   const validPosition = $derived(checkPosition(position));
+
+   // get context and update group legend parameters reactively
    const axes = getContext('axes');
    $effect(() => {
-      const newItems = processItems(items);
-      const newPosition = checkPosition(position);
       axes.setGroupLegend(
-         newItems && newPosition ?
-         {show, position, items: newItems, lineColor, faceColor, lineWidth, fontSize} :
+         processedItems && validPosition ?
+         {show, position: validPosition, items: processedItems, lineColor, faceColor, lineWidth, fontSize} :
          {show: false, position: null, items: null}
       );
    });

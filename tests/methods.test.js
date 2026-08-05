@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { downloadPNG, getcolmap } from '../src/methods.js';
+import { checkCoords, downloadPNG, getcolmap, normalizeLineType } from '../src/methods.js';
 
 
 test('loads public JavaScript exports through the package export map', async () => {
@@ -48,6 +48,62 @@ test('returns independent arrays', () => {
    first[0] = 'changed';
 
    assert.equal(getcolmap(3)[0], '#2679B2');
+});
+
+
+test('normalizes supported line types and numeric strings', () => {
+   assert.equal(normalizeLineType(1, 'Test'), 1);
+   assert.equal(normalizeLineType('3', 'Test'), 3);
+   assert.equal(normalizeLineType(4, 'Test'), 4);
+});
+
+
+test('falls back to a solid line for invalid line types', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = (message) => messages.push(message);
+
+   try {
+      assert.equal(normalizeLineType(1.5, 'Test'), 1);
+      assert.equal(normalizeLineType(9, 'Test'), 1);
+      assert.equal(normalizeLineType('wrong', 'Test'), 1);
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(messages, [
+      'Test: parameter "lineType" must be a whole number from 1 to 4.',
+      'Test: parameter "lineType" must be a whole number from 1 to 4.',
+      'Test: parameter "lineType" must be a whole number from 1 to 4.'
+   ]);
+});
+
+
+test('accepts finite floating-point coordinates and numeric strings', () => {
+   const coordinates = checkCoords([1.5, '2.5', -3.75], 'Test');
+
+   assert.deepEqual(Array.from(coordinates.v), [1.5, 2.5, -3.75]);
+});
+
+
+test('rejects non-finite coordinate values', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = (message) => messages.push(message);
+
+   try {
+      assert.equal(checkCoords([1, NaN], 'Test'), null);
+      assert.equal(checkCoords([1, Infinity], 'Test'), null);
+      assert.equal(checkCoords([1, -Infinity], 'Test'), null);
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(messages, [
+      'Test: coordinates must contain only finite numeric values.',
+      'Test: coordinates must contain only finite numeric values.',
+      'Test: coordinates must contain only finite numeric values.'
+   ]);
 });
 
 

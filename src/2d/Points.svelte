@@ -45,8 +45,8 @@
 
    // select which symbol to use as a marker
    const markerSymbol = $derived.by(() => {
-      if (typeof(marker) !== 'number' || marker < 1 || marker > MARKER_SYMBOLS.length) {
-         console.error('Points: parameter "marker" must be a number from 1 to ' + MARKER_SYMBOLS.length + '.');
+      if (!Number.isInteger(marker) || marker < 1 || marker > MARKER_SYMBOLS.length) {
+         console.error('Points: parameter "marker" must be a whole number from 1 to ' + MARKER_SYMBOLS.length + '.');
          return null;
       }
       return MARKER_SYMBOLS[marker - 1]
@@ -70,7 +70,7 @@
    const className = $derived(['◼', '⬥', '＋', '✳', '✕'].includes(markerSymbol)  ? 'series-points2' : 'series-points1');
 
    // check if all coordinates are correct
-   const isOk = $derived(x && y && x.length === y.length);
+   const isOk = $derived(markerSymbol && x && y && x.length === y.length);
 </script>
 
 {#if isOk}

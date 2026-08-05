@@ -32,6 +32,29 @@ export function checkArray(arr, len) {
 
 
 /**
+ * Validate a line type and fall back to a solid line when it is invalid.
+ * Numeric strings are accepted for compatibility with HTML-style component attributes.
+ *
+ * @param {number|string} lineType - line type (1 - solid, 2 - dashed, 3 - dotted, 4 - dashdot).
+ * @param {string} source - name of the component which called the method.
+ * @returns {number} normalized line type.
+ */
+export function normalizeLineType(lineType, source = 'Plot') {
+   const canConvert =
+      typeof lineType === 'number' ||
+      (typeof lineType === 'string' && lineType.trim() !== '');
+   const normalized = canConvert ? Number(lineType) : NaN;
+
+   if (!Number.isInteger(normalized) || normalized < 1 || normalized > 4) {
+      console.error(`${source}: parameter "lineType" must be a whole number from 1 to 4.`);
+      return 1;
+   }
+
+   return normalized;
+}
+
+
+/**
  * Generic function to transform x or y-values from plot coordinates to screen (SVG) coordinates.
  *
  * @param {Array|Vector} v - vector with coordinates (or objects size) in original plot coordinates.
@@ -167,7 +190,7 @@ export function getTickLabels(ticks) {
 
 
 /**
- * Check coordinates and convert them to vector if necessary.
+ * Check coordinates, ensure all values are finite, and convert them to vector if necessary.
  *
  * @param {Array|Vector} x - vector or array with coordinates.
  * @param {string} source - name of component which called the method (needed for error message).
@@ -194,6 +217,13 @@ export function checkCoords(x, source, len) {
    if (len && x.length !== len) {
       console.error(source + ': vector does not have the expected length of ' + len + '.');
       return null;
+   }
+
+   for (let i = 0; i < x.length; i++) {
+      if (!Number.isFinite(x.v[i])) {
+         console.error(source + ': coordinates must contain only finite numeric values.');
+         return null;
+      }
    }
 
    return x;

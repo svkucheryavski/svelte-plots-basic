@@ -45,24 +45,45 @@
       onclick
    } = $props();
 
+   function toNumber(value) {
+      const canConvert =
+         typeof value === 'number' ||
+         (typeof value === 'string' && value.trim() !== '');
+
+      return canConvert ? Number(value) : NaN;
+   }
+
    const bw = $derived.by(() => {
-      if (barWidth <= 0 || barWidth > 1) {
-         console.error('Bars: parameter "barWidth" should be between 0 and 1.');
+      const value = toNumber(barWidth);
+      if (!Number.isFinite(value) || value <= 0 || value > 1) {
+         console.error('Bars: parameter "barWidth" must be a finite number greater than 0 and no greater than 1.');
          return null;
       }
-      return barWidth;
+      return value;
+   });
+
+   const exactWidth = $derived.by(() => {
+      if (barWidthExact == null) return {provided: false, value: null};
+
+      const value = toNumber(barWidthExact);
+      if (!Number.isFinite(value) || value <= 0) {
+         console.error('Bars: parameter "barWidthExact" must be a finite positive number.');
+         return null;
+      }
+
+      return {provided: true, value};
    });
 
    const x = $derived.by(() => {
-      if (!bw) return null;
+      if (bw === null || exactWidth === null) return null;
       const xv = checkCoords(xValues, 'BarSeries');
       if (!xv) return null;
       const n = xv.length;
       if (n < 1) return null;
 
       let w;
-      if (barWidthExact) {
-         w = barWidthExact;
+      if (exactWidth.provided) {
+         w = exactWidth.value;
       } else if (n == 1) {
          console.error('Bars: if only one bar must be shown, value for property "barWidthExact" should be provided.');
          return null;
@@ -74,7 +95,7 @@
          }
       }
 
-      w = w * barWidth;
+      w = w * bw;
       const whalf = w / 2;
       const left = Vector.zeros(n);
       const width = Vector.zeros(n);
@@ -113,6 +134,6 @@
 </script>
 
 {#if isOk}
-<Rectangles className="series series-bar" left={x.left} width={x.width} top={y.top} height={y.height}
+<Rectangles className="series-bar" left={x.left} width={x.width} top={y.top} height={y.height}
    lineWidth={lineWidth} {lineColor} {faceColor} {onclick} />
 {/if}

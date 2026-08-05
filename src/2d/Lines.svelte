@@ -27,7 +27,7 @@
 <script>
    import { getContext } from 'svelte';
    import { Colors } from '../constants';
-   import { val2p, checkCoords, handleClick } from '../methods';
+   import { val2p, checkCoords, handleClick, normalizeLineType } from '../methods';
    import { LINE_STYLES } from '../constants';
 
    let {
@@ -43,13 +43,14 @@
    // check user provided coordinates
    const xv = $derived(checkCoords(xValues, 'Lines'));
    const yv = $derived(xv ? checkCoords(yValues, 'Lines', xv.length) : null);
+   const validLineType = $derived(normalizeLineType(lineType, 'Lines'));
 
    // get axes context and compute coordinates of polyline
    const axes = getContext('axes');
    const p = $derived(xv && yv ? val2p(xv, yv, axes.tX(), axes.tY()) : null);
 
    // reactive variables for coordinates of data points in pixels
-   const lineStyleStr = $derived(`fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px; stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType-1]}`);
+   const lineStyleStr = $derived(`fill:transparent;stroke:${lineColor};stroke-width: ${lineWidth}px; stroke-dasharray:${LINE_STYLES[axes.scales().plot][validLineType - 1]}`);
 </script>
 
 {#if p}

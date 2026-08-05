@@ -29,7 +29,7 @@
 <script>
    import { getContext } from 'svelte';
    import { Colors } from '../constants';
-   import { val2p, checkCoords, handleClick, transformCoords } from '../methods';
+   import { val2p, checkCoords, handleClick, transformCoords, normalizeLineType } from '../methods';
    import { LINE_STYLES } from '../constants';
 
    let {
@@ -46,6 +46,7 @@
    // check user provided coordinates
    const xv = $derived(checkCoords(xValues, 'Area'));
    const yv = $derived(xv ? checkCoords(yValues, 'Area', xv.length) : null);
+   const validLineType = $derived(normalizeLineType(lineType, 'Area'));
 
    // get axes context and compute coordinates of polyline
    const axes = getContext('axes');
@@ -55,7 +56,7 @@
    const xs = $derived(xv ? transformCoords(xv.subset(1), axes.tX()) : null);
    const pa = $derived(p && xs && ys ? xs + ',' + ys + ' ' + p + ' ' + xs + ',' + ys : null);
 
-   const areaStyleStr = $derived(`opacity:${opacity};fill:${faceColor};stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][lineType - 1]}`);
+   const areaStyleStr = $derived(`opacity:${opacity};fill:${faceColor};stroke:${lineColor};stroke-width: ${lineWidth}px;stroke-dasharray:${LINE_STYLES[axes.scales().plot][validLineType - 1]}`);
 </script>
 
 {#if pa}
