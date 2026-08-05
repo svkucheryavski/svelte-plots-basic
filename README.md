@@ -220,7 +220,7 @@ You can also define tick positions and corresponding labels manually. Tick posit
 
 ```svelte
 <Axes limX={[2019, 2026]} limY={[0, 60000]}>
-   <Xaxis ticks={[2023, 2024, 2025]} tickLabels={['Past', 'Present', 'Future']} />
+   <XAxis ticks={[2023, 2024, 2025]} tickLabels={['Past', 'Present', 'Future']} />
 </Axes>
 ```
 
@@ -620,7 +620,7 @@ Here is an example:
 
 ```svelte
 <script>
-   import { Axes, Xaxis, YAxis, Box, Area } from 'svelte-plots-basic/2d';
+   import { Axes, XAxis, YAxis, Box, Area } from 'svelte-plots-basic/2d';
 
    const xValues = [3, 2, 2.5, 4, 5.5, 6, 5];
    const yValues = [1, 3, 4, 5, 4, 3, 1];
@@ -677,7 +677,7 @@ Here is an example:
 
 ```svelte
 <script>
-   import { Axes, Xaxis, YAxis, Box, Heatmap } from 'svelte-plots-basic/2d';
+   import { Axes, XAxis, YAxis, Box, Heatmap } from 'svelte-plots-basic/2d';
    import { Matrix } from 'mdatools/arrays';
 
    // create 5 x 10 matrix filled with normally distributed random values
@@ -729,7 +729,7 @@ Colormap legend can be used together with `<Heatmap>` or any other color groupin
 
 ```svelte
 <script>
-   import { Axes, Xaxis, YAxis, Box, Heatmap, ColormapLegend } from 'svelte-plots-basic/2d';
+   import { Axes, XAxis, YAxis, Box, Heatmap, ColormapLegend } from 'svelte-plots-basic/2d';
    import { Matrix } from 'mdatools/arrays';
 
    // create 5 x 10 matrix filled with normally distributed random values

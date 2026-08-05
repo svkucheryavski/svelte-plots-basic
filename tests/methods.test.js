@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { checkCoords, copyToClipboard, downloadPNG, getcolmap, normalizeLineType } from '../src/methods.js';
+import { checkCoords, copyToClipboard, downloadPNG, getAxisTicks, getcolmap, normalizeLineType } from '../src/methods.js';
 
 
 test('loads public JavaScript exports through the package export map', async () => {
@@ -48,6 +48,122 @@ test('returns independent arrays', () => {
    first[0] = 'changed';
 
    assert.equal(getcolmap(3)[0], '#2679B2');
+});
+
+
+test('preserves conservative automatic tick spacing by default', () => {
+   assert.deepEqual(Array.from(getAxisTicks(null, [0, 10], 4).v), [5]);
+   assert.deepEqual(Array.from(getAxisTicks(null, [0, 10], 4, false).v), [5]);
+});
+
+
+test('honors rounded automatic tick spacing when requested', () => {
+   assert.deepEqual(Array.from(getAxisTicks(null, [0, 10], 4, true).v), [2, 4, 6, 8]);
+});
+
+
+test('returns supplied ticks without requiring axis limits', () => {
+   const ticks = [1, 2, 3];
+
+   assert.equal(getAxisTicks(ticks, null, 4), ticks);
+});
+
+
+test('rejects missing automatic tick limits without throwing', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = message => messages.push(message);
+
+   try {
+      assert.equal(getAxisTicks(null, undefined, 4), undefined);
+      assert.equal(getAxisTicks(null, null, 4), undefined);
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(messages, [
+      'getAxisTicks: provided axis limits are not valid.',
+      'getAxisTicks: provided axis limits are not valid.'
+   ]);
+});
+
+
+test('normalizes numeric-string and reversed automatic tick limits', () => {
+   assert.deepEqual(Array.from(getAxisTicks(null, ['0', '10'], 4).v), [5]);
+   assert.deepEqual(Array.from(getAxisTicks(null, [10, 0], 4).v), [5]);
+});
+
+
+test('rejects non-finite or constant automatic tick limits', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = message => messages.push(message);
+
+   try {
+      for (const limits of [[0, Infinity], [0, -Infinity], [NaN, 10], [1, 1]]) {
+         assert.equal(getAxisTicks(null, limits, 4), undefined);
+      }
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(
+      messages,
+      Array(4).fill('getAxisTicks: provided axis limits are not valid.')
+   );
+});
+
+
+test('accepts a numeric string for the maximum tick count', () => {
+   assert.deepEqual(Array.from(getAxisTicks(null, [0, 10], '4').v), [5]);
+});
+
+
+test('rejects invalid maximum tick counts', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = message => messages.push(message);
+
+   try {
+      for (const maxTickNum of [undefined, 0, -1, 1.5, NaN, Infinity]) {
+         assert.equal(getAxisTicks(null, [0, 10], maxTickNum), undefined);
+      }
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(
+      messages,
+      Array(6).fill('getAxisTicks: parameter "maxTickNum" must be a finite positive whole number.')
+   );
+});
+
+
+test('accepts a numeric string for the automatic tick margin', () => {
+   assert.deepEqual(
+      Array.from(getAxisTicks(null, [0, 10], 4, false, false, '0.1').v),
+      [2, 4, 6, 8]
+   );
+});
+
+
+test('rejects invalid automatic tick margins', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = message => messages.push(message);
+
+   try {
+      for (const deltaFactor of [NaN, Infinity, -0.01, 0.5, 1, 'invalid']) {
+         assert.equal(getAxisTicks(null, [0, 10], 4, false, false, deltaFactor), undefined);
+      }
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(
+      messages,
+      Array(6).fill('getAxisTicks: parameter "deltaFactor" must be a finite number from 0 up to, but not including, 0.5.')
+   );
 });
 
 

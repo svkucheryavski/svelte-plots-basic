@@ -334,7 +334,7 @@ export function validateTicks(ticks, lim) {
  * @param {Array} ticks - vector with ticks if alredy available (if not, new will be computed).
  * @param {Array} lim - vector with axis limits tickets must be computed for.
  * @param {number} maxTickNum - maximum number of ticks to compute.
- * @param {boolean} round - round or not the fractions when computing nice numbers for the ticks.
+ * @param {boolean} round - round or not the fractions when computing nice numbers for the ticks, default: false.
  * @param {boolean} whole - should the ticks be a whole number.
  * @param {Number} deltaFactor - percent of range to use as internal margins
  *
@@ -344,7 +344,7 @@ export function validateTicks(ticks, lim) {
 export function getAxisTicks(ticks, limIn, maxTickNum, round, whole, deltaFactor) {
 
    if (round === undefined || round === null) {
-      round = true;
+      round = false;
    }
 
    if (whole === undefined || whole === null) {
@@ -355,16 +355,34 @@ export function getAxisTicks(ticks, limIn, maxTickNum, round, whole, deltaFactor
       deltaFactor = 0.0001;
    }
 
-   // correct limits internally if they are reverse
-   const lim = limIn[0] < limIn[1] ? limIn : [limIn[1], limIn[0]];
-
    // if ticks are already provided do not recompute them
    // the validation is done in corresponding component, so no need to do it again
    if (ticks) return ticks;
 
    // check if limits are ok
-   if (typeof(lim) !== "object" || lim[0] === undefined || lim[1] === undefined) {
+   if (!limIn || typeof(limIn) !== "object" || limIn[0] === undefined || limIn[1] === undefined) {
       console.error('getAxisTicks: provided axis limits are not valid.');
+      return undefined;
+   }
+
+   const limValues = [Number(limIn[0]), Number(limIn[1])];
+   if (!limValues.every(Number.isFinite) || limValues[0] === limValues[1]) {
+      console.error('getAxisTicks: provided axis limits are not valid.');
+      return undefined;
+   }
+
+   // correct limits internally if they are reverse
+   const lim = limValues[0] < limValues[1] ? limValues : [limValues[1], limValues[0]];
+
+   maxTickNum = Number(maxTickNum);
+   if (!Number.isInteger(maxTickNum) || maxTickNum < 1) {
+      console.error('getAxisTicks: parameter "maxTickNum" must be a finite positive whole number.');
+      return undefined;
+   }
+
+   deltaFactor = Number(deltaFactor);
+   if (!Number.isFinite(deltaFactor) || deltaFactor < 0 || deltaFactor >= 0.5) {
+      console.error('getAxisTicks: parameter "deltaFactor" must be a finite number from 0 up to, but not including, 0.5.');
       return undefined;
    }
 
@@ -375,7 +393,7 @@ export function getAxisTicks(ticks, limIn, maxTickNum, round, whole, deltaFactor
    const fraction =  1 / Math.pow(10, exponent - 1);
    const range = Math.round(localRange * fraction) / fraction;
 
-   let tickSpacing = niceNum(range / maxTickNum, false);
+   let tickSpacing = niceNum(range / maxTickNum, round);
    if (whole) {
       if (Math.abs(lim[1] - lim[0]) <= 1) {
          console.error('getAxisTicks: parameter "whole" will be ignored as axis limits are too narrow to fit whole ticks.');
@@ -1032,7 +1050,7 @@ export function getXAxisParams(limX, limY, scales, tY, axis) {
    let tickFactor = 0;
 
    // compute x-coordinates of the ticks or take the ones manually specified by user
-   const ticksX = getAxisTicks(ticks, limX, XTICK_NUM[scales.x], true, axis.whole);
+   const ticksX = getAxisTicks(ticks, limX, XTICK_NUM[scales.x], false, axis.whole);
    const tickNum = ticksX.length;
 
    // compute tick y-coordinates (up and bottom)
@@ -1116,7 +1134,7 @@ export function getYAxisParams(limX, limY, scales, tX, axis) {
    let tickFactor = 0;
 
    // compute x-coordinates of the ticks or take the ones manually specified by user
-   const ticksY = getAxisTicks(axis.ticks, limY, YTICK_NUM[scales.y], true, axis.whole);
+   const ticksY = getAxisTicks(axis.ticks, limY, YTICK_NUM[scales.y], false, axis.whole);
    const tickNum = ticksY.length;
 
    // compute tick y-coordinates (up and bottom)
@@ -1471,7 +1489,7 @@ export function getXAxisCoords3D(xaxis, limX, limY, limZ, scale) {
    const dX = (limX[1] - limX[0]) / 100; // 1% of axis size
    const dY = (limY[1] - limY[0]) / 100; // 1% of axis size
    const dZ = (limZ[1] - limZ[0]) / 100; // 1% of axis size
-   const ticksX = getAxisTicks(xaxis.ticks, limX, TICK_NUM[scale], true);
+   const ticksX = getAxisTicks(xaxis.ticks, limX, TICK_NUM[scale], false);
    const tickNum = ticksX.length;
 
    const [ticksY, ticksY1, ticksY2, ticksY3] = getLatentTicks(limY, tickNum);
@@ -1534,7 +1552,7 @@ export function getYAxisCoords3D(yaxis, limX, limY, limZ, scale) {
    const dX = (limX[1] - limX[0]) / 100; // 1% of axis size
    const dY = (limY[1] - limY[0]) / 100; // 1% of axis size
    const dZ = (limZ[1] - limZ[0]) / 100; // 1% of axis size
-   const ticksY = getAxisTicks(yaxis.ticks, limY, TICK_NUM[scale], true);
+   const ticksY = getAxisTicks(yaxis.ticks, limY, TICK_NUM[scale], false);
    const tickNum = ticksY.length;
 
    const [ticksX, ticksX1, ticksX2, ticksX3] = getLatentTicks(limX, tickNum);
@@ -1597,7 +1615,7 @@ export function getZAxisCoords3D(zaxis, limX, limY, limZ, scale) {
    const dX = (limX[1] - limX[0]) / 100; // 1% of axis size
    const dY = (limY[1] - limY[0]) / 100; // 1% of axis size
    const dZ = (limZ[1] - limZ[0]) / 100; // 1% of axis size
-   const ticksZ = getAxisTicks(zaxis.ticks, limZ, TICK_NUM[scale], true);
+   const ticksZ = getAxisTicks(zaxis.ticks, limZ, TICK_NUM[scale], false);
    const tickNum = ticksZ.length;
 
    const [ticksY, ticksY1, ticksY2, ticksY3] = getLatentTicks(limY, tickNum);
