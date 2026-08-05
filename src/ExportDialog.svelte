@@ -20,20 +20,34 @@
       onclose
    } = $props();
 
-   // aspect ratio from the actual SVG element
-   const svgWidth = plotElement ? (plotElement.clientWidth || plotElement.getBoundingClientRect().width) : 1;
-   const svgHeight = plotElement ? (plotElement.clientHeight || plotElement.getBoundingClientRect().height) : 1;
-   const aspectRatio = svgWidth / svgHeight;
+   const resOptions = [100, 150, 300, 600];
+
+   // The dialog intentionally takes a snapshot of its initial props when it opens.
+   function getInitialValues() {
+      const svgWidth = plotElement ? (plotElement.clientWidth || plotElement.getBoundingClientRect().width) : 1;
+      const svgHeight = plotElement ? (plotElement.clientHeight || plotElement.getBoundingClientRect().height) : 1;
+      const parsedInitialRes = Number(initialRes);
+
+      return {
+         svgWidth,
+         svgHeight,
+         aspectRatio: svgWidth / svgHeight,
+         width: initialWidth,
+         res: resOptions.includes(parsedInitialRes) ? parsedInitialRes : 300,
+         name: typeof fileName === 'string' ? fileName : 'plot'
+      };
+   }
+
+   const initialValues = getInitialValues();
+   const svgWidth = initialValues.svgWidth;
+   const svgHeight = initialValues.svgHeight;
+   const aspectRatio = initialValues.aspectRatio;
 
    // editable state — height always derived from width to preserve aspect ratio
-   const resOptions = [100, 150, 300, 600];
-   const parsedInitialRes = Number(initialRes);
-   const defaultRes = resOptions.includes(parsedInitialRes) ? parsedInitialRes : 300;
-
-   let width = $state(initialWidth);
+   let width = $state(initialValues.width);
    const height = $derived(Math.max(4, Math.min(20, Math.round(width / aspectRatio * 10) / 10)));
-   let res = $state(defaultRes);
-   let name = $state(typeof fileName === 'string' ? fileName : 'plot');
+   let res = $state(initialValues.res);
+   let name = $state(initialValues.name);
    const nameValid = $derived(name.trim().length > 0);
    let exportError = $state('');
 

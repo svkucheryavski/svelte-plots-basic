@@ -20,7 +20,7 @@
       "./3d/*.svelte":  "./src/3d/*.svelte"
    },
    "devDependencies": {
-      "svelte": "^5.x.x"
+      "svelte": "^5.56.8"
    },
    "peerDependencies": {
       "svelte": "^5.0.0"
