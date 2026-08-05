@@ -593,26 +593,31 @@ function changeDPI(base64Image, dpi) {
  * @param {number} width - desired image width in cm
  * @param {number} height - desired image height in cm
  * @param {number} res - resolution (pixels per inch)
+ * @param {Function} [onSerialize] - callback invoked after serialization, or if export preparation fails
  *
  */
 export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
 
-   if (!width) width = 10;
-   if (!height) height = 10;
-   if (!res) res = 300;
+   if (width === undefined || width === null || width === '') width = 10;
+   if (height === undefined || height === null || height === '') height = 10;
+   if (res === undefined || res === null || res === '') res = 300;
 
-   if (width < 1 || width > 30) {
-      console.error('Parameter "width" must be between 1 and 30 (cm).');
+   width = Number(width);
+   height = Number(height);
+   res = Number(res);
+
+   if (!Number.isFinite(width) || width < 1 || width > 30) {
+      console.error('Parameter "width" must be a finite number between 1 and 30 (cm).');
       return null;
    }
 
-   if (height < 1 || height > 30) {
-      console.error('Parameter "height" must be between 1 and 30 (cm).');
+   if (!Number.isFinite(height) || height < 1 || height > 30) {
+      console.error('Parameter "height" must be a finite number between 1 and 30 (cm).');
       return null;
    }
 
-   if (res < 50 || res > 1200) {
-      console.error('Parameter "res" must be between 50 and 1200 (ppi).');
+   if (!Number.isFinite(res) || res < 50 || res > 1200) {
+      console.error('Parameter "res" must be a finite number between 50 and 1200 (ppi).');
       return null;
    }
 
@@ -621,7 +626,7 @@ export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
       return null;
    }
 
-   if (!fileName || fileName.trim() === '') {
+   if (typeof fileName !== 'string' || fileName.trim() === '') {
       fileName = 'plot';
    }
 
@@ -631,79 +636,105 @@ export function downloadPNG (svg, fileName, width, height, res, onSerialize) {
    const pxHeight = height / 2.54 * res;
 
    setTimeout(() => {
+      let url = null;
+      let callbackInvoked = false;
 
-      // compute canvas size based on SVG size and desired PNG WIDTH in pixels
-      const svgHeight = svg.clientHeight;
-      const svgWidth = svg.clientWidth;
-      let scaleFactor = Math.max(pxWidth / svgWidth, pxHeight / svgHeight);
-
-      // this is needed if SVG image is larger than the future PNG image
-      let specialScale = 1;
-      if (scaleFactor < 1) {
-         specialScale = scaleFactor;
-         scaleFactor = 1;
+      function notifyCaller() {
+         if (callbackInvoked) return;
+         callbackInvoked = true;
+         if (typeof onSerialize === 'function') onSerialize();
       }
 
-      // create a new canvas element
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
+      try {
+         // compute canvas size based on SVG size and desired PNG WIDTH in pixels
+         const svgHeight = svg.clientHeight;
+         const svgWidth = svg.clientWidth;
 
-      // set the canvas size to match the SVG element
-      canvas.width =  svgWidth * (specialScale < 1 ? specialScale : scaleFactor);
-      canvas.height = svgHeight * (specialScale < 1 ? specialScale : scaleFactor);
-
-      // clone the SVG and set export dimensions without changing the live plot
-      const exportSvg = svg.cloneNode(true);
-      exportSvg.setAttribute('width', svgWidth * scaleFactor);
-      exportSvg.setAttribute('height', svgHeight * scaleFactor);
-
-      // draw a white background
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.scale(scaleFactor, scaleFactor)
-
-      // draw the SVG onto the canvas
-      const svgXml = new XMLSerializer().serializeToString(exportSvg);
-      const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-
-      // notify caller that serialization is done (used by ExportDialog to restore container)
-      if (onSerialize) onSerialize();
-
-      const img = new Image();
-
-      img.onload = function () {
-         try {
-
-            // downscale image if it must be smaller than the current SVG element
-            if (specialScale < 1) {
-               img.width = img.width * specialScale;
-               img.height = img.height * specialScale;
-            }
-
-            context.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            // create a data URL for the canvas and adjust its DPI
-            const dataURL = canvas.toDataURL('image/png');
-            const dataURL2 = changeDPI(dataURL, res);
-
-            // create a temporary link and trigger the download
-            const downloadLink = document.createElement('a');
-            downloadLink.href = dataURL2;
-            downloadLink.download = `${fileName}.png`;
-            downloadLink.click();
-         } finally {
-            URL.revokeObjectURL(url);
+         if (!Number.isFinite(svgWidth) || svgWidth <= 0 ||
+             !Number.isFinite(svgHeight) || svgHeight <= 0) {
+            throw new Error('The SVG must have finite, positive dimensions.');
          }
-      };
 
-      img.onerror = function (error) {
-         URL.revokeObjectURL(url);
-         console.error('Failed to load the SVG for PNG export.', error);
-      };
+         let scaleFactor = Math.max(pxWidth / svgWidth, pxHeight / svgHeight);
 
-      // set the image source
-      img.src = url;
+         // this is needed if SVG image is larger than the future PNG image
+         let specialScale = 1;
+         if (scaleFactor < 1) {
+            specialScale = scaleFactor;
+            scaleFactor = 1;
+         }
+
+         // create a new canvas element
+         const canvas = document.createElement('canvas');
+         const context = canvas.getContext('2d');
+
+         if (!context) {
+            throw new Error('A 2D canvas context is not available.');
+         }
+
+         // set the canvas size to match the SVG element
+         canvas.width =  svgWidth * (specialScale < 1 ? specialScale : scaleFactor);
+         canvas.height = svgHeight * (specialScale < 1 ? specialScale : scaleFactor);
+
+         // clone the SVG and set export dimensions without changing the live plot
+         const exportSvg = svg.cloneNode(true);
+         exportSvg.setAttribute('width', svgWidth * scaleFactor);
+         exportSvg.setAttribute('height', svgHeight * scaleFactor);
+
+         // draw a white background
+         context.fillStyle = 'white';
+         context.fillRect(0, 0, canvas.width, canvas.height);
+         context.scale(scaleFactor, scaleFactor)
+
+         // draw the SVG onto the canvas
+         const svgXml = new XMLSerializer().serializeToString(exportSvg);
+         const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
+         url = URL.createObjectURL(blob);
+
+         // notify caller that serialization is done (used by ExportDialog to restore container)
+         notifyCaller();
+
+         const img = new Image();
+
+         img.onload = function () {
+            try {
+
+               // downscale image if it must be smaller than the current SVG element
+               if (specialScale < 1) {
+                  img.width = img.width * specialScale;
+                  img.height = img.height * specialScale;
+               }
+
+               context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+               // create a data URL for the canvas and adjust its DPI
+               const dataURL = canvas.toDataURL('image/png');
+               const dataURL2 = changeDPI(dataURL, res);
+
+               // create a temporary link and trigger the download
+               const downloadLink = document.createElement('a');
+               downloadLink.href = dataURL2;
+               downloadLink.download = `${fileName}.png`;
+               downloadLink.click();
+            } finally {
+               URL.revokeObjectURL(url);
+               url = null;
+            }
+         };
+
+         img.onerror = function (error) {
+            URL.revokeObjectURL(url);
+            url = null;
+            console.error('Failed to load the SVG for PNG export.', error);
+         };
+
+         // set the image source
+         img.src = url;
+      } catch (error) {
+         if (url !== null) URL.revokeObjectURL(url);
+         notifyCaller();
+         console.error('Failed to prepare the SVG for PNG export.', error);
+      }
    }, 20);
 }
 

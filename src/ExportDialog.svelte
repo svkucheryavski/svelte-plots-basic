@@ -9,6 +9,7 @@
    - `onclose` - callback when dialog is closed.
 -->
 <script>
+   import { onDestroy } from 'svelte';
    import { downloadPNG } from './methods.js';
 
    let {
@@ -32,11 +33,13 @@
    let width = $state(initialWidth);
    const height = $derived(Math.max(4, Math.min(20, Math.round(width / aspectRatio * 10) / 10)));
    let res = $state(defaultRes);
-   let name = $state(fileName);
+   let name = $state(typeof fileName === 'string' ? fileName : 'plot');
    const nameValid = $derived(name.trim().length > 0);
+   let exportError = $state('');
 
    // preview container ref
    let previewContainer = $state(null);
+   let dialogElement = $state(null);
 
    // max preview width in pixels
    const maxPreviewWidth = 400;
@@ -78,73 +81,206 @@
    }
 
    let saving = $state(false);
+   let activeExportCleanup = null;
+   let destroyed = false;
+
+   onDestroy(() => {
+      destroyed = true;
+      activeExportCleanup?.();
+      if (dialogElement?.open) dialogElement.close();
+   });
+
+   $effect(() => {
+      if (dialogElement && !dialogElement.open) {
+         dialogElement.showModal();
+         dialogElement.querySelector('#export-name')?.focus();
+      }
+   });
+
+   function closeDialog() {
+      if (dialogElement?.open) dialogElement.close();
+      onclose();
+   }
 
    function handleSave() {
       if (saving) return;
-      saving = true;
+
+      exportError = '';
+
+      const exportWidth = Number(width);
+      const exportHeight = Number(height);
+      const exportRes = Number(res);
+
+      const hasValidSize = Number.isFinite(exportWidth) && exportWidth >= 1 && exportWidth <= 30 &&
+         Number.isFinite(exportHeight) && exportHeight >= 1 && exportHeight <= 30;
+      const hasValidResolution = Number.isFinite(exportRes) && exportRes >= 50 && exportRes <= 1200;
+
+      if (!hasValidSize || !hasValidResolution) {
+         exportError = 'Export size or resolution is invalid.';
+         return;
+      }
+
+      if (!plotElement || !(plotElement instanceof SVGElement) || !plotElement.parentElement) {
+         exportError = 'The plot is not available for export.';
+         return;
+      }
 
       const container = plotElement.parentElement;
       const origStyle = container.style.cssText;
+      let observer = null;
+      let fallbackTimer = null;
+      let firstFrame = null;
+      let secondFrame = null;
+      let exportStarted = false;
+      let restored = false;
+
+      function restorePlot() {
+         if (restored) return;
+         restored = true;
+
+         observer?.disconnect();
+         if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+         if (firstFrame !== null) cancelAnimationFrame(firstFrame);
+         if (secondFrame !== null) cancelAnimationFrame(secondFrame);
+
+         container.style.cssText = origStyle;
+         saving = false;
+
+         if (activeExportCleanup === restorePlot) {
+            activeExportCleanup = null;
+         }
+      }
+
+      function failExport(error) {
+         console.error('Failed to prepare the plot for PNG export.', error);
+         exportError = 'PNG export could not be started.';
+         restorePlot();
+      }
+
+      function finishExport() {
+         restorePlot();
+         if (!destroyed) closeDialog();
+      }
+
+      activeExportCleanup = restorePlot;
+      saving = true;
 
       // scale reference width with export width so smaller plots get
       // a smaller scale category → relatively larger fonts and details
       // 4cm → 360px (small), 8cm → 520px (medium), 16cm → 840px (large), 20cm → 1000px (xlarge)
-      const refWidth = Math.round(200 + width * 40);
+      const refWidth = Math.round(200 + exportWidth * 40);
       const refHeight = Math.round(refWidth / aspectRatio);
 
       function doExport() {
-         requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-               // onSerialize callback fires after downloadPNG has serialized the SVG,
-               // so we can safely restore the container and close the dialog
-               downloadPNG(plotElement, name.trim(), width, height, res, () => {
-                  container.style.cssText = origStyle;
-                  saving = false;
-                  onclose();
+         if (exportStarted || restored) return;
+         exportStarted = true;
+
+         observer?.disconnect();
+         if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+
+         try {
+            firstFrame = requestAnimationFrame(() => {
+               firstFrame = null;
+               secondFrame = requestAnimationFrame(() => {
+                  secondFrame = null;
+
+                  try {
+                     // The callback fires after downloadPNG has serialized the SVG,
+                     // so the live container can be restored before image encoding finishes.
+                     const result = downloadPNG(
+                        plotElement,
+                        name.trim(),
+                        exportWidth,
+                        exportHeight,
+                        exportRes,
+                        finishExport
+                     );
+
+                     if (result === null) {
+                        failExport(new Error('downloadPNG rejected the export settings.'));
+                     }
+                  } catch (error) {
+                     failExport(error);
+                  }
                });
             });
-         });
+         } catch (error) {
+            failExport(error);
+         }
       }
 
-      // temporarily resize plot container to a fixed reference size (off-screen,
-      // hidden behind the dialog backdrop) so Svelte recomputes the layout
-      container.style.cssText = `position:fixed;left:-9999px;top:-9999px;width:${refWidth}px;height:${refHeight}px;overflow:hidden;`;
+      try {
+         // temporarily resize plot container to a fixed reference size (off-screen,
+         // hidden behind the dialog backdrop) so Svelte recomputes the layout
+         container.style.cssText = `position:fixed;left:-9999px;top:-9999px;width:${refWidth}px;height:${refHeight}px;overflow:hidden;`;
 
-      // wait for ResizeObserver → Svelte bindings → derived recomputation → DOM update
-      // fallback timeout in case container is already at the target size
-      const fallbackTimer = setTimeout(() => { observer.disconnect(); doExport(); }, 500);
-      const observer = new ResizeObserver(() => {
-         observer.disconnect();
-         clearTimeout(fallbackTimer);
-         doExport();
-      });
-      observer.observe(plotElement);
+         // wait for ResizeObserver → Svelte bindings → derived recomputation → DOM update
+         // fallback timeout in case container is already at the target size
+         fallbackTimer = setTimeout(doExport, 500);
+         observer = new ResizeObserver(doExport);
+         observer.observe(plotElement);
+      } catch (error) {
+         failExport(error);
+      }
    }
 
-   function handleBackdropClick() {
-      if (!saving) onclose();
+   function handleCancel(e) {
+      e.preventDefault();
+      if (!saving) closeDialog();
    }
 
    function handleDialogClick(e) {
       e.stopPropagation();
+      if (saving) return;
+
+      const bounds = e.currentTarget.getBoundingClientRect();
+      const clickedOutside = e.clientX < bounds.left || e.clientX > bounds.right ||
+         e.clientY < bounds.top || e.clientY > bounds.bottom;
+
+      if (clickedOutside) closeDialog();
    }
 
-   // close on Escape key
-   $effect(() => {
-      function handleKeydown(e) {
-         if (e.key === 'Escape' && !saving) {
-            onclose();
-         }
-      }
-      document.addEventListener('keydown', handleKeydown);
-      return () => document.removeEventListener('keydown', handleKeydown);
-   });
+   // Keep keyboard events from activating an enclosing custom modal's handlers.
+   // Native dialog behavior still handles Escape; the explicit Tab order avoids
+   // browser/OS differences in which form controls participate in navigation.
+   function handleKeydown(e) {
+      e.stopPropagation();
+
+      if (e.key !== 'Tab' || !dialogElement) return;
+
+      const resolutionInput = dialogElement.querySelector(
+         'input[name="export-res"]:checked'
+      ) ?? dialogElement.querySelector('input[name="export-res"]');
+
+      const controls = [
+         dialogElement.querySelector('#export-name'),
+         dialogElement.querySelector('#export-width'),
+         resolutionInput,
+         ...dialogElement.querySelectorAll('.export-dialog-actions button:not(:disabled)')
+      ].filter(Boolean);
+
+      if (controls.length === 0) return;
+
+      const currentIndex = controls.indexOf(document.activeElement);
+      const nextIndex = currentIndex === -1
+         ? (e.shiftKey ? controls.length - 1 : 0)
+         : (currentIndex + (e.shiftKey ? -1 : 1) + controls.length) % controls.length;
+
+      e.preventDefault();
+      controls[nextIndex].focus();
+   }
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="export-dialog-backdrop" onclick={handleBackdropClick}>
-   <div class="export-dialog" onclick={handleDialogClick}>
+<!-- Native modal events provide backdrop closing and isolate an enclosing custom modal's keyboard handlers. -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<dialog
+   class="export-dialog"
+   aria-label="Export as PNG"
+   bind:this={dialogElement}
+   oncancel={handleCancel}
+   onclick={handleDialogClick}
+   onkeydown={handleKeydown}
+>
       <div class="export-dialog-title">Export as PNG</div>
 
       <div class="export-dialog-body">
@@ -177,37 +313,34 @@
                   {/each}
                </div>
             </div>
+
+            {#if exportError}
+               <p class="export-dialog-error" role="alert">{exportError}</p>
+            {/if}
          </div>
       </div>
 
       <div class="export-dialog-actions">
-         <button type="button" class="export-dialog-cancel" onclick={onclose} disabled={saving}>Cancel</button>
-         <button type="button" class="export-dialog-save" onclick={handleSave} disabled={!nameValid}>Save</button>
+         <button type="button" class="export-dialog-cancel" onclick={closeDialog} disabled={saving}>Cancel</button>
+         <button type="button" class="export-dialog-save" onclick={handleSave} disabled={!nameValid || saving}>Save</button>
       </div>
-   </div>
-</div>
+</dialog>
 
 <style>
-   .export-dialog-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+   .export-dialog::backdrop {
       background: rgba(0, 0, 0, 0.4);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
    }
 
    .export-dialog {
+      box-sizing: border-box;
       background: #fefefe;
+      border: none;
       border-radius: 0.5em;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
       padding: 1.25em;
       min-width: 440px;
       max-width: 90vw;
+      margin: auto;
       font-family: Arial, Helvetica, sans-serif;
       color: #606060;
    }
@@ -316,7 +449,30 @@
    }
 
    .export-dialog-res-btn input {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+   }
+
+   .export-dialog-name:focus-visible,
+   .export-dialog-control input[type="range"]:focus-visible,
+   .export-dialog-actions button:focus-visible,
+   .export-dialog-res-btn:focus-within {
+      outline: 2px solid #999191;
+      outline-offset: 2px;
+   }
+
+   .export-dialog-error {
+      margin: 0;
+      color: crimson;
+      font-size: 0.85em;
    }
 
    .export-dialog-actions {

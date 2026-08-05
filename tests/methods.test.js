@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getcolmap } from '../src/methods.js';
+import { downloadPNG, getcolmap } from '../src/methods.js';
 
 
 test('loads public JavaScript exports through the package export map', async () => {
@@ -48,4 +48,25 @@ test('returns independent arrays', () => {
    first[0] = 'changed';
 
    assert.equal(getcolmap(3)[0], '#2679B2');
+});
+
+
+test('rejects non-finite PNG export settings before accessing the DOM', () => {
+   const messages = [];
+   const originalConsoleError = console.error;
+   console.error = (message) => messages.push(message);
+
+   try {
+      assert.equal(downloadPNG(null, 'plot', 'invalid', 8, 300), null);
+      assert.equal(downloadPNG(null, 'plot', 8, Infinity, 300), null);
+      assert.equal(downloadPNG(null, 'plot', 8, 8, NaN), null);
+   } finally {
+      console.error = originalConsoleError;
+   }
+
+   assert.deepEqual(messages, [
+      'Parameter "width" must be a finite number between 1 and 30 (cm).',
+      'Parameter "height" must be a finite number between 1 and 30 (cm).',
+      'Parameter "res" must be a finite number between 50 and 1200 (ppi).'
+   ]);
 });
