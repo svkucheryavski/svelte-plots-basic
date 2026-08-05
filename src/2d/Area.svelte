@@ -4,10 +4,10 @@
    Main properties:
    - `xValues` - array of vector with x-coordinates of the polygon's points.
    - `yValues` - array of vector with y-coordinates of the polygon's points.
-   - `lineWidth` - width (thickness) of the polygon's line in pixels, defailt: `1`.
+   - `lineWidth` - width (thickness) of the polygon's line in pixels, default: `1`.
    - `lineColor` - line color, default: `Colors.PRIMARY`.
    - `lineType` -  type of line (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
-   - `facColor` - face (fill) color of the polygon, default: `'transparent'`.
+   - `faceColor` - face (fill) color of the polygon, default: `'transparent'`.
    - `opacity` - opacity of the face color, default: `1`.
    - `onclick` - function (callback) to be called when user clicks on a polygon.
 
@@ -38,7 +38,7 @@
       lineColor = Colors.PRIMARY,    // color of segment lines
       lineType = 1,                  // type of segment lines (1 - solid, 2 - dashed, 3 - dotted, 4 - dashdot)
       lineWidth = 1,                 // width (thickness) of segment lines
-      faceColor = 'transparent',     // color of segment lines
+      faceColor = 'transparent',     // face (fill) color of the polygon
       opacity = 1,                   // opacity of the area color
       onclick,                       // function to be called if onclick event fires
    } = $props();

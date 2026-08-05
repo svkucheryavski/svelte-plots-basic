@@ -2,18 +2,22 @@
 @component Adds a series of text labels at given coordinates.
 
    Main properties:
-   - `xValues` - array of vector with x-coordinates of the points.
-   - `yValues` - array of vector with y-coordinates of the points.
-   - `zValues` - array of vector with z-coordinates of the points.
-   - `labels` - array with labels.
-   - `faceColor` - face (fill) color of the markers, default: `'transparent'`.
-   - `borderColor` - color markers' borders, default: `Colors.PRIMARY`.
-   - `borderWidth` - width (thickness) of the markers' borders in pixels, default: `1`.
-   - `textSize` - size of the markers in em, default: `1`.
-   - `title` - title of the line series group.
+   - `xValues` - array or vector with x-coordinates of the labels.
+   - `yValues` - array or vector with y-coordinates of the labels.
+   - `zValues` - array or vector with z-coordinates of the labels.
+   - `labels` - single string used at every coordinate or array with one string per coordinate.
+   - `faceColor` - text fill color, default: `Colors.PRIMARY_TEXT`.
+   - `borderColor` - text outline color, default: `'transparent'`.
+   - `borderWidth` - text outline width in pixels, default: `0`.
+   - `textSize` - text size in em, default: `1`.
+   - `fontWeight` - CSS font weight, default: `'normal'`.
+   - `className` - CSS class name for the labels group, default: `'series-textlabel'`.
+   - `title` - title of the labels group, default: `''`.
+
+   Values in `labels` are rendered as raw SVG/HTML markup. Only pass trusted content.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import { Axes, TextLabels } from 'svelte-plots-basic/3d';
 

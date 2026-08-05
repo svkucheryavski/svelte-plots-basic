@@ -1,17 +1,19 @@
 <!--
-@component Adds a series with line segments.
+@component Adds text labels at specified plot coordinates.
 
    Main properties:
-   - `xValues`- vector or array with x-coordinates for each label.
-   - `yValues`- vector or array with y-coordinates for each label.
-   - `labels`- single string or array with labels (strings).
-   - `pos`- position of labels related to coordinates (`0` - middle - default, `1` - bottom, `2` - left, `3` - top, `4` - right).
-   - `faceColor`-  face color of label symbols, default: `Colors.PRIMARY_TEXT`.
-   - `lineColor`- border colors of label symbols, default: `'transparent'`.
-   - `lineWidth`- border width of label symbols in pixels, default: `0`.
-   - `textSize`- size of label symbols in em, default: `1`.
-   - `rotateAngle`- angle to rotate labels, default: `0`.
+   - `xValues` - vector or array with x-coordinates for each label.
+   - `yValues` - vector or array with y-coordinates for each label.
+   - `labels` - single string used at every coordinate or array with one string per coordinate.
+   - `pos` - one position used for every label, or an array/typed array with one position per label (`0` - middle - default, `1` - bottom, `2` - left, `3` - top, `4` - right).
+   - `faceColor` - text fill color, default: `Colors.PRIMARY_TEXT`.
+   - `lineColor` - text outline color, default: `'transparent'`.
+   - `lineWidth` - text outline width in pixels, default: `0`.
+   - `textSize` - text size in em, default: `1`.
+   - `rotateAngle` - angle to rotate labels, default: `0`.
    - `onclick` - function (callback) to be called when user clicks on a label.
+
+   Values in `labels` are rendered as raw SVG/HTML markup. Only pass trusted content.
 
    Example:
 

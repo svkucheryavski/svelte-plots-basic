@@ -1,3 +1,34 @@
+<!--
+@component Adds a vertical text legend at a specified plot position.
+
+   Main properties:
+   - `left` - x-coordinate of the legend in plot units.
+   - `top` - y-coordinate of the legend in plot units.
+   - `elements` - non-empty array of text labels. SVG/HTML markup is supported.
+   - `dx` - horizontal text offset, default: `"0"`.
+   - `dy` - vertical spacing between labels, default: `"1.25em"`.
+   - `faceColor` - text fill color, default: `Colors.PRIMARY_TEXT`.
+   - `lineColor` - text outline color, default: `"transparent"`.
+   - `lineWidth` - text outline width in pixels, default: `0`.
+   - `textSize` - text size in em, default: `1`.
+
+   Values in `elements` are rendered as raw SVG/HTML markup. Only pass trusted content.
+
+   Example:
+
+   ```svelte
+   <script>
+      import { Axes, TextLegend } from 'svelte-plots-basic/2d';
+
+      const elements = ['First group', 'Second group'];
+   </script>
+
+   <Axes limX={[0, 10]} limY={[0, 10]}>
+      <TextLegend left={1} top={9} {elements} />
+   </Axes>
+   ```
+-->
+
 <script>
    import { getContext } from 'svelte';
    import { Colors } from '../constants';

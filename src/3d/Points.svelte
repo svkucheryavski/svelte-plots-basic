@@ -2,18 +2,18 @@
 @component Adds a series of points (markers).
 
    Main properties:
-   - `xValues` - array of vector with x-coordinates of the points.
-   - `yValues` - array of vector with y-coordinates of the points.
-   - `zValues` - array of vector with z-coordinates of the points.
+   - `xValues` - array or vector with x-coordinates of the points.
+   - `yValues` - array or vector with y-coordinates of the points.
+   - `zValues` - array or vector with z-coordinates of the points.
    - `marker` - marker number (from 1 to 8), default: `1`.
    - `faceColor` - face (fill) color of the markers, default: `'transparent'`.
-   - `borderColor` - color markers' borders, default: `Colors.PRIMARY`.
+   - `borderColor` - color of the markers' borders, default: `Colors.PRIMARY`.
    - `borderWidth` - width (thickness) of the markers' borders in pixels, default: `1`.
    - `markerSize` - size of the markers in em, default: `1`.
-   - `title` - title of the line series group.
+   - `title` - title of the point series group, default: `''`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import { Axes, Points } from 'svelte-plots-basic/3d';
 
@@ -66,7 +66,6 @@
 
 <style>
    :global(.series-scatter > text) {
-      font-size: 1em;
       cursor: default;
    }
 

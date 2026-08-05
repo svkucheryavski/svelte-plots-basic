@@ -789,16 +789,16 @@ Here is an example:
    const y3 = x.apply(v => Math.pow(v, 4));
 
    // define properties of each series
-   line1Props = {lineType: 3, lineColor: 'red'};
-   line2Props = {lineColor: 'blue', lineType: 1};
-   point2Props = {lineColor: 'blue', faceColor: 'white'};
-   point3Props = {marker: 5, lineColor: 'green', faceColor: 'yellow'};
+   const line1Props = {lineType: 3, lineColor: 'red'};
+   const line2Props = {lineColor: 'blue', lineType: 1};
+   const point2Props = {lineColor: 'blue', faceColor: 'white'};
+   const point3Props = {marker: 5, lineColor: 'green', faceColor: 'yellow'};
 
    // legend items
-   items = [
-      {label: 'y=x^2', line: lines1Props },
-      {label: "y=x^3", line: lines2Props, point: points2Props },
-      {label: "y=x^4", point: points2Props },
+   const items = [
+      {label: 'y=x^2', line: line1Props },
+      {label: "y=x^3", line: line2Props, point: point2Props },
+      {label: "y=x^4", point: point3Props },
    ];
 </script>
 
@@ -812,7 +812,7 @@ Here is an example:
    <Points xValues={x} yValues={y2} {...point2Props} />
 
    <!-- series 3: markers in form of diamonds with green stroke and yellow fill -->
-   <Points xValues={x} yValues={y3} {...points3Props} />
+   <Points xValues={x} yValues={y3} {...point3Props} />
 
    <!-- legend with one JSON for each series -->
    <Legend position="right" {items} />

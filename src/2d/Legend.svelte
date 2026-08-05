@@ -13,26 +13,30 @@
 
    ```svelte
    <script>
-      import {Vector} from 'mdatools/array';
+      import { Vector } from 'mdatools/arrays';
+      import { Axes, Box, Legend, Lines, Points, XAxis, YAxis } from 'svelte-plots-basic/2d';
 
       const x = Vector.seq(-10, 10, 0.1);
       const y1 = x.apply(v => Math.cos(v));
       const y2 = x.apply(v => Math.sin(v));
+
+      const line1 = { lineType: 3, lineColor: 'red' };
+      const line2 = { lineType: 1, lineColor: 'blue' };
+      const point2 = { marker: 1, faceColor: 'white', lineColor: 'blue' };
+
+      const items = [
+         { label: 'cos(x)', line: line1 },
+         { label: 'sin(x)', line: line2, point: point2 }
+      ];
    </script>
 
    <Axes limX={[-10, 10]} limY={[-1.1, 1.1]} >
 
-      <Lines xValues={x} yValues={y1} lineColor="red" lineType="3" />
-      <Lines xValues={x} yValues={y2} lineColor="blue" lineType="1" />
-      <Points xValues={x} yValues={y2} faceColor="white" borderColor="blue" />
+      <Lines xValues={x} yValues={y1} {...line1} />
+      <Lines xValues={x} yValues={y2} {...line2} />
+      <Points xValues={x} yValues={y2} {...point2} />
 
-      <Legend
-         position="topright"
-         items = {[
-            {"label": "cos(x)", "lineType": 1, "lineColor": "red"},
-            {"label": "sin(x)", "lineType": 1, "lineColor": "blue", "marker": 1, "faceColor": "white", "borderColor": "blue"},
-         ]}
-      />
+      <Legend position="topright" {items} />
 
       <Box />
       <XAxis label="x" showGrid={true} />

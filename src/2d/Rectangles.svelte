@@ -3,20 +3,19 @@
 
    Main properties:
    - `left` - array or vector with world coordinates of left side of the rectangles.
-   - `top` - array or vector with world coordinates of left side of the rectangles.
+   - `top` - array or vector with world coordinates of top side of the rectangles.
    - `width` - width of the rectangles (one value or array/vector with individual values).
    - `height` - height of the rectangles (one value or array/vector with individual values).
-   - `facColor` - face color of the rectangles (same for all).
+   - `faceColor` - face color of the rectangles (same for all).
    - `lineColor` - border color of each rectangle.
    - `lineWidth` - width (thickness) of border lines in pixels.
-   - `className`- CSS class name for the labels group, default: `'series-rect'`.
+   - `className` - CSS class name for the rectangles group, default: `'series-rect'`.
    - `onclick` - function (callback) to be called when user clicks on any rectangle.
 
 
    Example:
-   ```jsx
+   ```svelte
    <script>
-      import { Matrix } from 'mdatools/arrays';
       import { Axes, Rectangles } from 'svelte-plots-basic/2d';
 
       const left = [0, 10, 20, 30];
@@ -37,13 +36,13 @@
    import { checkCoords, transformCoords, transformObjects, handleClick } from '../methods';
 
    let {
-	   left,                          // array of vector with coordinates of left sides of the bars
-      top,                           // array of vector with coordinates of top sides of the bars
-      width,                         // single value (same for all) or vector/array with bar width
-      height,                        // single value (same for all) or vector/array with bar height
-      faceColor = Colors.PRIMARY,    // color of bar faces (fill)
-      lineColor = faceColor,       // color of bar borders
-      lineWidth = 1,                 // width (thickness) of bar border lines
+	   left,                          // array or vector with coordinates of left sides of the rectangles
+      top,                           // array or vector with coordinates of top sides of the rectangles
+      width,                         // single value (same for all) or vector/array with rectangle width
+      height,                        // single value (same for all) or vector/array with rectangle height
+      faceColor = Colors.PRIMARY,    // color of rectangle faces (fill)
+      lineColor = faceColor,         // color of rectangle borders
+      lineWidth = 1,                 // width (thickness) of rectangle border lines
       className = 'series-rect',     // CSS class name of the SVG group
       onclick,                       // function to be called if onclick event fires
    } = $props();
@@ -93,7 +92,7 @@
    const rw = $derived(w ? transformObjects(w, axes.tX()) : null);
    const rh = $derived(h ? transformObjects(h, axes.tY()) : null);
 
-   // styles for bars and labels
+   // styles for rectangles
    const barsStyleStr = $derived(`fill:${faceColor};stroke:${lineColor};stroke-width:${lineWidth}px;`);
 
    // check if all coordinates are correct
