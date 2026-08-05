@@ -826,12 +826,21 @@ Check this example in Svelte REPL: [plots-legend](https://svelte.dev/playground/
 
 The `position` parameter can be one of the follows: `'topleft'`, `'top'`, `'topright'`, `'right'`, `'bottomright'` and so on.
 
+By default, legend items are arranged vertically. Set `orientation="horizontal"` to arrange them in a single row, which is especially useful with the `top` and `bottom` positions:
+
+```svelte
+<Legend position="top" orientation="horizontal" {items} />
+```
+
+The horizontal layout does not wrap items onto additional rows, so a large number of items or long labels may require more plot width.
+
 The component has also properties which changes it apearance, here is the full list:
 
  Property name | Default value | Description
 --|--|--
  `items` |  | array with JSON properties of legend items
  `position` | `'topleft'` | position of the legend element inside plotting area
+ `orientation` | `'vertical'` | arrangement of legend items: `'vertical'` or `'horizontal'`
  `lineColor` | `'#303030'` | color of the legend box line
  `lineWidth` | `1` | width (thickness) of the legend box line
  `faceColor` | `'#fff'` | background color of the legend box

@@ -316,14 +316,16 @@
 {#snippet glgSnippet(params, coords)}
    {@const elw = coords.elw + 2 * coords.elp}
    {@const elp = coords.elp}
+   {@const elx = coords.elx}
    {@const elh = coords.elh}
    {@const ely = coords.ely}
+   {@const eliw = coords.eliw}
 
    <svg x={coords.lgl} y={coords.lgt} height={coords.lgh} width={coords.lgw}>
       <rect height="100%" width="100%" fill={params.faceColor} stroke={params.lineColor} stroke-width={params.lineWidth} />
 
       {#each params.items as item, i}
-      <svg x={0} y={ely[i]} width={coords.lgw} height={elh[i]}>
+      <svg x={elx[i]} y={ely[i]} width={eliw[i]} height={elh[i]}>
 
          <!-- line -->
          {#if item.line}

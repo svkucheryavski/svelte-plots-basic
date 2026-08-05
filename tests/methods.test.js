@@ -1,7 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { checkCoords, copyToClipboard, downloadPNG, getAxisTicks, getcolmap, normalizeLineType } from '../src/methods.js';
+import {
+   checkCoords,
+   copyToClipboard,
+   downloadPNG,
+   getAxisTicks,
+   getcolmap,
+   getGroupLegendCoords,
+   normalizeLineType,
+   text2svg
+} from '../src/methods.js';
 
 
 test('loads public JavaScript exports through the package export map', async () => {
@@ -48,6 +57,105 @@ test('returns independent arrays', () => {
    first[0] = 'changed';
 
    assert.equal(getcolmap(3)[0], '#2679B2');
+});
+
+
+test('preserves plain text when no scripts are present', () => {
+   assert.equal(text2svg('sin(x)'), 'sin(x)');
+});
+
+
+test('converts superscripts without changing the following baseline', () => {
+   assert.equal(
+      text2svg('x^k'),
+      'x<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="30%">k</tspan>'
+   );
+});
+
+
+test('converts subscripts without changing the following baseline', () => {
+   assert.equal(
+      text2svg('x_k'),
+      'x<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="-50%">k</tspan>'
+   );
+});
+
+
+test('converts mixed single- and multi-character scripts', () => {
+   assert.equal(
+      text2svg('x_k^(-1)'),
+      'x<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="-50%">k</tspan>' +
+         '<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="30%">-1</tspan>'
+   );
+});
+
+
+test('preserves vertical legend layout when orientation is omitted', () => {
+   const originalDocument = globalThis.document;
+   globalThis.document = {
+      createElement: () => ({
+         getContext: () => ({
+            font: '',
+            measureText: text => ({width: text.length * 10})
+         })
+      })
+   };
+
+   try {
+      const coords = getGroupLegendCoords(
+         {
+            items: [
+               {label: 'A', labelHeight: 1},
+               {label: 'Long', labelHeight: 1.4}
+            ],
+            position: 'top',
+            fontSize: 1
+         },
+         [0, 200],
+         [200, 0],
+         10,
+         5
+      );
+
+      assert.deepEqual(coords.elx, [0, 0]);
+      assert.deepEqual(coords.ely, [0, 12.5]);
+      assert.deepEqual(coords.eliw, [97.5, 97.5]);
+      assert.deepEqual(coords.elh, [12.5, 16.5]);
+      assert.equal(coords.lgw, 97.5);
+      assert.equal(coords.lgh, 29);
+   } finally {
+      if (originalDocument === undefined) {
+         delete globalThis.document;
+      } else {
+         globalThis.document = originalDocument;
+      }
+   }
+});
+
+
+test('lays out horizontal legend items in one aligned row', () => {
+   const coords = getGroupLegendCoords(
+      {
+         items: [
+            {label: 'A', labelHeight: 1},
+            {label: 'Long', labelHeight: 1.4}
+         ],
+         position: 'top',
+         orientation: 'horizontal',
+         fontSize: 1
+      },
+      [0, 200],
+      [200, 0],
+      10,
+      5
+   );
+
+   assert.deepEqual(coords.elx, [0, 67.5]);
+   assert.deepEqual(coords.ely, [0, 0]);
+   assert.deepEqual(coords.eliw, [67.5, 97.5]);
+   assert.deepEqual(coords.elh, [16.5, 16.5]);
+   assert.equal(coords.lgw, 165);
+   assert.equal(coords.lgh, 16.5);
 });
 
 

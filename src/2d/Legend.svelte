@@ -4,6 +4,7 @@
    Main properties:
    - `items` - array with text labels and their visual properties for each legend element.
    - `position` - position of the legend ("topleft", "top", "topright", "right", etc), default: `"topleft"`.
+   - `orientation` - arrangement of legend items (`"vertical"` or `"horizontal"`), default: `"vertical"`.
    - `lineColor` - color of the legend box line, default: `Colors.LEGEND`.
    - `lineWidth` - width (thickness) of the legend box line in pixels: `1`.
    - `faceColor` - color of the legend box background: `'#fff'`.
@@ -36,7 +37,7 @@
       <Lines xValues={x} yValues={y2} {...line2} />
       <Points xValues={x} yValues={y2} {...point2} />
 
-      <Legend position="topright" {items} />
+      <Legend position="top" orientation="horizontal" {items} />
 
       <Box />
       <XAxis label="x" showGrid={true} />
@@ -52,7 +53,8 @@
    let {
       items,                     // array with text labels and their visual properties for each legend element.
       show = true,               // logical, use to hide the element
-	   position = 'topleft',      // position of the legend ("topleft", "top", "topright", "right", "bottomright", etc).
+      position = 'topleft',      // position of the legend ("topleft", "top", "topright", "right", "bottomright", etc).
+      orientation = 'vertical', // arrangement of legend items ("vertical" or "horizontal")
       lineColor = Colors.LEGEND, // color of the legend box line
       lineWidth = 1,             // width (thickness) of the legend box line
       faceColor = '#fff',        // background color of the legend box
@@ -73,6 +75,21 @@
          return null;
       }
       return position;
+   }
+
+   /* check if user provided orientation is correct */
+   function checkOrientation(orientation) {
+
+      if (typeof orientation !== 'string') {
+         console.error('Legend: value of "orientation" must be a string.');
+         return null;
+      }
+
+      if (!['vertical', 'horizontal'].includes(orientation)) {
+         console.error('Legend: wrong value of "orientation" property');
+         return null;
+      }
+      return orientation;
    }
 
    /* check if user provided items are correct, transform text labels and set default values if they are absent */
@@ -140,13 +157,23 @@
    // Validate and transform only when the corresponding input changes.
    const processedItems = $derived(processItems(items));
    const validPosition = $derived(checkPosition(position));
+   const validOrientation = $derived(checkOrientation(orientation));
 
    // get context and update group legend parameters reactively
    const axes = getContext('axes');
    $effect(() => {
       axes.setGroupLegend(
-         processedItems && validPosition ?
-         {show, position: validPosition, items: processedItems, lineColor, faceColor, lineWidth, fontSize} :
+         processedItems && validPosition && validOrientation ?
+         {
+            show,
+            position: validPosition,
+            orientation: validOrientation,
+            items: processedItems,
+            lineColor,
+            faceColor,
+            lineWidth,
+            fontSize
+         } :
          {show: false, position: null, items: null}
       );
    });

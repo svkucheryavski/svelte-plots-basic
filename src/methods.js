@@ -1326,12 +1326,11 @@ export function getTextWidth(text, font) {
  *
  * @param {Array} items - array of legend items and their properties.
  * @param {number} fontSize - font size of a legend element in pixels.
- * @param {string} position - position of the legend.
+ * @param {string} orientation - arrangement of legend items.
  *
- * @return {Array} array with height and width of graphical part of legend item, padding size,
- * height and width of text labels (all in pixels).
+ * @return {Object} coordinates and sizes of legend items (all in pixels).
  */
-function getLegendSize(items, fontSize)  {
+function getLegendSize(items, fontSize, orientation = 'vertical')  {
 
    // TODO: implement dynamic font family
    const fontName = 'Arial';
@@ -1341,25 +1340,49 @@ function getLegendSize(items, fontSize)  {
    const elw = fontSize * 1.5;  // width of legend element without label and padding
 
    // compute size of text label elements
-   // TODO: implement one row legend if position is "top" or "bottom"
+   const elx = Array(items.length);
    const elh = Array(items.length);
    const ely = Array(items.length);
-   let y = 0;
+   const eliw = Array(items.length);
    let lgh = 0;
+   let lgw = 0;
+
+   if (orientation === 'horizontal') {
+      for (let i = 0; i < items.length; i++) {
+         const labelWidth = getTextWidth('  ' + items[i].label + '  ', fontSize + 'px ' + fontName);
+         const itemWidth = elw + 2 * elp + labelWidth;
+         const itemHeight = fontSize * items[i].labelHeight + 2 * elp;
+
+         elx[i] = lgw;
+         ely[i] = 0;
+         eliw[i] = itemWidth;
+         elh[i] = itemHeight;
+         lgw = lgw + itemWidth;
+         lgh = itemHeight > lgh ? itemHeight : lgh;
+      }
+
+      // Use one common row height so all item centers are aligned.
+      elh.fill(lgh);
+      return {elx, ely, eliw, elh, elw, elp, lgh, lgw};
+   }
+
+   let y = 0;
    let lbw = 0;
 
    for (let i = 0; i < items.length; i++) {
       const w = getTextWidth('  ' + items[i].label + '  ', fontSize + 'px ' + fontName);
       lbw = w > lbw ? w : lbw;
       const h = fontSize * items[i].labelHeight + 2 * elp;
+      elx[i] = 0;
       elh[i] = h;
       ely[i] = y;
       y = y + h;
       lgh = lgh + h;
    }
 
-   const lgw = (elw + 2 * elp + lbw);
-   return [ely, elh, elw, elp, lgh, lgw];
+   lgw = (elw + 2 * elp + lbw);
+   eliw.fill(lgw);
+   return {elx, ely, eliw, elh, elw, elp, lgh, lgw};
 }
 
 
@@ -1374,7 +1397,11 @@ function getLegendSize(items, fontSize)  {
 export function getGroupLegendCoords(params, cpx, cpy, fontSize, ts) {
 
    // compute size of legend elements
-   const [ely, elh, elw, elp, lgh, lgw] = getLegendSize(params.items, fontSize * params.fontSize);
+   const {elx, ely, eliw, elh, elw, elp, lgh, lgw} = getLegendSize(
+      params.items,
+      fontSize * params.fontSize,
+      params.orientation
+   );
 
    // compute coordinates of top left corner of the legend box
    const lgl = params.position.includes("left") ? cpx[0] + ts :
@@ -1386,7 +1413,7 @@ export function getGroupLegendCoords(params, cpx, cpy, fontSize, ts) {
          (cpy[1] + cpy[0] - lgh) * 0.5;
 
 
-   return {lgl, lgt, lgw, lgh, ely, elh, elw, elp};
+   return {lgl, lgt, lgw, lgh, elx, ely, eliw, elh, elw, elp};
 }
 
 
@@ -1400,11 +1427,11 @@ export function text2svg(text) {
    if (!text || text.length < 1) return text;
 
    function toSuper(txt) {
-      return '<tspan font-size="0.75em" dy="-0.5em">' + txt + '</tspan><tspan dy="0.4em"> </tspan>';
+      return '<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="30%">' + txt + '</tspan>';
    }
 
    function toSub(txt) {
-      return '<tspan font-size="0.75em" dy="0.5em">' + txt + '</tspan><tspan dy="-0.4em"> </tspan>';
+      return '<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="-50%">' + txt + '</tspan>';
    }
 
    let i = 0;
