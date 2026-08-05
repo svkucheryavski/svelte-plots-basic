@@ -8,6 +8,7 @@ import {
    getAxisTicks,
    getcolmap,
    getGroupLegendCoords,
+   getTickFactorLabel,
    normalizeLineType,
    text2svg
 } from '../src/methods.js';
@@ -86,6 +87,29 @@ test('converts mixed single- and multi-character scripts', () => {
       text2svg('x_k^(-1)'),
       'x<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="-50%">k</tspan>' +
          '<tspan font-size="0.6em" dominant-baseline="inherit" baseline-shift="30%">-1</tspan>'
+   );
+});
+
+
+test('omits a zero tick factor label', () => {
+   assert.equal(getTickFactorLabel(0), '');
+});
+
+
+test('renders positive tick factors with an inherited superscript baseline', () => {
+   assert.equal(
+      getTickFactorLabel(3),
+      '<tspan dominant-baseline="inherit">&times;10</tspan>' +
+         '<tspan font-size="0.75em" dominant-baseline="inherit" baseline-shift="37.5%">3</tspan>'
+   );
+});
+
+
+test('keeps multi-digit negative tick factors together', () => {
+   assert.equal(
+      getTickFactorLabel(-12),
+      '<tspan dominant-baseline="inherit">&times;10</tspan>' +
+         '<tspan font-size="0.75em" dominant-baseline="inherit" baseline-shift="37.5%">-12</tspan>'
    );
 });
 

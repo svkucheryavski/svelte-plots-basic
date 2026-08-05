@@ -117,7 +117,8 @@ export function invTransformObjects(v, t) {
  */
 export function getTickFactorLabel(tf) {
    if (tf === 0) return '';
-   return `<tspan>&times;10</tspan><tspan font-size="0.75em" dy="-0.5em">${(tf).toString()}</tspan>`;
+   return '<tspan dominant-baseline="inherit">&times;10</tspan>' +
+      `<tspan font-size="0.75em" dominant-baseline="inherit" baseline-shift="37.5%">${tf.toString()}</tspan>`;
 }
 
 
