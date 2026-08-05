@@ -2,8 +2,8 @@
 @component Adds a closed polygon (area).
 
    Main properties:
-   - `xValues` - array of vector with x-coordinates of the polygon's points.
-   - `yValues` - array of vector with y-coordinates of the polygon's points.
+   - `xValues` - array or vector with x-coordinates of the polygon's points.
+   - `yValues` - array or vector with y-coordinates of the polygon's points.
    - `lineWidth` - width (thickness) of the polygon's line in pixels, default: `1`.
    - `lineColor` - line color, default: `Colors.PRIMARY`.
    - `lineType` -  type of line (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).

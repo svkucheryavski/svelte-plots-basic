@@ -5,7 +5,7 @@
    - `limX` - array with limits for x-axis (in plot units), default: `[0, 1]`.
    - `limY` - array with limits for y-axis (in plot units), default: `[0, 1]`.
    - `title` - title of the plot (string).
-   - `margins` - array with relative margins (bottom, left, top, right), default `[1.0, 0.85, 0.5, 0.5]`.
+   - `margins` - array with relative margins (bottom, left, top, right), default `[1.0, 1.1, 0.55, 0.60]`.
 
    Properties for downloading the plot as PNG or SVG file or copying it to clipboard:
    - `downloadLinks` - how to show download links panel (`'none'` - default, `'hover'`, `'fixed'`).
@@ -13,8 +13,8 @@
    - `pngWidth` - width of PNG image in cm, default `8`
    - `pngHeight` - height of PNG image in cm, default `8`.
    - `pngRes` - resolution of PNG image (pixels per inch), default `300`.
-   - `clipboardWidth` - width of plot image to copy to clipboard in pixels.
-   - `clipboardHeight` - height of plot image to copy to clipboard in pixels.Axes
+   - `clipboardWidth` - width of plot image to copy to clipboard in pixels, default `1200`.
+   - `clipboardHeight` - height of plot image to copy to clipboard in pixels, default `800`.
 
    Example:
 
@@ -23,7 +23,7 @@
       import {Axes} from 'svelte-plots-basic/2d';
    </script>
 
-   <Axes limX={[2000, 2050]} limY={[0, 100]} title="GDP of contries" >
+   <Axes limX={[2000, 2050]} limY={[0, 100]} title="GDP of countries" >
    </Axes>
    ```
 -->
@@ -101,7 +101,7 @@
 
    /* handler for mouse  events */
    function handleMouse(e, f) {
-      if (f && e.target.id == "axes-box") {
+      if (f && e.target.id === "axes-box") {
          const x = invTransformCoords([e.offsetX - left], tX)[0];
          const y = invTransformCoords([e.offsetY - top], tY)[0];
          f(x, y);

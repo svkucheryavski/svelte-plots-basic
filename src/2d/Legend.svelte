@@ -42,6 +42,7 @@
       <XAxis label="x" showGrid={true} />
       <YAxis label="f(x)" showGrid={true} />
    </Axes>
+   ```
 -->
 <script>
    import { getContext, onDestroy } from 'svelte';

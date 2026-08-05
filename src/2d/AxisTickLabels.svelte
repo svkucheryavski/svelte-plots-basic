@@ -16,8 +16,6 @@
    - `tickCoords[1][0]` - x-coordinates of end points of tick segments.
    - `tickCoords[0][1]` - y-coordinates of start points of tick segments.
    - `tickCoords[1][1]` - y-coordinates of end points of tick segments.
-
-   ```
 -->
 <script>
 
@@ -57,7 +55,7 @@
    {/each}
    {:else if las === 2 && pos === 1}
    {#each x as v, i}
-      <text data-id={i} x={x[i]} y={y[i]} dx={-dy/2} dy={0} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor={"end"}>{@html tickLabels[i]}</text>
+      <text data-id={i} x={x[i]} y={y[i]} dx={-dy/2} dy={0} transform={`rotate(-90, ${x[i]}, ${y[i]})`} text-anchor="end">{@html tickLabels[i]}</text>
    {/each}
    {:else}
    {#each x as v, i}

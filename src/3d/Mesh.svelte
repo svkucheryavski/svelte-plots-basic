@@ -1,20 +1,20 @@
 <!--
-@component Adds a mesh plot as a set of grid points and line segments connected them.
+@component Adds a mesh plot as a set of grid points and line segments connecting them.
 
    Main properties:
-   - `xValues` - array of vector with x-coordinates of the mesh points.
-   - `zValues` - array of vector with z-coordinates of the mesh points.
+   - `xValues` - array or vector with x-coordinates of the mesh points.
+   - `zValues` - array or vector with z-coordinates of the mesh points.
    - `yValues` - matrix (!) with y-coordinates of the points defining its height.
-   - `colmap` - array with colors to use for different height.
-   - `lineWidth` - width (thickness) of the lines in pixels, defailt: `1`.
+   - `colmap` - array with colors to use for different heights.
+   - `lineWidth` - width (thickness) of the lines in pixels, default: `1`.
    - `lineType` -  type of lines (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
-   - `title` - title of the line series group.
+   - `title` - title of the mesh series group.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
-      import { Axes, Mesh } from 'svelte-plots-basic/3d';
-      import { gecolmap } from 'svelte-plots-basic/utils';
+      import { Axes, Mesh, getcolmap } from 'svelte-plots-basic/3d';
+      import { Matrix, Vector } from 'mdatools/arrays';
 
       const xMesh = Vector.seq(-8, 8, 1);
       const zMesh = Vector.seq(-8, 8, 1);
@@ -24,6 +24,7 @@
    <Axes limX={[-10, 10]} limY={[-10, 10]} limZ={[-10, 10]}>
       <Mesh xValues={xMesh} yValues={yMesh} zValues={zMesh} colmap={getcolmap(16)}/>
    </Axes>
+   ```
 -->
 <script>
 

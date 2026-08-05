@@ -2,13 +2,13 @@
 @component Adds a series of points.
 
    Main properties:
-   - `xValues` - array of vector with x-coordinates of the points.
-   - `yValues` - array of vector with y-coordinates of the points.
+   - `xValues` - array or vector with x-coordinates of the points.
+   - `yValues` - array or vector with y-coordinates of the points.
    - `marker` - index for a point symbol (from 1 - default - to 8): `"●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"`.
    - `faceColor` - face (fill) color of the markers, default: `'transparent'`.
    - `lineColor` - border color of the markers, default: `Colors.PRIMARY`.
-   - `lineWidth` - width (thickness) of the markers' border in pixels, defailt: `1`.
-   - `markerSize` - size of the markers in em, defailt: `1`.
+   - `lineWidth` - width (thickness) of the markers' border in pixels, default: `1`.
+   - `markerSize` - size of the markers in em, default: `1`.
    - `onclick` - function (callback) to be called when user clicks on a marker.
 
    Example:
@@ -32,8 +32,8 @@
    import { checkCoords, transformCoords, handleClick } from '../methods';
 
    let {
-	   xValues,                          // array of vector with x-coordinates of points
-      yValues,                          // array of vector with y-coordinates of points
+	   xValues,                          // array or vector with x-coordinates of points
+      yValues,                          // array or vector with y-coordinates of points
       marker = 1,                       // index for point symbol (from 1 to 8): "●", "◼", "▲", "▼", "⬥", "＋", "*", "✕"
       faceColor = 'transparent',        // face (fill) color of the points
       lineColor = Colors.PRIMARY,     // border color of the points

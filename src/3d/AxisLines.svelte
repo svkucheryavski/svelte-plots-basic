@@ -1,5 +1,5 @@
 <!--
-@component draws line segments for axis elements (ticks. etc), not for manual use.
+@component Draws line segments for axis elements (ticks, etc.); not intended for direct use.
 -->
 <script>
    import { getContext } from 'svelte';
@@ -13,9 +13,9 @@
       lineWidth = 1,                   // line width (thickness) in pixels.
    } = $props();
 
-   // get axes context and and compute screen coordinates
+   // get axes context and compute screen coordinates
    const axes = getContext('axes');
-   const s1 = $derived(lineCoords.length == 2 ? transform3D(lineCoords[0], axes.tM()) : null);
+   const s1 = $derived(lineCoords.length === 2 ? transform3D(lineCoords[0], axes.tM()) : null);
    const s2 = $derived(s1 ? transform3D(lineCoords[1], axes.tM()) : null);
 
    // line style
@@ -29,4 +29,3 @@
    {/each}
 </g>
 {/if}
-

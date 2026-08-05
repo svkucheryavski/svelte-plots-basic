@@ -1,5 +1,5 @@
 <!--
-@component shows tick labels.
+@component Shows tick labels.
 -->
 <script>
 

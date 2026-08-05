@@ -1,5 +1,5 @@
 <!--
-@component Adds a heatmap visializing values of a matrix.
+@component Adds a heatmap visualizing values of a matrix.
 
    Main properties:
    - `values` - matrix (object of class `Matrix` from `mdatools` package) with values to visualize.
@@ -13,7 +13,7 @@
       import { Matrix } from 'mdatools/arrays';
       import { Axes, Heatmap } from 'svelte-plots-basic/2d';
 
-      // create matrix with 5 rows and 10 columns filled with 5random values.
+      // create matrix with 5 rows and 10 columns filled with random values.
       const x = Matrix.rand(5, 10);
    </script>
 

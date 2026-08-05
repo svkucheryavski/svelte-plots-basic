@@ -2,16 +2,16 @@
 @component Adds a series of lines connecting points with provided coordinates (polyline).
 
    Main properties:
-   - `xValues` - array of vector with x-coordinates of the points.
-   - `yValues` - array of vector with y-coordinates of the points.
-   - `zValues` - array of vector with z-coordinates of the points.
+   - `xValues` - array or vector with x-coordinates of the points.
+   - `yValues` - array or vector with y-coordinates of the points.
+   - `zValues` - array or vector with z-coordinates of the points.
    - `lineColor` - lines color, default: `Colors.PRIMARY`.
-   - `lineWidth` - width (thickness) of the lines in pixels, defailt: `1`.
+   - `lineWidth` - width (thickness) of the lines in pixels, default: `1`.
    - `lineType` -  type of lines (`1` - solid, `2` - dashed, `3` - dotted, `4` - dashdot).
    - `title` - title of the line series group.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import { Axes, Lines } from 'svelte-plots-basic/3d';
 

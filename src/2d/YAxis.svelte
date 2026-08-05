@@ -4,7 +4,7 @@
    Main properties:
    - `label` - text label for the axis (optional).
    - `showGrid` - logical, show or not horizontal grid lines, default: `false`.
-   - `ticks` - array or vector with tick positions (by default will be generated automatically based on `limX`).
+   - `ticks` - array or vector with tick positions (by default will be generated automatically based on `limY`).
    - `tickLabels` - array with tick labels to show at each tick (by default will be generated automatically).
    - `las` - orientation of tick labels (`1` - horizontal - default, `2` - vertical).
    - `whole` - logical, show numeric tick labels as whole numbers (without decimals) or not, default: `false`.

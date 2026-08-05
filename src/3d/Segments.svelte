@@ -14,19 +14,19 @@
    - `title` - title of the segment series group.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import { Axes, Segments } from 'svelte-plots-basic/3d';
 
-      const xStart = [1, 2, 3, 4];
-      const xEnd = [1, 2, 3, 4];
+      const xStart = [1, 2, 3, 4, 5];
+      const xEnd = [1, 2, 3, 4, 5];
       const yStart = [-2, -1, 0, -1, -2];
       const yEnd = [2, 1, 0, 1, 2];
-      const zStart = [1, 2, 3, 4];
-      const zEnd = [1, 2, 3, 4];
+      const zStart = [1, 2, 3, 4, 5];
+      const zEnd = [1, 2, 3, 4, 5];
    </script>
 
-   <Axes limX={[0, 5]} limY={[-3, 3]} >
+   <Axes limX={[0, 6]} limY={[-3, 3]} limZ={[0, 6]}>
       <Segments {xStart} {yStart} {zStart} {xEnd} {yEnd} {zEnd} lineColor="red" lineType={3} />
    </Axes>
    ```

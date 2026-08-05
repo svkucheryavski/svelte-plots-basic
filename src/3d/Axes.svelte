@@ -4,7 +4,7 @@
    Main properties:
    - `limX` - array with limits for x-axis (in plot units), default: `[0, 1]`.
    - `limY` - array with limits for y-axis (in plot units), default: `[0, 1]`.
-   - `limZ` - array with limits for y-axis (in plot units), default: `[0, 1]`.
+   - `limZ` - array with limits for z-axis (in plot units), default: `[0, 1]`.
    - `theta` - angle (in radians) for orientation of projection plane, default: `-10`.
    - `phi` - angle (in radians) for orientation of projection plane, default: `-10`.
    - `zoom` - zooming factor, default: `0.5`.
@@ -15,18 +15,16 @@
    - `pngWidth` - width of PNG image in cm, default `8`
    - `pngHeight` - height of PNG image in cm, default `8`.
    - `pngRes` - resolution of PNG image (pixels per inch), default `300`.
-   - `clipboardWidth` - width of plot image to copy to clipboard in pixels.
-   - `clipboardHeight` - height of plot image to copy to clipboard in pixels.
+   - `clipboardWidth` - width of plot image to copy to clipboard in pixels, default `1200`.
+   - `clipboardHeight` - height of plot image to copy to clipboard in pixels, default `800`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes} from 'svelte-plots-basic/3d';
    </script>
 
-   <Axes limX={[-10, 10]} limY={[-10, 10]} limZ={[-10, 10]}>
-      //all other plotting components are here
-   </Axes>
+   <Axes limX={[-10, 10]} limY={[-10, 10]} limZ={[-10, 10]} />
    ```
 -->
 <script>

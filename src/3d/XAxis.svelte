@@ -11,12 +11,11 @@
    - `textColor` - color of axis text labels, default: `Colors.DARKGRAY`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes, XAxis} from 'svelte-plots-basic/3d';
    </script>
    <Axes>
-      // all other plotting components are here
       <XAxis label="X" showGrid={true} />
    </Axes>
    ```
@@ -36,7 +35,7 @@
    } = $props();
 
 
-   // get axes context and adjust x margins
+   // get axes context and synchronize x-axis settings
    const axes = getContext('axes');
    $effect(() => {
       axes.setXAxis({show: true, ticks, tickLabels, showGrid, label, lineColor, gridColor, textColor});
@@ -46,4 +45,3 @@
       axes.setXAxis({show: false});
    });
 </script>
-

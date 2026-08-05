@@ -3,20 +3,19 @@
 
    Main properties:
    - `label` - text label for the axis (optional).
-   - `showGrid` - logical, show or not vertical grid lines, default: `false`.
-   - `ticks` - array or vector with tick positions (by default will be generated automatically based on `limX`).
+   - `showGrid` - logical, show or hide grid lines, default: `false`.
+   - `ticks` - array or vector with tick positions (by default will be generated automatically based on `limY`).
    - `tickLabels` - array with tick labels to show at each tick (by default will be generated automatically).
    - `lineColor` - color of axis line, default: `Colors.DARKGRAY`.
    - `gridColor` - color of axis grid line, default: `Colors.MIDDLEGRAY`.
    - `textColor` - color of axis text labels, default: `Colors.DARKGRAY`.
 
    Example:
-   ```jsx
+   ```svelte
    <script>
       import {Axes, YAxis} from 'svelte-plots-basic/3d';
    </script>
    <Axes>
-      // all other plotting components are here
       <YAxis label="Y" showGrid={true} />
    </Axes>
    ```
@@ -36,7 +35,7 @@
    } = $props();
 
 
-   // get axes context and adjust x margins
+   // get axes context and synchronize y-axis settings
    const axes = getContext('axes');
    $effect(() => {
       axes.setYAxis({show: true, ticks, tickLabels, showGrid, label, lineColor, gridColor, textColor});
@@ -46,4 +45,3 @@
       axes.setYAxis({show: false});
    });
 </script>
-

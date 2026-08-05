@@ -84,7 +84,7 @@
       let w;
       if (exactWidth.provided) {
          w = exactWidth.value;
-      } else if (n == 1) {
+      } else if (n === 1) {
          console.error('Bars: if only one bar must be shown, value for property "barWidthExact" should be provided.');
          return null;
       } else {

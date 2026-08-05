@@ -3,21 +3,19 @@
 
    Main properties:
    - `lineCoords` - coordinates of the line segments as 2D array.
-   - `lineColor` - color of the box line, default: `Colors.DARKGRAY`.
-   - `lineWidth` - width of box line in pixels, default: `1`.
+   - `lineColor` - color of the line segments, default: `Colors.DARKGRAY`.
+   - `lineWidth` - width of the line segments in pixels, default: `1`.
    - `lineType` - line type (`1` - solid (default), `2` - dashed, `3` - dotted, `4` - dashdot).
    - `className` - string with classname to be added to `<g></g>` tag wrapping the lines.
 
    **Description:**
 
-   The coordinates msut be provided in form of nested arrays. Each element of this array contains
+   The coordinates must be provided in form of nested arrays. Each element of this array contains
    `Vector` or `Array` with the coordinates in world (not screen) coordinate system:
    - `lineCoords[0][0]` - x-coordinates of start points of segments.
    - `lineCoords[1][0]` - x-coordinates of end points of segments.
    - `lineCoords[0][1]` - y-coordinates of start points of segments.
    - `lineCoords[1][1]` - y-coordinates of end points of segments.
-
-   ```
 -->
 <script>
    import { getContext } from 'svelte';
@@ -33,7 +31,7 @@
       className = ''                 // CSS class name for the component
    } = $props();
 
-   // get axes context and adjust x margins
+   // get axes context for coordinate transforms
    const axes = getContext('axes');
 
    // reactive variables for coordinates of axis lines
