@@ -817,36 +817,43 @@ export function copyToClipboard(btn, svg, width, height) {
    // save button conent
    const content = btn.textContent;
 
-   navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': createPngBlob(svg, width, height) })
-   ])
-   .then(
-      () => {
-         // add class "copied" for visual confirmation
-         btn.classList.add('copied');
-         btn.textContent = '✓ done';
+   function showStatus(className, text) {
+      btn.classList.add(className);
+      btn.textContent = text;
 
-         // Remove the class after 0.5 seconds and revert the text
-         setTimeout(() => {
-            btn.classList.remove('copied');
-            btn.textContent = content;
-         }, 500);
-      },
-      (e) => {
-         console.error(e)
+      // Remove the class after 0.5 seconds and revert the text
+      setTimeout(() => {
+         btn.classList.remove(className);
+         btn.textContent = content;
+      }, 500);
+   }
 
-         // add class "error" for visual confirmation
-         btn.classList.add('error');
-         btn.textContent = 'x copy';
+   function showError(error) {
+      console.error(error);
+      showStatus('error', 'x copy');
+   }
 
-         // Remove the class after 0.5 seconds and revert the text
-         setTimeout(() => {
-            btn.classList.remove('error');
-            btn.textContent = content;
-         }, 500);
-      }
-   )
-   .catch((error) => console.error(error));
+   if (typeof navigator === 'undefined' ||
+       !navigator.clipboard ||
+       typeof navigator.clipboard.write !== 'function' ||
+       typeof ClipboardItem === 'undefined') {
+      showError(new Error('Copying images to the clipboard is not supported in this environment.'));
+      return null;
+   }
+
+   try {
+      navigator.clipboard.write([
+         new ClipboardItem({ 'image/png': createPngBlob(svg, width, height) })
+      ])
+      .then(
+         () => showStatus('copied', '✓ done'),
+         showError
+      )
+      .catch(showError);
+   } catch (error) {
+      showError(error);
+      return null;
+   }
 
 }
 

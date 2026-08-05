@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { checkCoords, downloadPNG, getcolmap, normalizeLineType } from '../src/methods.js';
+import { checkCoords, copyToClipboard, downloadPNG, getcolmap, normalizeLineType } from '../src/methods.js';
 
 
 test('loads public JavaScript exports through the package export map', async () => {
@@ -125,4 +125,36 @@ test('rejects non-finite PNG export settings before accessing the DOM', () => {
       'Parameter "height" must be a finite number between 1 and 30 (cm).',
       'Parameter "res" must be a finite number between 50 and 1200 (ppi).'
    ]);
+});
+
+
+test('handles an unavailable Clipboard API without throwing', () => {
+   const messages = [];
+   const classes = new Set();
+   const button = {
+      textContent: 'Copy',
+      classList: {
+         add: value => classes.add(value),
+         remove: value => classes.delete(value)
+      }
+   };
+   const originalConsoleError = console.error;
+   const originalSetTimeout = globalThis.setTimeout;
+   console.error = error => messages.push(error);
+   globalThis.setTimeout = callback => {
+      callback();
+      return 0;
+   };
+
+   try {
+      assert.equal(copyToClipboard(button, null, 1200, 800), null);
+   } finally {
+      console.error = originalConsoleError;
+      globalThis.setTimeout = originalSetTimeout;
+   }
+
+   assert.equal(messages.length, 1);
+   assert.match(messages[0].message, /not supported/);
+   assert.equal(button.textContent, 'Copy');
+   assert.equal(classes.size, 0);
 });
