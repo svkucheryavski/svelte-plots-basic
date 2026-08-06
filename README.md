@@ -2,7 +2,7 @@
 
 `svelte-plots-basic` is a [Svelte](https://svelte.dev) component library for making simple responsive 2D and 3D plots/charts. The plots are created by generating [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) inside HTML document.
 
-One can think of this library as "Lego" bricks for plots. It has two groups of components: for 2D and for 3D plots. The 2D components are more developed while 3D components remain quite basic. In addition to `svelte`, the package has one direct dependence, [mdatools-js](https://github.com/svkucheryavski/mdatools-js) library, which is used for vector/matrix operations, statistics, and other manipulations with data values.
+One can think of this library as "Lego" bricks for plots. It has two groups of components: for 2D and for 3D plots. The 2D components are more developed while 3D components remain quite basic. In addition to `svelte`, the package requires the [mdatools-js](https://github.com/svkucheryavski/mdatools-js) library as a peer dependency. It is used for vector/matrix operations, statistics, and other manipulations with data values.
 
 
 ## Showcase
@@ -14,6 +14,14 @@ These websites and web-applications use `svelte-plots-basic` library:
 * [mda.tools/pca/](https://mda.tools/pca/) — interactive web-app for Principal Component Analysis method.
 
 ## News
+
+### 4.0.0
+
+* Added horizontal legend layout and improved legend sizing and alignment.
+* Improved PNG/SVG export reliability, export-dialog accessibility, and clipboard handling.
+* Strengthened validation, automatic axis ticks, marker rendering, and component cleanup.
+* Made subscripts, superscripts, and tick-factor labels consistent across modern browsers.
+* Updated to `mdatools ^1.5.0`, now declared as a peer dependency to prevent incompatible duplicate instances.
 
 ### 3.4.0
 
