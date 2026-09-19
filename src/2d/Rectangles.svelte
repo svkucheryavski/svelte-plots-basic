@@ -104,7 +104,7 @@
    <!-- svelte-ignore a11y_no_static_element_interactions -->
    <g class="series {className}"  style={barsStyleStr} onclick={(e) => handleClick(e, 'rect', onclick)} >
    {#each left as v, i}
-      <rect x={rx[i]} y={ry[i]} width={rw[i]} height={rh[i]} />
+      <rect x={rx[i]} y={ry[i]} width={Math.abs(rw[i])} height={rh[i]} />
    {/each}
    </g>
 {/if}
