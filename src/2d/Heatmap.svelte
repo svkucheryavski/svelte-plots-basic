@@ -149,6 +149,12 @@
    let t = $derived(v ? seq(v.nrows) : null);
    let lt = $derived(l && t ? expandgrid(t, l) : null);
 
+   // get axes context, on reversed axes the edge drawn on the left is the larger x value
+   // and the edge drawn on top is the smaller y value
+   const axes = getContext('axes');
+   const dirX = $derived(Math.sign(axes.tX().objects[0]) || 1);
+   const dirY = $derived(Math.sign(axes.tY().objects[0]) || 1);
+
    // compute world coordinates of the elements for each interval in world coordinates
    let wc = $derived.by( () => {
       if (!lt || !lb || !lc) return null;
@@ -173,8 +179,8 @@
          const i = findInterval(vj, llb);
          if (i === -1) continue;
 
-         rl[i].push(left.v[j] - 0.5);
-         rt[i].push(v.nrows - top.v[j] + 1.5);
+         rl[i].push(dirX > 0 ? left.v[j] - 0.5 : left.v[j] + 0.5);
+         rt[i].push(dirY > 0 ? v.nrows - top.v[j] + 1.5 : v.nrows - top.v[j] + 0.5);
          rr[i].push(top.v[j]);
          rc[i].push(left.v[j]);
       };
@@ -182,8 +188,7 @@
    });
 
 
-   // get axes context and compute screen coordinates
-   const axes = getContext('axes');
+   // compute screen coordinates
    let rx = $derived(wc ? wc.rl.map(v => v.length >  0 ? transformCoords(v, axes.tX()) : []) : null);
    let ry = $derived(wc ? wc.rt.map(v => v.length >  0 ? transformCoords(v, axes.tY()) : []) : null);
    let rw = $derived(transformObjects([1], axes.tX()));
@@ -219,7 +224,7 @@
       {#if rx[i].length > 0}
          <!-- loop over elements which fall into the interval -->
          {#each rx[i] as v, j}
-            <rect x={rx[i][j]} y={ry[i][j]} width={rw} height={rh} data-row={wc.rr[i][j]} data-col={wc.rc[i][j]}/>
+            <rect x={rx[i][j]} y={ry[i][j]} width={Math.abs(rw[0])} height={Math.abs(rh[0])} data-row={wc.rr[i][j]} data-col={wc.rc[i][j]}/>
          {/each}
       {/if}
       </g>
