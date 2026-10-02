@@ -27,6 +27,7 @@
    ```
 -->
 <script>
+   import { getContext } from 'svelte';
    import { Vector } from 'mdatools/arrays';
    import { Colors } from '../constants';
    import { checkCoords } from '../methods';
@@ -74,6 +75,10 @@
       return {provided: true, value};
    });
 
+   // get axes context, on reversed x-axis the edge drawn on the left is the larger value
+   const axes = getContext('axes');
+   const dir = $derived(Math.sign(axes.tX().objects[0]) || 1);
+
    const x = $derived.by(() => {
       if (bw === null || exactWidth === null) return null;
       const xv = checkCoords(xValues, 'BarSeries');
@@ -100,7 +105,7 @@
       const left = Vector.zeros(n);
       const width = Vector.zeros(n);
       for (let i = 0; i < n; i++) {
-         left.v[i] = xv.v[i] - whalf;
+         left.v[i] = xv.v[i] - dir * whalf;
          width.v[i] = w;
       }
 
