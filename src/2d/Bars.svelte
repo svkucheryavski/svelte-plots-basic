@@ -79,6 +79,9 @@
    const axes = getContext('axes');
    const dir = $derived(Math.sign(axes.tX().objects[0]) || 1);
 
+   // on reversed y-axis the edge drawn on top is the smaller value
+   const dirY = $derived(Math.sign(axes.tY().objects[0]) || 1);
+
    const x = $derived.by(() => {
       if (bw === null || exactWidth === null) return null;
       const xv = checkCoords(xValues, 'BarSeries');
@@ -127,7 +130,7 @@
 
       for (let i = 0; i < n; i++) {
          const v = yv.v[i];
-         top.v[i] = (v > 0 ? v : 0);
+         top.v[i] = dirY > 0 ? (v > 0 ? v : 0) : (v < 0 ? v : 0);
          height.v[i] = Math.abs(v);
       }
 

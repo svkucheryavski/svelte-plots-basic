@@ -12,6 +12,9 @@
    - `className` - CSS class name for the rectangles group, default: `'series-rect'`.
    - `onclick` - function (callback) to be called when user clicks on any rectangle.
 
+   Width and height are always non-negative and rectangles extend from `left` to the right and
+   from `top` downwards on screen. So on a reversed x-axis `left` must be the larger value of the
+   two sides, and on a reversed y-axis `top` must be the smaller one.
 
    Example:
    ```svelte
@@ -104,7 +107,7 @@
    <!-- svelte-ignore a11y_no_static_element_interactions -->
    <g class="series {className}"  style={barsStyleStr} onclick={(e) => handleClick(e, 'rect', onclick)} >
    {#each left as v, i}
-      <rect x={rx[i]} y={ry[i]} width={Math.abs(rw[i])} height={rh[i]} />
+      <rect x={rx[i]} y={ry[i]} width={Math.abs(rw[i])} height={Math.abs(rh[i])} />
    {/each}
    </g>
 {/if}
