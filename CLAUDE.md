@@ -32,9 +32,13 @@ The repository owner prefers changes to be handled one issue at a time. Before c
 
 Do not combine unapproved cleanup or refactoring with an approved fix.
 
-## Current Handoff (version 4.1.2)
+## Current Handoff (version 4.1.2, released)
 
-Version 4.1.2 is committed as `prepare 4.1.2 release` and tagged `4.1.2`. The owner runs `git push` and `npm publish`; confirm with `npm view svelte-plots-basic dist-tags`. 4.1.1 (`a88cba3`) was published to npm before it was tagged; the `4.1.1` tag was added afterwards, and the published tarball was verified to be identical to that commit.
+Version 4.1.2 is committed as `84c7515`, tagged, and published to npm under the `latest` dist-tag (confirmed with `npm view` on 2026-10-02). The push of `main` and the tags was handed to the owner and could not be verified from the sandbox. 4.1.1 (`a88cba3`) was published to npm before it was tagged; the `4.1.1` tag was added afterwards, and the published tarball was verified to be identical to that commit. The working tree is clean and no library work is pending.
+
+Follow-up outside this repository: mdatools-apps still has 4.1.1 installed. Running `npm update svelte-plots-basic` from its root picks up 4.1.2 within its existing `^4.1.1` range; no visible change is expected there, since none of its plots use these components on reversed axes.
+
+`package-lock.json` still records version 4.0.0; it was not bumped for 4.1.0, 4.1.1 or 4.1.2 and does not affect the published package. Left as is unless the owner asks.
 
 ### Changelog layout
 
