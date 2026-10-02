@@ -2,6 +2,17 @@
 
 This file contains the full release history of `svelte-plots-basic`. The [README](README.md) shows only the most recent releases.
 
+## 4.1.2
+
+* Fixed `Bars` on a reversed x-axis: bars are now centred on their x-values. In 4.1.1 they were drawn shifted by one bar width.
+* Fixed `Bars` and `Rectangles` on a reversed y-axis, where they were not shown.
+* Fixed `Heatmap` on a reversed x- or y-axis, where its cells were not shown.
+* Documented how `Rectangles` positions are interpreted on reversed axes: `left` and `top` are the sides drawn on the left and on top of the plot, so on a reversed x-axis `left` is the larger x-value and on a reversed y-axis `top` is the smaller y-value. Output on axes that are not reversed is unchanged.
+
+## 4.1.1
+
+* Fixed `Rectangles` on a reversed x-axis, where they were not shown. The rectangle width is now always positive and rectangles extend to the right of `left` on screen.
+
 ## 4.1.0
 
 * Added a `svelte` export condition to every entry point, so bundlers recognize the package as a Svelte library. This matters when `prebundleSvelteLibraries` is disabled, where the components must be excluded from dependency pre-bundling.

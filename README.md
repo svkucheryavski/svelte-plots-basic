@@ -15,6 +15,17 @@ These websites and web-applications use `svelte-plots-basic` library:
 
 ## News
 
+### 4.1.2
+
+* Fixed `Bars` on a reversed x-axis: bars are now centred on their x-values. In 4.1.1 they were drawn shifted by one bar width.
+* Fixed `Bars` and `Rectangles` on a reversed y-axis, where they were not shown.
+* Fixed `Heatmap` on a reversed x- or y-axis, where its cells were not shown.
+* Documented how `Rectangles` positions are interpreted on reversed axes: `left` and `top` are the sides drawn on the left and on top of the plot, so on a reversed x-axis `left` is the larger x-value and on a reversed y-axis `top` is the smaller y-value. Output on axes that are not reversed is unchanged.
+
+### 4.1.1
+
+* Fixed `Rectangles` on a reversed x-axis, where they were not shown. The rectangle width is now always positive and rectangles extend to the right of `left` on screen.
+
 ### 4.1.0
 
 * Added a `svelte` export condition to every entry point, so bundlers recognize the package as a Svelte library. This matters when `prebundleSvelteLibraries` is disabled, where the components must be excluded from dependency pre-bundling.
@@ -27,30 +38,6 @@ These websites and web-applications use `svelte-plots-basic` library:
 * Strengthened validation, automatic axis ticks, marker rendering, and component cleanup.
 * Made subscripts, superscripts, and tick-factor labels consistent across modern browsers.
 * Updated to `mdatools ^1.5.0`, now declared as a peer dependency to prevent incompatible duplicate instances.
-
-### 3.4.0
-
-* Added the `plotActions` property to `Axes` for adding custom buttons to the download panel.
-* Added advanced validation for axis limits, text-label positions, heatmap breaks, and custom plot actions.
-* Fixed text-label positioning and rotation when individual positions are provided.
-* Fixed heatmaps with automatic, custom, or constant-value breaks.
-* Added support for rectangular and constant-height 3D meshes.
-* Improved PNG, SVG, and clipboard export by serializing a clone instead of modifying the visible plot.
-* Fixed the advanced PNG export dialog so a default resolution is always selected, falling back to 300 dpi when necessary.
-* Prevented plot controls from submitting an enclosing HTML form.
-* Added package validation before publishing and synchronized Svelte 5 peer-dependency metadata.
-* Fixed conditionally rendered axes, boxes, and legends so their parent state is cleared when they are removed.
-* Improved heatmap interval processing and added automatically generated colormaps with more than 16 colors.
-* Fixed `TextLegend` positioning at zero and strengthened finite-range validation for 3D axes.
-* Reduced reactive and repeated allocation overhead for axis configuration, text measurement, PNG export, and colormap generation.
-* Added dependency-free regression tests and made them run automatically before packaging.
-* Documented the trust requirements for labels rendered as SVG/HTML markup.
-
-### 3.3.0
-
-* Added advanced "save as PNG" option where user can select size and resolution of the image as well as change the filename.
-* several small improvements and bug fixes.
-
 
 Notes for earlier releases, including the list of breaking changes introduced in 3.0.0 when the library was re-written using Svelte 5, are available in the [full release notes](https://github.com/svkucheryavski/svelte-plots-basic/blob/main/NEWS.md).
 

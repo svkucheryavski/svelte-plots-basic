@@ -32,13 +32,28 @@ The repository owner prefers changes to be handled one issue at a time. Before c
 
 Do not combine unapproved cleanup or refactoring with an approved fix.
 
-## Current Handoff (version 4.1.0, released)
+## Current Handoff (version 4.1.2)
 
-Version 4.1.0 is committed as `37fbed8`, tagged, and published to npm under the `latest` dist-tag. The working tree is clean and no work is pending.
+Version 4.1.2 is committed as `prepare 4.1.2 release` and tagged `4.1.2`. The owner runs `git push` and `npm publish`; confirm with `npm view svelte-plots-basic dist-tags`. 4.1.1 (`a88cba3`) was published to npm before it was tagged; the `4.1.1` tag was added afterwards, and the published tarball was verified to be identical to that commit.
 
 ### Changelog layout
 
 `NEWS.md` holds the full release history and is the authoritative user-facing summary. The `README.md` News section carries only the four most recent releases and ends with a link to `NEWS.md`, so a new release has to be written in both files. That link is an absolute GitHub URL rather than a relative path, because a relative link would 404 when the README is rendered on npmjs.com. `NEWS.md` is listed in the `files` array so it also ships inside the npm tarball.
+
+### What 4.1.1 and 4.1.2 changed
+
+Both are bug-fix releases for reversed axes (`limX[0] > limX[1]` or `limY[0] > limY[1]`), which SVG cannot draw with negative `width`/`height`.
+
+- 4.1.1 (`2a12d5c`): `Rectangles` draws `width={Math.abs(rw[i])}`, so rectangles show on a reversed x-axis. This made reversed-x `Bars` visible but shifted by one bar width.
+- 4.1.2, `Bars` on reversed x (`831212f`): the left edge is `x - dir * w/2`.
+- 4.1.2, `Bars`/`Rectangles` on reversed y (`20faaab`): `Rectangles` uses `Math.abs` for height too, and `Bars` passes `top = min(y, 0)` instead of `max(y, 0)` on a reversed y-axis.
+- 4.1.2, `Heatmap` on reversed axes (`0562a50`): cells are anchored on the edge drawn on the left/top and sizes are made positive. Heatmaps were fully invisible on any reversed axis before.
+
+The direction is read as `Math.sign(axes.tX().objects[0]) || 1` (and the same for `tY`); before `Axes` is ready the scale is `1` or `0`, which falls back to `1`. On non-reversed axes every changed expression takes the original branch, so output is identical to before.
+
+How these were verified: each change was rendered in jsdom against the previous commit, comparing full SVG output on ascending axes (identical) and cell/bar geometry on reversed ones (correct), plus every `Rectangles`, `Bars` and `Heatmap` call site in mdatools-apps. Three independent reviewers and Codex approved each change. Components can be mounted in Node by compiling `.svelte` files in a `module.register()` load hook with `svelte/compiler`, adding a resolve fallback that appends `.js` (the library uses extensionless relative imports), running with `--conditions=browser --conditions=production`, and stubbing `clientWidth`/`clientHeight`, `ResizeObserver` and the canvas `getContext` used for text measurement. That harness was kept out of the repository, consistent with keeping `tests/` dependency-free.
+
+Not changed: mdatools-apps' `PlotFoMHeatmap` overlays and `PlotSeries` bars compute their own geometry and assume ascending axes; neither currently uses a reversed axis.
 
 ### What 4.1.0 changed
 
@@ -126,3 +141,4 @@ All child components call `getContext('axes')` to access this shared state. Comp
 - **Props accept both arrays and mdatools Vector/Matrix objects** — validated via `checkArray()`/`checkCoords()` in `methods.js`
 - **Text rendering:** `text2svg()` converts strings with `_subscript` and `^superscript` notation into SVG tspan elements
 - **Marker symbols:** 8 predefined Unicode markers in `MARKER_SYMBOLS` constant, referenced by 1-based index
+- **Reversed axes:** swapping the limits reverses an axis. Rectangle-like elements are drawn with non-negative SVG sizes from the edge drawn on the left/top, so on a reversed x-axis `Rectangles` `left` is the larger x-value and on a reversed y-axis `top` is the smaller y-value. Components that compute their own edges (`Bars`, `Heatmap`) choose them from the sign of `axes.tX().objects[0]` / `axes.tY().objects[0]`. Changing this convention in `Rectangles` would break mdatools-apps, which relies on it.
